@@ -11,4 +11,4 @@ python TrainingAnomalyDetector_public.py --features_path "path-to-dataset" --ann
 ## Generate ROC curve
 python generate_ROC.py --features_path "path-to-dataset" --annotation_path "path-to-annos"
 
-![ROC](graphs\roc_auc.png)
+![ROC](graphs/roc_auc.png)
