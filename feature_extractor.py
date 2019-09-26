@@ -174,7 +174,7 @@ def main():
     train_loader = VideoIterTrain(dataset_path=args.dataset_path,
                                   annotation_path=args.annotation_path,
                                   clip_length=args.clip_length,
-                                  frame_interval=args.train_frame_interval,
+                                  frame_stride=args.train_frame_interval,
                                   video_transform=transforms.Compose([
                                       transforms.Resize((256, 256)),
                                       transforms.RandomCrop((224, 224)),
@@ -194,7 +194,7 @@ def main():
     val_loader = VideoIterTrain(dataset_path=args.dataset_path,
                                 annotation_path=args.annotation_path_test,
                                 clip_length=args.clip_length,
-                                frame_interval=args.val_frame_interval,
+                                frame_stride=args.val_frame_interval,
                                 video_transform=transforms.Compose([
                                     transforms.Resize((256, 256)),
                                     transforms.RandomCrop((224, 224)),
@@ -220,10 +220,8 @@ def main():
     features_writer = FeaturesWriter()
 
     for i_batch, (data, target, sampled_idx, dirs, vid_names) in tqdm(enumerate(train_iter)):
-        data = data.to(device)
         with torch.no_grad():
-            input_var = torch.autograd.Variable(data)
-            outputs = network(input_var)
+            outputs = network(data.cuda())
 
             for i, (dir, vid_name, start_frame) in enumerate(zip(dirs, vid_names, sampled_idx.cpu().numpy())):
                 dir = path.join(features_dir, dir)
@@ -233,10 +231,8 @@ def main():
 
     features_writer = FeaturesWriter()
     for i_batch, (data, target, sampled_idx, dirs, vid_names) in tqdm(enumerate(val_iter)):
-        data = data.to(device)
         with torch.no_grad():
-            input_var = torch.autograd.Variable(data)
-            outputs = network(input_var)
+            outputs = network(data.cuda())
 
             for i, (dir, vid_name, start_frame) in enumerate(zip(dirs, vid_names, sampled_idx.cpu().numpy())):
                 dir = path.join(features_dir, dir)

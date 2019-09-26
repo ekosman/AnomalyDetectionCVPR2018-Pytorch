@@ -5,6 +5,8 @@ import numpy as np
 import torch.utils.data as data
 import logging
 import torch
+from torchvision.datasets.video_utils import VideoClips
+
 import video_sampler as sampler
 
 
@@ -123,69 +125,45 @@ class VideoIterTrain(data.Dataset):
                  dataset_path,
                  annotation_path,
                  clip_length,
-                 frame_interval,
+                 frame_stride,
                  video_transform=None,
                  name="<NO_NAME>",
                  return_item_subpath=False,
                  shuffle_list_seed=None):
         super(VideoIterTrain, self).__init__()
         # load params
-        """
-        self.sampler = sampler.SequentialSampling(num=clip_length,
-                                               interval=frame_interval,
-                                               fix_cursor=True,
-                                               shuffle=False)
-        """
-        seed = 0
-        self.sampler = sampler.RandomSampling(num=clip_length,
-                                              interval=1,
-                                              speed=[1.0, 1.0],
-                                              seed=(seed + 0))
 
         self.force_color = True
         self.dataset_path = dataset_path
+        self.frames_stride = frame_stride
         self.video_transform = video_transform
         self.return_item_subpath = return_item_subpath
         self.rng = np.random.RandomState(shuffle_list_seed if shuffle_list_seed else 0)
         # load video list
         self.video_list = self._get_video_list(dataset_path=self.dataset_path, annotation_path=annotation_path)
-        if shuffle_list_seed is not None:
-            self.rng.shuffle(self.video_list)
+        self.total_clip_length_in_frames = clip_length * frame_stride
+        self.video_clips = VideoClips(video_paths=self.video_list,
+                                      clip_length_in_frames=self.total_clip_length_in_frames,
+                                      frames_between_clips=self.total_clip_length_in_frames)
         logging.info("VideoIter:: iterator initialized (phase: '{:s}', num: {:d})".format(name, len(self.video_list)))
 
-    """    
-    def count_frames(self,path):
-        
-        cap = cv2.VideoCapture(path)
-        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-
-        return frame_count#length
-    """
-
-    def getitem_from_raw_video(self, index):
+    def getitem_from_raw_video(self, idx):
         # get current video info
-        # v_id, label, vid_subpath, frame_count = self.video_list[index]
-        v_id, vid_subpath, index2startsample = self.video_list[index]
-        # del self.video_list[index]
-        sampled_idxs = list(range(index2startsample, index2startsample + 16))
+        video, _, _, _ = self.video_clips.get_clip(idx)
+        video_idx, clip_idx = self.video_clips.get_clip_location(idx)
+        video_path = self.video_clips.video_paths[video_idx]
+        if self.video_transform is not None:
+            video = self.video_transform(video)
 
-        video_path = vid_subpath
-        with Video(vid_path=video_path) as video:
-
-            sampled_frames = video.extract_frames(idxs=sampled_idxs, force_color=self.force_color)
-
-            clip_input = np.concatenate(sampled_frames, axis=2)
-            if self.video_transform is not None:
-                clip_input = self.video_transform(clip_input)
-
-        if "Normal" not in vid_subpath:
+        if "Normal" not in video_path:
             label = 1
         else:
             label = 0
 
-        dir, file = vid_subpath.split(os.sep)[-2:]
+        dir, file = video_path.split(os.sep)[-2:]
         file = file.split('.')[0]
-        return clip_input, label, sampled_idxs[0], dir, file
+        in_clip_frames = list(range(0, self.total_clip_length_in_frames, self.frames_stride))
+        return video[in_clip_frames], label, clip_idx, dir, file
 
     def __getitem__(self, index):
         succ = False
@@ -206,18 +184,13 @@ class VideoIterTrain(data.Dataset):
 
         assert os.path.exists(dataset_path)  # , "VideoIter:: failed to locate: `{}'".format(dataset_path)
         assert os.path.exists(annotation_path)  # , "VideoIter:: failed to locate: `{}'".format(annotation_path)
-        v_id = 0
         vid_list = []
         with open(annotation_path, 'r') as f:
             for line in f:
                 items = line.split()
 
                 path = os.path.join(dataset_path, items[0])
-                clip = list(range(0, int(items[1]), 16))
-                for c in range(len(clip) - 2):
-                    vid_list.append((v_id, path.strip('\n'), clip[c]))
-
-                v_id = v_id + 1
+                vid_list.append(path.strip('\n'))
         return set(vid_list)
 
 
@@ -227,59 +200,43 @@ class VideoIterVal(data.Dataset):
                  dataset_path,
                  annotation_path,
                  clip_length,
-                 frame_interval,
+                 frame_stride,
                  video_transform=None,
                  name="<NO_NAME>",
                  return_item_subpath=False,
                  shuffle_list_seed=None):
         super(VideoIterVal, self).__init__()
         # load params
-        self.sampler = sampler.SequentialSampling(num=clip_length,
-                                                  interval=1,
-                                                  fix_cursor=True,
-                                                  shuffle=False)
-        self.force_color = True
+        self.frames_stride = frame_stride
         self.dataset_path = dataset_path
         self.video_transform = video_transform
         self.return_item_subpath = return_item_subpath
         self.rng = np.random.RandomState(shuffle_list_seed if shuffle_list_seed else 0)
         # load video list
         self.video_list = self._get_video_list(dataset_path=self.dataset_path, annotation_path=annotation_path)
-        if shuffle_list_seed is not None:
-            self.rng.shuffle(self.video_list)
+        self.total_clip_length_in_frames = clip_length * frame_stride
+        self.video_clips = VideoClips(video_paths=self.video_list,
+                                      clip_length_in_frames=self.total_clip_length_in_frames,
+                                      frames_between_clips=self.total_clip_length_in_frames)
         logging.info("VideoIter:: iterator initialized (phase: '{:s}', num: {:d})".format(name, len(self.video_list)))
 
-    """    
-    def count_frames(self,path):
-        
-        cap = cv2.VideoCapture(path)
-        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-
-        return frame_count#length
-    """
-
-    def getitem_from_raw_video(self, index):
+    def getitem_from_raw_video(self, idx):
         # get current video info
-        # v_id, label, vid_subpath, frame_count = self.video_list[index]
-        v_id, vid_subpath, index2startsample, start_end_couples = self.video_list[index]
-        # del self.video_list[index]
-        sampled_idxs = list(range(index2startsample, index2startsample + 16))
+        video, _, _, _ = self.video_clips.get_clip(idx)
+        video_idx, clip_idx = self.video_clips.get_clip_location(idx)
+        video_path = self.video_clips.video_paths[video_idx]
+        if self.video_transform is not None:
+            video = self.video_transform(video)
 
-        video_path = vid_subpath
-        with Video(vid_path=video_path) as video:
-            sampled_frames = video.extract_frames(idxs=sampled_idxs, force_color=self.force_color)
-            clip_input = np.concatenate(sampled_frames, axis=2)
-            if self.video_transform is not None:
-                clip_input = self.video_transform(clip_input)
-
-        if "Normal" not in vid_subpath:
+        if "Normal" not in video_path:
             label = 1
         else:
             label = 0
 
-        dir, file = vid_subpath.split(os.sep)[-2:]
+        dir, file = video_path.split(os.sep)[-2:]
         file = file.split('.')[0]
-        return clip_input, label, sampled_idxs[0], dir, file
+        in_clip_frames = list(range(0, self.total_clip_length_in_frames, self.frames_stride))
+        return video[in_clip_frames], label, clip_idx, dir, file
 
     def __getitem__(self, index):
         succ = False
@@ -297,22 +254,13 @@ class VideoIterVal(data.Dataset):
         return len(self.video_list)
 
     def _get_video_list(self, dataset_path, annotation_path):
-
         assert os.path.exists(dataset_path)  # , "VideoIter:: failed to locate: `{}'".format(dataset_path)
         assert os.path.exists(annotation_path)  # , "VideoIter:: failed to locate: `{}'".format(annotation_path)
         v_id = 0
         vid_list = []
         with open(annotation_path, 'r') as f:
             for line in f:
-                start_end_couples = []
                 items = line.split()
-                start_end_couples.append((items[3], items[4]))
-                if items[5] != -1:
-                    start_end_couples.append((items[5], items[6]))
                 path = os.path.join(dataset_path, items[0])
-                clip = list(range(0, int(items[1]), 16))
-                for c in range(len(clip) - 2):
-                    vid_list.append((v_id, path.strip('\n'), clip[c], start_end_couples))
-
-                v_id = v_id + 1
+                vid_list.append(path.strip('\n'))
         return vid_list
