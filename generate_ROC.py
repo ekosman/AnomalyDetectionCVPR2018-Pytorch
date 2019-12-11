@@ -19,7 +19,7 @@ import numpy as np
 parser = argparse.ArgumentParser(description="PyTorch Video Classification Parser")
 parser.add_argument('--features_path', default='out',
                     help="path to features")
-parser.add_argument('--annotation_path', default="Unique_Test_Annotation.txt",
+parser.add_argument('--annotation_path', default="Test_Annotation.txt",
                     help="path to annotations")
 parser.add_argument('--random-seed', type=int, default=1,
                     help='random seed (default: 1)')
