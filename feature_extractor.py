@@ -11,6 +11,7 @@ from tqdm import tqdm
 import video_transforms as transforms
 from c3d import C3D
 from data_loader import VideoIterTrain
+from utils.utils import set_logger, build_transforms
 
 parser = argparse.ArgumentParser(description="PyTorch Video Classification Parser")
 # debug
@@ -141,21 +142,6 @@ def read_features(video_name, dir):
     return torch.from_numpy(features)
 
 
-def set_logger(log_file='', debug_mode=False):
-    if log_file:
-        if not os.path.exists("./" + os.path.dirname(log_file)):
-            os.makedirs("./" + os.path.dirname(log_file))
-        handlers = [logging.FileHandler(log_file), logging.StreamHandler()]
-    else:
-        handlers = [logging.StreamHandler()]
-
-    """ add '%(filename)s:%(lineno)d %(levelname)s:' to format show source file """
-    logging.basicConfig(level=logging.DEBUG if debug_mode else logging.INFO,
-                        format='%(asctime)s: %(message)s',
-                        datefmt='%Y-%m-%d %H:%M:%S',
-                        handlers=handlers)
-
-
 def main():
     device = torch.device("cuda" if torch.cuda.is_available()
                           else "cpu")
@@ -167,20 +153,11 @@ def main():
     torch.cuda.manual_seed(args.random_seed)
     cudnn.benchmark = True
 
-    mean = [124 / 255, 117 / 255, 104 / 255]
-    std = [1 / (.0167 * 255)] * 3
-    normalize = transforms.Normalize(mean=mean, std=std)
-
     train_loader = VideoIterTrain(dataset_path=args.dataset_path,
                                   annotation_path=args.annotation_path,
                                   clip_length=args.clip_length,
                                   frame_stride=args.train_frame_interval,
-                                  video_transform=transforms.Compose([
-                                      transforms.Resize((256, 256)),
-                                      transforms.RandomCrop((224, 224)),
-                                      transforms.ToTensor(),
-                                      normalize,
-                                  ]),
+                                  video_transform=build_transforms(),
                                   name='train',
                                   return_item_subpath=False,
                                   )
@@ -195,12 +172,7 @@ def main():
                                 annotation_path=args.annotation_path_test,
                                 clip_length=args.clip_length,
                                 frame_stride=args.val_frame_interval,
-                                video_transform=transforms.Compose([
-                                    transforms.Resize((256, 256)),
-                                    transforms.RandomCrop((224, 224)),
-                                    transforms.ToTensor(),
-                                    normalize,
-                                ]),
+                                video_transform=build_transforms(),
                                 name='val',
                                 return_item_subpath=False,
                                 )

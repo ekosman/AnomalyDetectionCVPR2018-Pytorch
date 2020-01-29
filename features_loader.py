@@ -1,15 +1,11 @@
-import argparse
 import logging
 import os
-from os import path, mkdir
 import random
+from os import path
 import numpy as np
 import torch
-import torch.backends.cudnn as cudnn
 from torch.utils import data
-
-import video_transforms as transforms
-from feature_extractor import read_features, set_logger
+from feature_extractor import read_features
 
 
 class FeaturesLoader(data.Dataset):

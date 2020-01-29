@@ -10,6 +10,7 @@ from anomaly_detector_model import AnomalyDetector, custom_objective, Regularize
 from features_loader import FeaturesLoader
 from lr_scheduler import MultiFactorScheduler
 from model import model
+from utils.utils import set_logger
 
 parser = argparse.ArgumentParser(description="PyTorch Video Classification Parser")
 # debug
@@ -64,30 +65,6 @@ parser.add_argument('--random-seed', type=int, default=1,
 
 if not path.exists('models32'):
     os.mkdir('models32')
-
-
-def set_logger(log_file='', debug_mode=False):
-    if log_file:
-        if not os.path.exists("./" + os.path.dirname(log_file)):
-            os.makedirs("./" + os.path.dirname(log_file))
-        handlers = [logging.FileHandler(log_file), logging.StreamHandler()]
-    else:
-        handlers = [logging.StreamHandler()]
-
-    """ add '%(filename)s:%(lineno)d %(levelname)s:' to format show source file """
-    logging.basicConfig(level=logging.DEBUG if debug_mode else logging.INFO,
-                        format='%(asctime)s: %(message)s',
-                        datefmt='%Y-%m-%d %H:%M:%S',
-                        handlers=handlers)
-
-
-def adjust_learning_rate(lr, optimizer):
-    for param_group in optimizer.param_groups:
-        if 'lr_mult' in param_group:
-            lr_mult = param_group['lr_mult']
-        else:
-            lr_mult = 1.0
-        param_group['lr'] = lr * lr_mult
 
 
 if __name__ == "__main__":
