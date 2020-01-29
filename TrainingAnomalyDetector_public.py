@@ -1,15 +1,14 @@
 import argparse
-import logging
 import os
 from os import path
 import torch
 import torch.backends.cudnn as cudnn
 
-import metric
-from anomaly_detector_model import AnomalyDetector, custom_objective, RegularizedLoss
+from utils import metric
+from network.anomaly_detector_model import AnomalyDetector, custom_objective, RegularizedLoss
 from features_loader import FeaturesLoader
-from lr_scheduler import MultiFactorScheduler
-from model import model
+from utils.lr_scheduler import MultiFactorScheduler
+from network.model import model
 from utils.utils import set_logger
 
 parser = argparse.ArgumentParser(description="PyTorch Video Classification Parser")
@@ -130,7 +129,7 @@ if __name__ == "__main__":
                                         factor=args.lr_factor,
                                         step_counter=step_counter)
     # define evaluation metric
-    metrics = metric.MetricList(metric.Loss(name="loss-ce"),)
+    metrics = metric.MetricList(metric.Loss(name="loss-ce"), )
     # enable cudnn tune
     cudnn.benchmark = True
 

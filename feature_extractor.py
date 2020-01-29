@@ -1,5 +1,4 @@
 import argparse
-import logging
 import os
 from os import path, mkdir
 
@@ -8,8 +7,7 @@ import torch
 import torch.backends.cudnn as cudnn
 from tqdm import tqdm
 
-import video_transforms as transforms
-from c3d import C3D
+from network.c3d import C3D
 from data_loader import VideoIterTrain
 from utils.utils import set_logger, build_transforms
 

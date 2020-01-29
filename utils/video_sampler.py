@@ -31,9 +31,7 @@ class RandomSampling(object):
         frame_range = (self.num-1) * random_interval
         clip_start = int(self.rng.uniform(0, (range_max-1) - frame_range)/12)*12
         clip_start = self.rng.uniform(0, (range_max-1) - frame_range)
-       # print(clip_start)
         clip_end = clip_start + frame_range
-       # print(np.linspace(clip_start, clip_end, self.num).astype(dtype=np.int).tolist())
         return np.linspace(clip_start, clip_end, self.num).astype(dtype=np.int).tolist()
 
 

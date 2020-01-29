@@ -3,13 +3,11 @@ Author: Yunpeng Chen
 """
 import os
 import time
-import socket
 import logging
 
 import torch
 
-import metric
-import callback
+from utils import callback, metric
 
 """
 Static Model
