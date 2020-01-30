@@ -37,6 +37,8 @@ class VideoIterTrain(data.Dataset):
         video, _, _, _ = self.video_clips.get_clip(idx)
         video_idx, clip_idx = self.video_clips.get_clip_location(idx)
         video_path = self.video_clips.video_paths[video_idx]
+        in_clip_frames = list(range(0, self.total_clip_length_in_frames, self.frames_stride))
+        video = video[in_clip_frames]
         if self.video_transform is not None:
             video = self.video_transform(video)
 
@@ -47,8 +49,8 @@ class VideoIterTrain(data.Dataset):
 
         dir, file = video_path.split(os.sep)[-2:]
         file = file.split('.')[0]
-        in_clip_frames = list(range(0, self.total_clip_length_in_frames, self.frames_stride))
-        return video[in_clip_frames], label, clip_idx, dir, file
+
+        return video, label, clip_idx, dir, file
 
     def __getitem__(self, index):
         succ = False
