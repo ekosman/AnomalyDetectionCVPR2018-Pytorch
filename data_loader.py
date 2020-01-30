@@ -76,7 +76,7 @@ class VideoIterTrain(data.Dataset):
 
                 path = os.path.join(dataset_path, items[0])
                 vid_list.append(path.strip('\n'))
-        return set(vid_list)
+        return vid_list
 
 
 class VideoIterVal(data.Dataset):
