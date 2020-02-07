@@ -81,7 +81,7 @@ class FeaturesWriter:
         self.chunk_size = chunk_size
 
     def _init_video(self, video_name, dir):
-        self.path = path.join(dir, f"{video_name}.pickle")
+        self.path = path.join(dir, f"{video_name}.txt")
         self.dir = dir
         self.data = dict()
 
@@ -105,7 +105,7 @@ class FeaturesWriter:
                 fp.write(' '.join(d) + '\n')
 
     def _is_new_video(self, video_name, dir):
-        new_path = path.join(dir, f"{video_name}.pickle")
+        new_path = path.join(dir, f"{video_name}.txt")
         if self.path != new_path and self.path is not None:
             return True
 
