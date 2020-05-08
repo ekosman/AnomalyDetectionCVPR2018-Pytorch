@@ -22,7 +22,8 @@ def annotatate_file(path_list,dir_list,normal=True,file_name="Demo_anmotation"):
             start="-1"
             end="-1"
         else:
-            print("error this is not sorted yet")
+            print("error this is not sorted yet I will update this when it is working.")
+            print("If this is for use with video_demo.py plese set supplyed video at normal=True.")
 
         videoReader = cv2.VideoCapture(path)
         length = int(videoReader.get(cv2.CAP_PROP_FRAME_COUNT))
