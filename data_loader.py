@@ -79,7 +79,7 @@ class VideoIterTrain(data.Dataset):
         video, _, _, _ = self.video_clips.get_clip(idx)
         video_idx, clip_idx = self.video_clips.get_clip_location(idx)
         in_clip_frames = list(range(0, self.total_clip_length_in_frames, self.frames_stride))
-        video_path = self.video_clips.video_paths[idx]#video_idx
+        video_path = self.video_clips.video_paths[video_idx]
         print(idx)
         print(video_idx)
         print(video_path)
