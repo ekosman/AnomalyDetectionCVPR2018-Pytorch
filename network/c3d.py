@@ -1,3 +1,5 @@
+import itertools
+
 import torch
 import torch.nn as nn
 
@@ -40,33 +42,21 @@ class C3D(nn.Module):
             self.__load_pretrained_weights()
 
     def forward(self, x):
-
         x = self.relu(self.conv1(x))
         x = self.pool1(x)
-
         x = self.relu(self.conv2(x))
         x = self.pool2(x)
-
         x = self.relu(self.conv3a(x))
         x = self.relu(self.conv3b(x))
         x = self.pool3(x)
-
         x = self.relu(self.conv4a(x))
         x = self.relu(self.conv4b(x))
         x = self.pool4(x)
-
         x = self.relu(self.conv5a(x))
         x = self.relu(self.conv5b(x))
         x = self.pool5(x)
-        # print(x.shape)
         x = x.view(-1, 8192)
-        # print(x.shape)
         x = self.relu(self.fc6(x))
-        # x = self.dropout(x)
-        # x = self.relu(self.fc7(x))
-        # x = self.dropout(x)
-
-        # logits = self.fc8(x)
 
         return x
 
@@ -102,10 +92,12 @@ class C3D(nn.Module):
             "classifier.0.bias": "fc6.bias",
         }
 
+        ignored_weights = [f"{layer}.{type_}" for layer, type_ in itertools.product(['fc7', 'fc8'], ['bias', 'weight'])]
+
         p_dict = torch.load(self.pretrained)
         s_dict = self.state_dict()
         for name in p_dict:
-            if name not in corresp_name:
+            if name not in corresp_name and name not in ignored_weights:
                 print("no corresponding::", name)
                 continue
             s_dict[corresp_name[name]] = p_dict[name]
