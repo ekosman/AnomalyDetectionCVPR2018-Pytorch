@@ -25,3 +25,7 @@ https://drive.google.com/drive/folders/1rZn-UHM_EcIXauJ0wRysQbh0mHQoNrfY?usp=sha
 ```python generate_ROC.py --features_path "path-to-dataset" --annotation_path "path-to-annos"```
 
 ![ROC](graphs/roc_auc.png)
+
+## Demo 
+"video_demo.py --video_parth_list LIST_OF_VIDEO_PATHS --model_dir PATH_TO_MODLE "
+This should take any video and run the Anomaly Detection code (including CD3 feature extraction) and output a video with a graph of the Anomaly Detection prediction on the right-hand side (like in the demo code for the paper). It is all still a bit rough but it works and I do plan to add to it so I can always update later.
