@@ -22,6 +22,25 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 
+import argparse
+parser = argparse.ArgumentParser(description="Video demo maker")
+
+parser.add_argument('--video_parth_list', default=["/media/peter/Maxtor/UCF_Crimes/Videos/Fighting/Fighting039_x264.mp4","/media/peter/Maxtor/UCF_Crimes/Videos/Fighting/Fighting040_x264.mp4"],
+                    help="list of videos to be used for demo")
+parser.add_argument('--features_dir', default="./demo_video",
+                    help="path to dir where you want the featuers saved")
+parser.add_argument('--model_dir', default='/home/peter/Documents/actionID/AnomalyDetectionCVPR2018-Pytorch-master/short_60_low_mem/exps/model',
+                    help="path to the tarined AD model")
+
+
+args = parser.parse_args()
+
+video_parth_list = args.video_parth_list
+features_dir = args.features_dir
+model_dir = args.model_dir
+
+
+
 def figure2opencv(figure):
     figure.canvas.draw()
     img = np.fromstring(figure.canvas.tostring_rgb(), dtype=np.uint8, sep='')
@@ -232,24 +251,30 @@ def GUI(video_parth,y_pred,save="Just save",s_path="output_video"):
 if __name__ == '__main__':
     home=os.getcwd()
 
-    # make video file format
-    if "peter" in home:
-        video_parth = "/media/peter/Maxtor/UCF_Crimes/Videos/Fighting/Fighting047_x264.mp4"
-    else:
-        video_parth = "/home/barbara/Desktop/Fighting047_x264.mp4"
+    args = parser.parse_args()
+
+    video_parth_list=args.video_parth_list
+    features_dir=args.features_dir
+    model_dir=args.model_dir
+
+    # # make video file format
+    # if "peter" in home:
+    #     video_parth = "/media/peter/Maxtor/UCF_Crimes/Videos/Fighting/Fighting047_x264.mp4"
+    # else:
+    #     video_parth = "/home/barbara/Desktop/Fighting047_x264.mp4"
 
 
-    from os import listdir
-    from os.path import isfile, join
-    mypath="/media/peter/Maxtor/UCF_Crimes/Videos/Fighting"
-    #video_parth_list = [mypath+"/"+f for f in listdir(mypath) if isfile(join(mypath, f))]
-    #print("lenght "+str(len(video_parth_list)))
-    video_parth_list=["/media/peter/Maxtor/UCF_Crimes/Videos/Fighting/Fighting039_x264.mp4"]
+    # from os import listdir
+    # from os.path import isfile, join
+    # mypath="/media/peter/Maxtor/UCF_Crimes/Videos/Fighting"
+    # #video_parth_list = [mypath+"/"+f for f in listdir(mypath) if isfile(join(mypath, f))]
+    # #print("lenght "+str(len(video_parth_list)))
+    #video_parth_list=["/media/peter/Maxtor/UCF_Crimes/Videos/Fighting/Fighting039_x264.mp4"]
 
-    features_dir = r"./demo_video"
+    #features_dir = r"./demo_video"
 
     # defining pertrained modle of AD
-    model_dir = r'/home/peter/Documents/actionID/AnomalyDetectionCVPR2018-Pytorch-master/short_60_low_mem/exps/model'
+    #model_dir = r'/home/peter/Documents/actionID/AnomalyDetectionCVPR2018-Pytorch-master/short_60_low_mem/exps/model'
     # "/home/peter/Documents/actionID/AnomalyDetectionCVPR2018-Pytorch-master/AnomalyDetectionCVPR2018-Pytorch-master/short_60_low_mem/exps/model"
 
     device = torch.device("cuda" if torch.cuda.is_available()
@@ -267,5 +292,3 @@ if __name__ == '__main__':
         #    y_pred = pickle.load(f)
 
         GUI(video_parth, y_pred,save="Just save",s_path=features_dir+dir_list[0][0]+"/"+dir_list[0][1]+"_demoe")
-
-
