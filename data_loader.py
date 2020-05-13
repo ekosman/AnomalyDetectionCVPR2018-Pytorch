@@ -41,7 +41,7 @@ class VideoIter(data.Dataset):
         return vid_list
 
     def __len__(self):
-        return len(self.video_list)
+        return len(self.video_clips)
 
     def __getitem__(self, index):
         succ = False
