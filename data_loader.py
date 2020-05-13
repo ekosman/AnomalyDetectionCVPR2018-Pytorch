@@ -4,56 +4,71 @@ import numpy as np
 import torch.utils.data as data
 from torchvision.datasets.video_utils import VideoClips
 
+from tqdm import tqdm
+
 
 class VideoIter(data.Dataset):
     def __init__(self,
-                 dataset_path,
                  annotation_path,
                  clip_length,
                  frame_stride,
+                 dataset_path=None,
                  video_transform=None,
                  name="<NO_NAME>",
-                 shuffle_list_seed=None):
+                 shuffle_list_seed=None,
+                 single_load=False)
+        super(VideoIter, self).__init__()
         self.dataset_path = dataset_path
         self.frames_stride = frame_stride
         self.video_transform = video_transform
         self.rng = np.random.RandomState(shuffle_list_seed if shuffle_list_seed else 0)
+
         # load video list
-        self.video_list = self._get_video_list(dataset_path=self.dataset_path, annotation_path=annotation_path)
+        if dataset_path!=None:
+            self.video_list = self._get_video_list(dataset_path=self.dataset_path, annotation_path=annotation_path)
+
+        elif type(annotation_path)==list():
+            self.video_list = annotation_path
+        else:
+            self.video_list=[annotation_path]
+
         self.total_clip_length_in_frames = clip_length * frame_stride
-        self.video_clips = VideoClips(video_paths=self.video_list,
-                                      clip_length_in_frames=self.total_clip_length_in_frames,
-                                      frames_between_clips=self.total_clip_length_in_frames)
+
+        #size_list=[]
+        if single_load:
+            print("loading each file at a time")
+            self.video_clips = VideoClips(video_paths=[self.video_list[0]],
+                                          clip_length_in_frames=self.total_clip_length_in_frames,
+                                          frames_between_clips=self.total_clip_length_in_frames)
+            with tqdm(total=len(self.video_list[1:])+1,desc=' total % of videos loaded') as pbar1:
+                for video_list_used in self.video_list[1:]: #length of load?)
+                    #blockPrint()
+                    print(video_list_used)
+                    import os
+                    #print("size "+str(os.path.getsize(video_list_used)))
+                    #size_list.append(os.path.getsize(video_list_used))
+                    #print(max(size_list))
+                    pbar1.update(1)
+                    video_clips_out = VideoClips(video_paths=[video_list_used],
+                                                 clip_length_in_frames=self.total_clip_length_in_frames,
+                                                 frames_between_clips=self.total_clip_length_in_frames)
+                    # if video_list_used =="/media/peter/Maxtor/AD-pytorch/UCF_Crimes/Videos/Training_Normal_Videos_Anomaly/Normal_Videos547_x264.mp4":
+                    #     continue
+                    # #enablePrint()
+                    self.video_clips.clips.append(video_clips_out.clips[0])
+                    #print(self.video_clips.cumulative_sizes)
+                    self.video_clips.cumulative_sizes.append(self.video_clips.cumulative_sizes[-1]+video_clips_out.cumulative_sizes[0])
+                    self.video_clips.resampling_idxs.append(video_clips_out.resampling_idxs[0])
+                    self.video_clips.video_fps.append(video_clips_out.video_fps[0])
+                    self.video_clips.video_paths.append(video_clips_out.video_paths[0])
+                    self.video_clips.video_pts.append(video_clips_out.video_pts[0])
+        else:
+            print("single loader used")
+            self.video_clips = VideoClips(video_paths=self.video_list,
+                                          clip_length_in_frames=self.total_clip_length_in_frames,
+                                          frames_between_clips=self.total_clip_length_in_frames)
+
         logging.info("VideoIter:: iterator initialized (phase: '{:s}', num: {:d})".format(name, len(self.video_list)))
-
-    @staticmethod
-    def _get_video_list(dataset_path, annotation_path):
-        assert os.path.exists(dataset_path)  # , "VideoIter:: failed to locate: `{}'".format(dataset_path)
-        assert os.path.exists(annotation_path)  # , "VideoIter:: failed to locate: `{}'".format(annotation_path)
-        vid_list = None
-        with open(annotation_path, 'r') as f:
-            lines = f.read().splitlines(keepends=False)
-            vid_list = [os.path.join(dataset_path, line.split()[0]) for line in lines]
-
-        if vid_list is None:
-            raise RuntimeError("Unable to parse annotations!")
-
-        return vid_list
-
-    def __len__(self):
-        return len(self.video_clips)
-
-    def __getitem__(self, index):
-        succ = False
-        while not succ:
-            try:
-                clip_input, label, sampled_idx, dir, file = self.getitem_from_raw_video(index)
-                succ = True
-            except Exception as e:
-                index = self.rng.choice(range(0, self.__len__()))
-                logging.warning("VideoIter:: ERROR!! (Force using another index:\n{})\n{}".format(index, e))
-
-        return clip_input, label, sampled_idx, dir, file
 
     def getitem_from_raw_video(self, idx):
         # get current video info
@@ -72,3 +87,31 @@ class VideoIter(data.Dataset):
 
         return video, label, clip_idx, dir, file
 
+    def __len__(self):
+        return len(self.video_clips)
+
+    def __getitem__(self, index):
+        succ = False
+        while not succ:
+            try:
+                clip_input, label, sampled_idx, dir, file = self.getitem_from_raw_video(index)
+                succ = True
+            except Exception as e:
+                index = self.rng.choice(range(0, self.__len__()))
+                logging.warning("VideoIter:: ERROR!! (Force using another index:\n{})\n{}".format(index, e))
+
+        return clip_input, label, sampled_idx, dir, file
+
+    @staticmethod
+    def _get_video_list(dataset_path, annotation_path):
+        assert os.path.exists(dataset_path)  # , "VideoIter:: failed to locate: `{}'".format(dataset_path)
+        assert os.path.exists(annotation_path)  # , "VideoIter:: failed to locate: `{}'".format(annotation_path)
+        vid_list = None
+        with open(annotation_path, 'r') as f:
+            lines = f.read().splitlines(keepends=False)
+            vid_list = [os.path.join(dataset_path, line.split()[0]) for line in lines]
+
+        if vid_list is None:
+            raise RuntimeError("Unable to parse annotations!")
+
+        return vid_list
