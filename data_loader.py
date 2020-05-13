@@ -16,7 +16,7 @@ class VideoIter(data.Dataset):
                  video_transform=None,
                  name="<NO_NAME>",
                  shuffle_list_seed=None,
-                 single_load=False)
+                 single_load=False):
         super(VideoIter, self).__init__()
         self.dataset_path = dataset_path
         self.frames_stride = frame_stride
