@@ -32,6 +32,6 @@ This should take any video and run the Anomaly Detection code (including CD3 fea
 
 ## Annotation*
 "annotation_methods.py --path_list LIST_OF_VIDEO_PATH --dir_list LIST_OF_LIST_WITH_PATH_AND_VIDEO_NAME --normal_or_not LIST_TRUE_FALUE"
-This is currently just for demo but will alown training with nex videos
+This is currently just for demo but will allow training with nex videos
 
-*contbuted by Peter Overbury of Sussex Universty IISP Group
+*Contrbuted by Peter Overbury of Sussex Universty IISP Group
