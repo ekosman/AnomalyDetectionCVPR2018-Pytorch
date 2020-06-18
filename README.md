@@ -37,9 +37,11 @@ This is currently just for demo but will allow training with nex videos
 *Contrbuted by Peter Overbury of Sussex Universty IISP Group
 
 ## Cite
-@misc{anomaly18cvpr,
+```
+@misc{anomaly18cvpr-pytorch,
   author       = "Eitan Kosman",
   title        = "Pytorch implementation of Real-World Anomaly Detection in Surveillance Videos",
   howpublished = "\url{https://github.com/ekosman/AnomalyDetectionCVPR2018-Pytorch}",
   note         = "Accessed: 20xx-xx-xx"
 }
+```
