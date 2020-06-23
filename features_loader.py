@@ -84,18 +84,10 @@ class FeaturesLoader(data.Dataset):
 
         features = read_features(dir=os.sep.join(feature_subpath[:-1]),
                                  video_name=feature_subpath[-1])
-        if self.state == 'Normal':
-            #     self.normal_i += 1
-            self.state = 'Anomalous'
-        elif self.state == 'Anomalous':
-            #     self.anomalous_i += 1
-            self.state = 'Normal'
-
+        
+        self.state = 'Anomalous' if self.state == 'Normal' else 'Normal
         feature_subpath = os.sep.join(feature_subpath)
-        if "Normal" not in feature_subpath:
-            label = 1
-        else:
-            label = 0
+        label = 1 if "Normal" not in feature_subpath else 0
 
         return features, label
 
