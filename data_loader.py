@@ -34,29 +34,19 @@ class VideoIter(data.Dataset):
 
         self.total_clip_length_in_frames = clip_length * frame_stride
 
-        #size_list=[]
         if single_load:
             print("loading each file at a time")
             self.video_clips = VideoClips(video_paths=[self.video_list[0]],
                                           clip_length_in_frames=self.total_clip_length_in_frames,
                                           frames_between_clips=self.total_clip_length_in_frames)
             with tqdm(total=len(self.video_list[1:])+1,desc=' total % of videos loaded') as pbar1:
-                for video_list_used in self.video_list[1:]: #length of load?)
-                    #blockPrint()
+                for video_list_used in self.video_list[1:]:
                     print(video_list_used)
-                    import os
-                    #print("size "+str(os.path.getsize(video_list_used)))
-                    #size_list.append(os.path.getsize(video_list_used))
-                    #print(max(size_list))
                     pbar1.update(1)
                     video_clips_out = VideoClips(video_paths=[video_list_used],
                                                  clip_length_in_frames=self.total_clip_length_in_frames,
                                                  frames_between_clips=self.total_clip_length_in_frames)
-                    # if video_list_used =="/media/peter/Maxtor/AD-pytorch/UCF_Crimes/Videos/Training_Normal_Videos_Anomaly/Normal_Videos547_x264.mp4":
-                    #     continue
-                    # #enablePrint()
                     self.video_clips.clips.append(video_clips_out.clips[0])
-                    #print(self.video_clips.cumulative_sizes)
                     self.video_clips.cumulative_sizes.append(self.video_clips.cumulative_sizes[-1]+video_clips_out.cumulative_sizes[0])
                     self.video_clips.resampling_idxs.append(video_clips_out.resampling_idxs[0])
                     self.video_clips.video_fps.append(video_clips_out.video_fps[0])

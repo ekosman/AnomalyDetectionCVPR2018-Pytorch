@@ -62,9 +62,6 @@ parser.add_argument('--end-epoch', type=int, default=20000,
 parser.add_argument('--random-seed', type=int, default=1,
                     help='random seed (default: 1)')
 
-if not path.exists('models32'):
-    os.mkdir('models32')
-
 
 if __name__ == "__main__":
     args = parser.parse_args()
