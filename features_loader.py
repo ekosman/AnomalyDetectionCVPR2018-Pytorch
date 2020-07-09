@@ -72,7 +72,6 @@ class FeaturesLoader(data.Dataset):
                 idx = random.randint(0, len(self.features_list_anomaly)-1)
                 feature_subpath = self.features_list_anomaly[idx].split(os.sep)
 
-
         elif self.state == 'Anomalous':  # Load an anomalous video
             if len(self.features_list_anomaly) > 0:
                 idx = random.randint(0, len(self.features_list_anomaly)-1)
@@ -85,7 +84,7 @@ class FeaturesLoader(data.Dataset):
         features = read_features(dir=os.sep.join(feature_subpath[:-1]),
                                  video_name=feature_subpath[-1])
         
-        self.state = 'Anomalous' if self.state == 'Normal' else 'Normal
+        self.state = 'Anomalous' if self.state == 'Normal' else 'Normal'
         feature_subpath = os.sep.join(feature_subpath)
         label = 1 if "Normal" not in feature_subpath else 0
 
