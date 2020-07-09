@@ -3,16 +3,15 @@ import os
 import numpy as np
 import torch.utils.data as data
 from torchvision.datasets.video_utils import VideoClips
-
 from tqdm import tqdm
 
 
 class VideoIter(data.Dataset):
     def __init__(self,
-                 annotation_path,
                  clip_length,
                  frame_stride,
                  dataset_path=None,
+                 annotation_path=None,
                  video_transform=None,
                  name="<NO_NAME>",
                  shuffle_list_seed=None,
@@ -24,8 +23,8 @@ class VideoIter(data.Dataset):
         self.rng = np.random.RandomState(shuffle_list_seed if shuffle_list_seed else 0)
 
         # load video list
-        if dataset_path!=None:
-            self.video_list = self._get_video_list(dataset_path=self.dataset_path, annotation_path=annotation_path)
+        if dataset_path is not None:
+            self.video_list = self._get_video_list(dataset_path=self.dataset_path)
 
         elif type(annotation_path)==list():
             self.video_list = annotation_path
@@ -93,15 +92,12 @@ class VideoIter(data.Dataset):
         return clip_input, label, sampled_idx, dir, file
 
     @staticmethod
-    def _get_video_list(dataset_path, annotation_path):
-        assert os.path.exists(dataset_path)  # , "VideoIter:: failed to locate: `{}'".format(dataset_path)
-        assert os.path.exists(annotation_path)  # , "VideoIter:: failed to locate: `{}'".format(annotation_path)
-        vid_list = None
-        with open(annotation_path, 'r') as f:
-            lines = f.read().splitlines(keepends=False)
-            vid_list = [os.path.join(dataset_path, line.split()[0]) for line in lines]
+    def _get_video_list(dataset_path):
+        assert os.path.exists(dataset_path)  , "VideoIter:: failed to locate: `{}'".format(dataset_path)
+        vid_list = []
+        for path, subdirs, files in os.walk(dataset_path):
+            for name in files:
+                vid_list.append(os.path.join(path, name))
 
-        if vid_list is None:
-            raise RuntimeError("Unable to parse annotations!")
 
         return vid_list

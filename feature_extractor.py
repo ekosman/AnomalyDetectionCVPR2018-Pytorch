@@ -16,54 +16,29 @@ parser.add_argument('--debug-mode', type=bool, default=True,
 # io
 parser.add_argument('--dataset_path', default='../kinetics2/kinetics2/AnomalyDetection',
 					help="path to dataset")
-parser.add_argument('--annotation_path', default="Train_Annotation.txt",
-					help="path to train annotation")
-parser.add_argument('--annotation_path_test', default="Test_Annotation.txt",
-					help="path to test annotation")
 parser.add_argument('--clip-length', type=int, default=16,
 					help="define the length of each input sample.")
-parser.add_argument('--train-frame-interval', type=int, default=2,
+parser.add_argument('--num_workers', type=int, default=32,
+					help="define the number of workers used for loading the videos")
+parser.add_argument('--frame-interval', type=int, default=2,
 					help="define the sampling interval between frames.")
-parser.add_argument('--val-frame-interval', type=int, default=2,
-					help="define the sampling interval between frames.")
-parser.add_argument('--task-name', type=str, default='',
-					help="name of current task, leave it empty for using folder name")
-parser.add_argument('--model-dir', type=str, default="./exps/models",
-					help="set logging file.")
 parser.add_argument('--log-file', type=str, default="",
+					help="set logging file.")
+parser.add_argument('--save_dir', type=str, default="features",
 					help="set logging file.")
 
 # device
-parser.add_argument('--gpus', type=str, default="0,1,2,3",
-					help="define gpu id")
 parser.add_argument('--pretrained_3d', type=str,
 					default='',
 					help="load default 3D pretrained model.")
 parser.add_argument('--resume-epoch', type=int, default=-1,
 					help="resume train")
 # optimization
-parser.add_argument('--fine-tune', type=bool, default=True, help="apply different learning rate for different layers")
 parser.add_argument('--batch-size', type=int, default=8,
 					help="batch size")
-parser.add_argument('--lr-base', type=float, default=0.005,
-					help="learning rate")
-parser.add_argument('--lr_mult_old_layers', type=float, default=0.2,
-					help="learning rate")
-parser.add_argument('--weight_decay', type=float, default=0.0001,
-					help="weight_decay")
-parser.add_argument('--lr-steps', type=list, default=[int(1e4 * x) for x in [5, 10, 15]],
-					help="number of samples to pass before changing learning rate")  # 1e6 million
-
-parser.add_argument('--lr-factor', type=float, default=0.1,
-					help="reduce the learning with factor")
-parser.add_argument('--save-frequency', type=float, default=1,
-					help="save once after N epochs")
-parser.add_argument('--end-epoch', type=int, default=100,
-					help="maxmium number of training epoch")
 parser.add_argument('--random-seed', type=int, default=1,
 					help='random seed (default: 1)')
 
-features_dir = r"features2"
 
 current_path = None
 current_dir = None
@@ -151,34 +126,21 @@ def main():
 	train_loader = VideoIter(dataset_path=args.dataset_path,
 							annotation_path=args.annotation_path,
 							clip_length=args.clip_length,
-							frame_stride=args.train_frame_interval,
+							frame_stride=args.frame_interval,
 							video_transform=build_transforms(),
-							name='train')
+							name='Features extraction')
 
 	train_iter = torch.utils.data.DataLoader(train_loader,
 											batch_size=args.batch_size,
 											shuffle=False,
-											num_workers=32,  # 4, # change this part accordingly
+											num_workers=args.num_workers,  # 4, # change this part accordingly
 											pin_memory=True)
 
-	val_loader = VideoIter(dataset_path=args.dataset_path,
-						annotation_path=args.annotation_path_test,
-						clip_length=args.clip_length,
-						frame_stride=args.val_frame_interval,
-						video_transform=build_transforms(),
-						name='val')
-
-	val_iter = torch.utils.data.DataLoader(val_loader,
-										batch_size=args.batch_size,
-										shuffle=False,
-										num_workers=32,  # 4, # change this part accordingly
-										pin_memory=True)
-
 	network = C3D(pretrained=args.pretrained_3d)
-	network.to(device)
+	network = network.to(device)
 
-	if not path.exists(features_dir):
-		mkdir(features_dir)
+	if not path.exists(args.save_dir):
+		mkdir(args.save_dir)
 
 	features_writer = FeaturesWriter()
 
@@ -187,18 +149,7 @@ def main():
 			outputs = network(data.cuda())
 
 			for i, (dir, vid_name, start_frame) in enumerate(zip(dirs, vid_names, sampled_idx.cpu().numpy())):
-				dir = path.join(features_dir, dir)
-				features_writer.write(feature=outputs[i], video_name=vid_name, start_frame=start_frame, dir=dir)
-
-	features_writer.dump()
-
-	features_writer = FeaturesWriter()
-	for i_batch, (data, target, sampled_idx, dirs, vid_names) in tqdm(enumerate(val_iter)):
-		with torch.no_grad():
-			outputs = network(data.cuda())
-
-			for i, (dir, vid_name, start_frame) in enumerate(zip(dirs, vid_names, sampled_idx.cpu().numpy())):
-				dir = path.join(features_dir, dir)
+				dir = path.join(args.save_dir, dir)
 				features_writer.write(feature=outputs[i], video_name=vid_name, start_frame=start_frame, dir=dir)
 
 	features_writer.dump()
