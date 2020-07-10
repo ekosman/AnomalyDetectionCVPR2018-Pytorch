@@ -20,7 +20,7 @@ parser.add_argument('--clip-length', type=int, default=16,
 					help="define the length of each input sample.")
 parser.add_argument('--num_workers', type=int, default=32,
 					help="define the number of workers used for loading the videos")
-parser.add_argument('--frame-interval', type=int, default=2,
+parser.add_argument('--frame-interval', type=int, default=1,
 					help="define the sampling interval between frames.")
 parser.add_argument('--log-file', type=str, default="",
 					help="set logging file.")
@@ -83,10 +83,10 @@ class FeaturesWriter:
 
 		return False
 
-	def store(self, feature, start_frame):
-		self.data[start_frame // self.chunk_size] = list(feature.cpu().numpy())
+	def store(self, feature, idx):
+		self.data[idx] = list(feature.cpu().numpy())
 
-	def write(self, feature, video_name, start_frame, dir):
+	def write(self, feature, video_name, idx, dir):
 		if not self.has_video():
 			self._init_video(video_name, dir)
 
@@ -94,7 +94,7 @@ class FeaturesWriter:
 			self.dump()
 			self._init_video(video_name, dir)
 
-		self.store(feature, start_frame)
+		self.store(feature, idx)
 
 
 def read_features(video_name, dir):
@@ -146,7 +146,7 @@ def main():
 
 	for i_batch, (data, target, sampled_idx, dirs, vid_names) in tqdm(enumerate(train_iter)):
 		with torch.no_grad():
-			outputs = network(data.cuda())
+			outputs = network(data.to(device)).detach().cpu().numpy()
 
 			for i, (dir, vid_name, start_frame) in enumerate(zip(dirs, vid_names, sampled_idx.cpu().numpy())):
 				dir = path.join(args.save_dir, dir)

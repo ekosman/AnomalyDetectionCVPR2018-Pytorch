@@ -30,12 +30,10 @@ class C3D(nn.Module):
 
         self.conv5a = nn.Conv3d(512, 512, kernel_size=(3, 3, 3), padding=(1, 1, 1))
         self.conv5b = nn.Conv3d(512, 512, kernel_size=(3, 3, 3), padding=(1, 1, 1))
-        self.pool5 = nn.MaxPool3d(kernel_size=(2, 2, 2), stride=(2, 4, 4), padding=(0, 1, 1))
+        self.pool5 = nn.MaxPool3d(kernel_size=(2, 2, 2), stride=(2, 2, 2), padding=(0, 1, 1))
 
         self.fc6 = nn.Linear(8192, 4096)
-
         self.relu = nn.ReLU()
-
         self.__init_weight()
 
         if pretrained:
@@ -114,32 +112,9 @@ class C3D(nn.Module):
                 m.bias.data.zero_()
 
 
-def get_1x_lr_params(model):
-    """
-    This generator returns all the parameters for conv and two fc layers of the net.
-    """
-    b = [model.conv1, model.conv2, model.conv3a, model.conv3b, model.conv4a, model.conv4b,
-         model.conv5a, model.conv5b, model.fc6, model.fc7]
-    for i in range(len(b)):
-        for k in b[i].parameters():
-            if k.requires_grad:
-                yield k
-
-
-def get_10x_lr_params(model):
-    """
-    This generator returns all the parameters for the last fc layer of the net.
-    """
-    b = [model.fc8]
-    for j in range(len(b)):
-        for k in b[j].parameters():
-            if k.requires_grad:
-                yield k
-
-
 if __name__ == "__main__":
-    inputs = torch.rand(1, 3, 16, 112, 112)
-    net = C3D(pretrained=True)
+    inputs = torch.ones((1, 3, 16, 112, 112))
+    net = C3D(pretrained=False)
 
     outputs = net.forward(inputs)
     print(outputs.size())

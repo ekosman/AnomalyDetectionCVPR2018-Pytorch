@@ -3,7 +3,6 @@
 import numpy as np
 import numbers
 import random
-import kornia
 
 import torch
 from torchvision.transforms import (
@@ -70,15 +69,6 @@ class RandomResizedCropVideo(RandomResizedCrop):
             torch.tensor: randomly cropped/resized video clip.
                 size is (C, T, H, W)
         """
-        # print(clip.type())
-        # print('...........')
-        # print('...........')
-        # print('...........')
-        # print('...........')
-        # print('...........')
-        # i, j, h, w = self.get_params(clip, self.scale, self.ratio)
-        # return F.resized_crop(clip, i, j, h, w, self.size, self.interpolation_mode)
-        # print(clip.shape)
         clip = F.resize(clip, self.size, self.interpolation_mode)
         # print(clip.shape)
         if clip.shape[2] - self.crop > 0:
@@ -97,42 +87,6 @@ class RandomResizedCropVideo(RandomResizedCrop):
             '(size={0}, interpolation_mode={1}, scale={2}, ratio={3})'.format(
                 self.size, self.interpolation_mode, self.scale, self.ratio
             )
-
-
-class RandomRotateVideo(object):
-  def __init__(self, degree):
-    self.degree = degree
-
-  def __call__(self, clip):
-    """
-    Args:
-        clip (torch.tensor): Video clip to be rotated. Size is (C, T, H, W)
-    Returns:
-        torch.tensor: central cropping of video clip. Size is
-        (C, T, crop_size, crop_size)
-    """
-    clip = clip.permute(1, 0, 2, 3)
-    # define the rotation center
-    center = torch.ones(clip.shape[0], 2)
-    center[..., 0] = clip.shape[3] / 2  # x
-    center[..., 1] = clip.shape[2] / 2  # y
-
-    # define the scale factor
-    scale = torch.ones(clip.shape[0])
-    degree = np.random.randint(-self.degree, self.degree + 2)
-    degree = torch.ones(clip.shape[0]) * degree
-
-    # compute the transformation matrix
-    M = kornia.get_rotation_matrix2d(center, degree, scale)
-
-    # apply the transformation to original image
-    _, _, h, w = clip.shape
-    clip = kornia.warp_affine(clip, M, dsize=(h, w))
-    clip = clip.permute(1, 0, 2, 3)
-    return clip
-
-  def __repr__(self):
-    return self.__class__.__name__ + '(crop_size={0})'.format(self.crop_size)
 
 
 class CenterCropVideo(object):

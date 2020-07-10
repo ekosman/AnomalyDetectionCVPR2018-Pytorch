@@ -24,7 +24,7 @@ def build_transforms():
     std = [1 / (.0167 * 255)] * 3
     res = transforms.Compose([
         transforms_video.ToTensorVideo(),
-        transforms_video.RandomResizedCropVideo(256, 224),
+        transforms_video.RandomResizedCropVideo(112, 112),
         transforms_video.NormalizeVideo(mean=mean, std=std)
     ])
 
