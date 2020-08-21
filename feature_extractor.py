@@ -150,7 +150,7 @@ def main():
 
 			for i, (dir, vid_name, start_frame) in enumerate(zip(dirs, vid_names, sampled_idx.cpu().numpy())):
 				dir = path.join(args.save_dir, dir)
-				features_writer.write(feature=outputs[i], video_name=vid_name, start_frame=start_frame, dir=dir)
+				features_writer.write(feature=outputs[i], video_name=vid_name, idx=start_frame, dir=dir)
 
 	features_writer.dump()
 
