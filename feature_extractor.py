@@ -39,7 +39,6 @@ parser.add_argument('--batch-size', type=int, default=8,
 parser.add_argument('--random-seed', type=int, default=1,
 					help='random seed (default: 1)')
 
-
 current_path = None
 current_dir = None
 current_data = None
@@ -84,7 +83,7 @@ class FeaturesWriter:
 		return False
 
 	def store(self, feature, idx):
-		self.data[idx] = list(feature.cpu().numpy())
+		self.data[idx] = list(feature)
 
 	def write(self, feature, video_name, idx, dir):
 		if not self.has_video():
@@ -114,7 +113,7 @@ def read_features(video_name, dir):
 
 def main():
 	device = torch.device("cuda" if torch.cuda.is_available()
-						else "cpu")
+						  else "cpu")
 
 	args = parser.parse_args()
 	set_logger(log_file=args.log_file, debug_mode=args.debug_mode)
@@ -124,17 +123,17 @@ def main():
 	cudnn.benchmark = True
 
 	train_loader = VideoIter(dataset_path=args.dataset_path,
-							annotation_path=args.annotation_path,
-							clip_length=args.clip_length,
-							frame_stride=args.frame_interval,
-							video_transform=build_transforms(),
-							name='Features extraction')
+							 annotation_path=args.annotation_path,
+							 clip_length=args.clip_length,
+							 frame_stride=args.frame_interval,
+							 video_transform=build_transforms(),
+							 name='Features extraction')
 
 	train_iter = torch.utils.data.DataLoader(train_loader,
-											batch_size=args.batch_size,
-											shuffle=False,
-											num_workers=args.num_workers,  # 4, # change this part accordingly
-											pin_memory=True)
+											 batch_size=args.batch_size,
+											 shuffle=False,
+											 num_workers=args.num_workers,
+											 pin_memory=True)
 
 	network = C3D(pretrained=args.pretrained_3d)
 	network = network.to(device)
@@ -143,14 +142,16 @@ def main():
 		mkdir(args.save_dir)
 
 	features_writer = FeaturesWriter()
-
-	for i_batch, (data, target, sampled_idx, dirs, vid_names) in tqdm(enumerate(train_iter)):
-		with torch.no_grad():
+	with torch.no_grad():
+		for i_batch, (data, target, sampled_idx, dirs, vid_names) in tqdm(enumerate(train_iter)):
 			outputs = network(data.to(device)).detach().cpu().numpy()
 
 			for i, (dir, vid_name, start_frame) in enumerate(zip(dirs, vid_names, sampled_idx.cpu().numpy())):
 				dir = path.join(args.save_dir, dir)
-				features_writer.write(feature=outputs[i], video_name=vid_name, idx=start_frame, dir=dir)
+				features_writer.write(feature=outputs[i],
+									  video_name=vid_name,
+									  idx=start_frame,
+									  dir=dir, )
 
 	features_writer.dump()
 
