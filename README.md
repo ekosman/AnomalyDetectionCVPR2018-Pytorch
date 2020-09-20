@@ -1,6 +1,9 @@
 # AnomalyDetectionCVPR2018-Pytorch
 Pytorch version of - https://github.com/WaqasSultani/AnomalyDetectionCVPR2018
 
+# !! -- Attention -- !!
+Due to some very big projects in progress, the authors are very busy and unable to solve the current issues. It would be nice if contributors could help improving this code and solve the issues. Credit is promised!
+
 ## Install anaconda env
 ```conda env create -f environment.yml```
 
