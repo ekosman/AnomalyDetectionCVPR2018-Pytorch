@@ -30,7 +30,6 @@ class VideoIter(data.Dataset):
                                       frames_between_clips=self.total_clip_length_in_frames)
 
     def getitem_from_raw_video(self, idx):
-        # get current video info
         video, _, _, _ = self.video_clips.get_clip(idx)
         video_idx, clip_idx = self.video_clips.get_clip_location(idx)
         video_path = self.video_clips.video_paths[video_idx]
@@ -38,7 +37,6 @@ class VideoIter(data.Dataset):
         video = video[in_clip_frames]
         if self.video_transform is not None:
             video = self.video_transform(video)
-
 
         dir, file = video_path.split(os.sep)[-2:]
         file = file.split('.')[0]
@@ -59,18 +57,29 @@ class VideoIter(data.Dataset):
                 batch = self.getitem_from_raw_video(index)
                 succ = True
             except Exception as e:
-                index = self.rng.choice(range(0, self.__len__()))
+                index = np.random.choice(range(0, self.__len__()))
                 logging.warning("VideoIter:: ERROR!! (Force using another index:\n{})\n{}".format(index, e))
 
         return batch
 
-    @staticmethod
-    def _get_video_list(dataset_path):
+    def _get_video_list(self, dataset_path):
         assert os.path.exists(dataset_path)  , "VideoIter:: failed to locate: `{}'".format(dataset_path)
         vid_list = []
         for path, subdirs, files in os.walk(dataset_path):
             for name in files:
                 vid_list.append(os.path.join(path, name))
 
-
         return vid_list
+
+
+class SingleVideoIter(VideoIter):
+    def __init__(self,
+                 clip_length,
+                 frame_stride,
+                 video_path,
+                 video_transform=None,
+                 return_label=False):
+        super(SingleVideoIter, self).__init__(clip_length, frame_stride, video_path, video_transform, return_label)
+
+    def _get_video_list(self, video_path):
+        return [video_path]
