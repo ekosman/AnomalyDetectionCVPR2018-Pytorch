@@ -112,8 +112,7 @@ def read_features(video_name, dir):
 
 
 def main():
-	device = torch.device("cuda" if torch.cuda.is_available()
-						  else "cpu")
+	device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 	args = parser.parse_args()
 	set_logger(log_file=args.log_file, debug_mode=args.debug_mode)
@@ -123,17 +122,16 @@ def main():
 	cudnn.benchmark = True
 
 	train_loader = VideoIter(dataset_path=args.dataset_path,
-							 annotation_path=args.annotation_path,
-							 clip_length=args.clip_length,
-							 frame_stride=args.frame_interval,
-							 video_transform=build_transforms(),
-							 name='Features extraction')
+							clip_length=args.clip_length,
+							frame_stride=args.frame_interval,
+							video_transform=build_transforms(),
+							return_label=False)
 
 	train_iter = torch.utils.data.DataLoader(train_loader,
-											 batch_size=args.batch_size,
-											 shuffle=False,
-											 num_workers=args.num_workers,
-											 pin_memory=True)
+											batch_size=args.batch_size,
+											shuffle=False,
+											num_workers=args.num_workers,
+											pin_memory=True)
 
 	network = C3D(pretrained=args.pretrained_3d)
 	network = network.to(device)
@@ -143,14 +141,14 @@ def main():
 
 	features_writer = FeaturesWriter()
 	with torch.no_grad():
-		for i_batch, (data, target, sampled_idx, dirs, vid_names) in tqdm(enumerate(train_iter)):
+		for i_batch, (data, clip_idxs, dirs, vid_names) in tqdm(enumerate(train_iter)):
 			outputs = network(data.to(device)).detach().cpu().numpy()
 
-			for i, (dir, vid_name, start_frame) in enumerate(zip(dirs, vid_names, sampled_idx.cpu().numpy())):
+			for i, (dir, vid_name, clip_idx) in enumerate(zip(dirs, vid_names, clip_idxs)):
 				dir = path.join(args.save_dir, dir)
 				features_writer.write(feature=outputs[i],
 									  video_name=vid_name,
-									  idx=start_frame,
+									  idx=clip_idx,
 									  dir=dir, )
 
 	features_writer.dump()
