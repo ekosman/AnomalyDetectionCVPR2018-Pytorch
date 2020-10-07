@@ -5,7 +5,7 @@ Pytorch version of - https://github.com/WaqasSultani/AnomalyDetectionCVPR2018
 ```conda env create -f environment.yml```
 
 
-```conda activate torch```
+```conda activate adCVPR18```
 
 ## Download C3D weights
 I couldn't upload here the weights for the C3D model because the file is too big, but it can be found here:
