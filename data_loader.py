@@ -26,7 +26,7 @@ class VideoIter(data.Dataset):
         # data loading
         self.video_clips = VideoClips(video_paths=self.video_list,
                                       clip_length_in_frames=self.total_clip_length_in_frames,
-                                      frames_between_clips=self.total_clip_length_in_frames)
+                                      frames_between_clips=self.total_clip_length_in_frames,)
 
     def getitem_from_raw_video(self, idx):
         video, _, _, _ = self.video_clips.get_clip(idx)
