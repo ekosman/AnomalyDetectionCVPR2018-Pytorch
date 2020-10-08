@@ -3,7 +3,6 @@ import os
 import numpy as np
 import torch.utils.data as data
 from torchvision.datasets.video_utils import VideoClips
-from tqdm import tqdm
 
 
 class VideoIter(data.Dataset):
@@ -63,7 +62,7 @@ class VideoIter(data.Dataset):
         return batch
 
     def _get_video_list(self, dataset_path):
-        assert os.path.exists(dataset_path)  , "VideoIter:: failed to locate: `{}'".format(dataset_path)
+        assert os.path.exists(dataset_path), "VideoIter:: failed to locate: `{}'".format(dataset_path)
         vid_list = []
         for path, subdirs, files in os.walk(dataset_path):
             for name in files:

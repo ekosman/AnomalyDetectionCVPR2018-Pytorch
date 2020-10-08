@@ -11,7 +11,7 @@ from utils.utils import set_logger, build_transforms
 
 parser = argparse.ArgumentParser(description="PyTorch Video Classification Parser")
 # debug
-parser.add_argument('--debug-mode', type=bool, default=True,
+parser.add_argument('--debug-mode', action='store_true', default=False,
 					help="print all setting for debugging.")
 # io
 parser.add_argument('--dataset_path', default='../kinetics2/kinetics2/AnomalyDetection',
