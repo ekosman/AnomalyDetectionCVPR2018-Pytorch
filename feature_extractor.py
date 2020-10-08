@@ -124,13 +124,13 @@ def main():
 	torch.cuda.manual_seed(args.random_seed)
 	cudnn.benchmark = True
 
-	train_loader = VideoIter(dataset_path=args.dataset_path,
+	data_loader = VideoIter(dataset_path=args.dataset_path,
 							clip_length=args.clip_length,
 							frame_stride=args.frame_interval,
 							video_transform=build_transforms(),
 							return_label=False)
 
-	data_iter = torch.utils.data.DataLoader(train_loader,
+	data_iter = torch.utils.data.DataLoader(data_loader,
 											batch_size=args.batch_size,
 											shuffle=False,
 											num_workers=args.num_workers,
@@ -142,7 +142,7 @@ def main():
 	if not path.exists(args.save_dir):
 		mkdir(args.save_dir)
 
-	features_writer = FeaturesWriter()
+	features_writer = FeaturesWriter(num_videos=data_loader.video_count)
 	with torch.no_grad():
 		for data, clip_idxs, dirs, vid_names in data_iter:
 			outputs = network(data.to(device)).detach().cpu().numpy()
