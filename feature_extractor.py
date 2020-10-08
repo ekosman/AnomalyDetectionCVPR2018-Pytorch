@@ -1,4 +1,5 @@
 import argparse
+import logging
 import os
 from os import path, mkdir
 import numpy as np
@@ -45,11 +46,13 @@ current_data = None
 
 
 class FeaturesWriter:
-	def __init__(self, chunk_size=16):
+	def __init__(self, num_videos, chunk_size=16):
 		self.path = None
 		self.dir = None
 		self.data = None
 		self.chunk_size = chunk_size
+		self.num_videos = num_videos
+		self.dump_count = 0
 
 	def _init_video(self, video_name, dir):
 		self.path = path.join(dir, f"{video_name}.txt")
@@ -60,7 +63,7 @@ class FeaturesWriter:
 		return self.data is not None
 
 	def dump(self):
-		print(f'Dumping {self.path}')
+		logging.info(f'{self.dump_count} / {self.num_videos}:	Dumping {self.path}')
 		if not path.exists(self.dir):
 			os.mkdir(self.dir)
 
@@ -127,7 +130,7 @@ def main():
 							video_transform=build_transforms(),
 							return_label=False)
 
-	train_iter = torch.utils.data.DataLoader(train_loader,
+	data_iter = torch.utils.data.DataLoader(train_loader,
 											batch_size=args.batch_size,
 											shuffle=False,
 											num_workers=args.num_workers,
@@ -141,7 +144,7 @@ def main():
 
 	features_writer = FeaturesWriter()
 	with torch.no_grad():
-		for i_batch, (data, clip_idxs, dirs, vid_names) in tqdm(enumerate(train_iter)):
+		for data, clip_idxs, dirs, vid_names in data_iter:
 			outputs = network(data.to(device)).detach().cpu().numpy()
 
 			for i, (dir, vid_name, clip_idx) in enumerate(zip(dirs, vid_names, clip_idxs)):

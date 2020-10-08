@@ -28,6 +28,10 @@ class VideoIter(data.Dataset):
                                       clip_length_in_frames=self.total_clip_length_in_frames,
                                       frames_between_clips=self.total_clip_length_in_frames,)
 
+    @property
+    def video_count(self):
+        return len(self.video_list)
+
     def getitem_from_raw_video(self, idx):
         video, _, _, _ = self.video_clips.get_clip(idx)
         video_idx, clip_idx = self.video_clips.get_clip_location(idx)
