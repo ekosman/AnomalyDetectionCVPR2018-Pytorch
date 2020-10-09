@@ -64,6 +64,7 @@ class FeaturesWriter:
 
 	def dump(self):
 		logging.info(f'{self.dump_count} / {self.num_videos}:	Dumping {self.path}')
+		self.dump_count += 1
 		if not path.exists(self.dir):
 			os.mkdir(self.dir)
 
