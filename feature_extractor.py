@@ -5,40 +5,77 @@ from os import path, mkdir
 import numpy as np
 import torch
 import torch.backends.cudnn as cudnn
-from tqdm import tqdm
 from data_loader import VideoIter
 from network.c3d import C3D
 from utils.utils import set_logger, build_transforms
 
-parser = argparse.ArgumentParser(description="PyTorch Video Classification Parser")
-# debug
-parser.add_argument('--debug-mode', action='store_true', default=False,
-					help="print all setting for debugging.")
-# io
-parser.add_argument('--dataset_path', default='../kinetics2/kinetics2/AnomalyDetection',
-					help="path to dataset")
-parser.add_argument('--clip-length', type=int, default=16,
-					help="define the length of each input sample.")
-parser.add_argument('--num_workers', type=int, default=32,
-					help="define the number of workers used for loading the videos")
-parser.add_argument('--frame-interval', type=int, default=1,
-					help="define the sampling interval between frames.")
-parser.add_argument('--log-file', type=str, default="",
-					help="set logging file.")
-parser.add_argument('--save_dir', type=str, default="features",
-					help="set logging file.")
 
-# device
-parser.add_argument('--pretrained_3d', type=str,
-					default='',
-					help="load default 3D pretrained model.")
-parser.add_argument('--resume-epoch', type=int, default=-1,
-					help="resume train")
-# optimization
-parser.add_argument('--batch-size', type=int, default=8,
-					help="batch size")
-parser.add_argument('--random-seed', type=int, default=1,
-					help='random seed (default: 1)')
+def get_args():
+	parser = argparse.ArgumentParser(description="PyTorch Video Classification Parser")
+	# debug
+	parser.add_argument('--debug-mode', action='store_true', default=False,
+						help="print all setting for debugging.")
+	# io
+	parser.add_argument('--dataset_path', default='../kinetics2/kinetics2/AnomalyDetection',
+						help="path to dataset")
+	parser.add_argument('--clip-length', type=int, default=16,
+						help="define the length of each input sample.")
+	parser.add_argument('--num_workers', type=int, default=32,
+						help="define the number of workers used for loading the videos")
+	parser.add_argument('--frame-interval', type=int, default=1,
+						help="define the sampling interval between frames.")
+	parser.add_argument('--log-file', type=str, default="",
+						help="set logging file.")
+	parser.add_argument('--save_dir', type=str, default="features",
+						help="set logging file.")
+
+	# device
+	parser.add_argument('--pretrained_3d', type=str,
+						default='',
+						help="load default 3D pretrained model.")
+	parser.add_argument('--resume-epoch', type=int, default=-1,
+						help="resume train")
+	# optimization
+	parser.add_argument('--batch-size', type=int, default=8,
+						help="batch size")
+	parser.add_argument('--random-seed', type=int, default=1,
+						help='random seed (default: 1)')
+	return parser.parse_args()
+
+
+def to_32_segments(data):
+	"""
+	These code is taken from:
+	https://github.com/rajanjitenpatel/C3D_feature_extraction/blob/b5894fa06d43aa62b3b64e85b07feb0853e7011a/extract_C3D_feature.py#L805
+	:param data: list of features of a certain video
+	:return: list of 32 segments
+	"""
+	data = np.array(data)
+	Segments_Features = []
+	thirty2_shots = np.round(np.linspace(1, len(data), num=33))
+	for i in range(0, len(thirty2_shots) - 1):
+		ss = int(thirty2_shots[i])
+		ee = int(thirty2_shots[i + 1]) - 1
+
+		if i == len(thirty2_shots):
+			ee = thirty2_shots[i + 1]
+
+		if ss == ee:
+			temp_vect = data[ss, :]
+		elif ee < ss:
+			temp_vect = data[ss, :]
+		else:
+			temp_vect = data[ss:ee, :].mean(axis=0)
+
+		temp_vect = temp_vect / np.linalg.norm(temp_vect)
+		if np.linalg.norm == 0:
+			logging.error("Feature norm is 0")
+			exit()
+		if len(temp_vect) != 0:
+			Segments_Features.append(temp_vect.tolist())
+
+	return Segments_Features
+
 
 current_path = None
 current_dir = None
@@ -68,14 +105,10 @@ class FeaturesWriter:
 		if not path.exists(self.dir):
 			os.mkdir(self.dir)
 
-		features = np.array([self.data[key] for key in sorted(self.data)])
+		features = to_32_segments([self.data[key] for key in sorted(self.data)])
 		features = features / np.expand_dims(np.linalg.norm(features, ord=2, axis=-1), axis=-1)
-		padding_count = int(32 * np.ceil(features.shape[0] / 32) - features.shape[0])
-		features = torch.from_numpy(np.vstack([features, torch.zeros(padding_count, 4096)]))
-		segments = torch.stack(torch.chunk(features, chunks=32, dim=0))
-		avg_segments = segments.mean(dim=-2).numpy()
 		with open(self.path, 'w') as fp:
-			for d in avg_segments:
+			for d in features:
 				d = [str(x) for x in d]
 				fp.write(' '.join(d) + '\n')
 
@@ -118,7 +151,7 @@ def read_features(video_name, dir):
 def main():
 	device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-	args = parser.parse_args()
+	args = get_args()
 	set_logger(log_file=args.log_file, debug_mode=args.debug_mode)
 
 	torch.manual_seed(args.random_seed)
