@@ -52,7 +52,7 @@ def to_32_segments(data):
 	"""
 	data = np.array(data)
 	Segments_Features = []
-	thirty2_shots = np.round(np.linspace(1, len(data), num=33))
+	thirty2_shots = np.round(np.linspace(0, len(data), num=33))
 	for i in range(0, len(thirty2_shots) - 1):
 		ss = int(thirty2_shots[i])
 		ee = int(thirty2_shots[i + 1]) - 1
