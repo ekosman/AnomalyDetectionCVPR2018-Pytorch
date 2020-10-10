@@ -43,7 +43,7 @@ def get_args():
 	return parser.parse_args()
 
 
-def to_32_segments(data):
+def to_segments(data, num=32):
 	"""
 	These code is taken from:
 	https://github.com/rajanjitenpatel/C3D_feature_extraction/blob/b5894fa06d43aa62b3b64e85b07feb0853e7011a/extract_C3D_feature.py#L805
@@ -52,7 +52,7 @@ def to_32_segments(data):
 	"""
 	data = np.array(data)
 	Segments_Features = []
-	thirty2_shots = np.round(np.linspace(0, len(data), num=33))
+	thirty2_shots = np.round(np.linspace(0, len(data), num=num))
 	for i in range(0, len(thirty2_shots) - 1):
 		ss = int(thirty2_shots[i])
 		ee = int(thirty2_shots[i + 1]) - 1
@@ -105,7 +105,7 @@ class FeaturesWriter:
 		if not path.exists(self.dir):
 			os.mkdir(self.dir)
 
-		features = to_32_segments([self.data[key] for key in sorted(self.data)])
+		features = to_segments([self.data[key] for key in sorted(self.data)])
 		with open(self.path, 'w') as fp:
 			for d in features:
 				d = [str(x) for x in d]
