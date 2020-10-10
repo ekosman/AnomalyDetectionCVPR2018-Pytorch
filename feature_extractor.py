@@ -106,7 +106,6 @@ class FeaturesWriter:
 			os.mkdir(self.dir)
 
 		features = to_32_segments([self.data[key] for key in sorted(self.data)])
-		features = features / np.expand_dims(np.linalg.norm(features, ord=2, axis=-1), axis=-1)
 		with open(self.path, 'w') as fp:
 			for d in features:
 				d = [str(x) for x in d]
