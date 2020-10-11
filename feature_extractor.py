@@ -55,7 +55,7 @@ def to_segments(data, num=32):
 	thirty2_shots = np.round(np.linspace(0, len(data) - 1, num=num+1)).astype(int)
 	for ss, ee in zip(thirty2_shots[:-1], thirty2_shots[1:]):
 		if ss == ee:
-			temp_vect = data[ss, :]
+			temp_vect = data[min(ss, data.shape[0] - 1), :]
 		else:
 			temp_vect = data[ss:ee, :].mean(axis=0)
 
