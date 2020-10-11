@@ -52,7 +52,7 @@ def to_segments(data, num=32):
 	"""
 	data = np.array(data)
 	Segments_Features = []
-	thirty2_shots = np.round(np.linspace(0, len(data), num=num+1)).astype(int)
+	thirty2_shots = np.round(np.linspace(0, len(data) - 1, num=num+1)).astype(int)
 	for ss, ee in zip(thirty2_shots[:-1], thirty2_shots[1:]):
 		if ss == ee:
 			temp_vect = data[ss, :]
