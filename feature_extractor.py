@@ -173,7 +173,7 @@ def main():
 			outputs = network(data.to(device)).detach().cpu().numpy()
 
 			for i, (dir, vid_name, clip_idx) in enumerate(zip(dirs, vid_names, clip_idxs)):
-                                logging.info(f"Writing clip{clip_idx} of video {vid_name}")
+				logging.info(f"Writing clip{clip_idx} of video {vid_name}")
 				dir = path.join(args.save_dir, dir)
 				features_writer.write(feature=outputs[i],
 									  video_name=vid_name,
