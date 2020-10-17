@@ -3,7 +3,6 @@ import os
 import pickle
 
 import numpy as np
-import path
 import torch.utils.data as data
 from torchvision.datasets.video_utils import VideoClips
 
@@ -82,6 +81,8 @@ class VideoIter(data.Dataset):
         vid_list = []
         for path, subdirs, files in os.walk(dataset_path):
             for name in files:
+                if 'mp4' not in name:
+                    continue
                 vid_list.append(os.path.join(path, name))
 
         return vid_list
