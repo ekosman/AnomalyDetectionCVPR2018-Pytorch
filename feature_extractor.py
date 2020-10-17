@@ -24,6 +24,8 @@ def get_args():
 						help="define the number of workers used for loading the videos")
 	parser.add_argument('--frame-interval', type=int, default=1,
 						help="define the sampling interval between frames.")
+	parser.add_argument('--log-every', type=int, default=50,
+						help="log the writing of clips every n steps.")
 	parser.add_argument('--log-file', type=str, default="",
 						help="set logging file.")
 	parser.add_argument('--save_dir', type=str, default="features",
@@ -170,12 +172,18 @@ def main():
 		mkdir(args.save_dir)
 
 	features_writer = FeaturesWriter(num_videos=data_loader.video_count)
+	loop_i = 0
 	with torch.no_grad():
 		for data, clip_idxs, dirs, vid_names in data_iter:
 			outputs = network(data.to(device)).detach().cpu().numpy()
 
 			for i, (dir, vid_name, clip_idx) in enumerate(zip(dirs, vid_names, clip_idxs)):
-				logging.info(f"Writing clip{clip_idx} of video {vid_name}")
+				if loop_i == 0:
+					logging.info(f"Video {features_writer.dump_count} / {features_writer.num_videos} : Writing clip {clip_idx} of video {vid_name}")
+
+				loop_i += 1
+				loop_i %= args.log_every
+
 				dir = path.join(args.save_dir, dir)
 				features_writer.write(feature=outputs[i],
 									  video_name=vid_name,
