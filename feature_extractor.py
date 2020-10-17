@@ -162,6 +162,8 @@ def main():
 											pin_memory=True)
 
 	network = C3D(pretrained=args.pretrained_3d)
+	if device.type != 'cpu':
+		network = torch.nn.DataParallel(network)
 	network = network.to(device)
 
 	if not path.exists(args.save_dir):
