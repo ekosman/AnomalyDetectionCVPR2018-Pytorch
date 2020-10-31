@@ -12,33 +12,32 @@ class FeaturesLoader(data.Dataset):
     def __init__(self,
                  features_path,
                  annotation_path,
-                 name="<NO_NAME>",
-                 shuffle_list_seed=None):
+                 bucket_size=30):
 
         super(FeaturesLoader, self).__init__()
         self.i = 0
         self.features_path = features_path
-        self.rng = np.random.RandomState(shuffle_list_seed if shuffle_list_seed else 0)
-        self.is_shuffled = shuffle_list_seed
+        self.bucket_size = bucket_size
         # load video list
         self.state = 'Normal'
         self.features_list_normal, self.features_list_anomaly = FeaturesLoader._get_features_list(
             features_path=self.features_path,
             annotation_path=annotation_path)
-        existing_features = set(self.get_existing_features())
-        self.features_list_normal = list(existing_features.intersection(self.features_list_normal))
-        self.features_list_anomaly = list(existing_features.intersection(self.features_list_anomaly))
-        self.normal_i, self.anomalous_i = 0, 0
-        if self.is_shuffled is not None:
-            self.features_list_anomaly = np.random.permutation(self.features_list_anomaly)
-            self.features_list_normal = np.random.permutation(self.features_list_normal)
+        # existing_features = set(self.get_existing_features())
 
-        logging.info("VideoIter:: iterator initialized (phase: '{:s}', num: {:d})".format(name, len(
-            self.features_list_normal) + len(self.features_list_anomaly)))
+        # TODO: verify all features exist
+        # self.features_list_normal = list(existing_features.intersection(self.features_list_normal))
+        # self.features_list_anomaly = list(existing_features.intersection(self.features_list_anomaly))
+        self.normal_i, self.anomalous_i = 0, 0
+
+        self.shuffle()
+
+    def shuffle(self):
+        self.features_list_anomaly = np.random.permutation(self.features_list_anomaly)
+        self.features_list_normal = np.random.permutation(self.features_list_normal)
 
     def __len__(self):
-        # return len(self.features_list_normal) + len(self.features_list_anomaly)
-        return 60
+        return self.bucket_size * 2
 
     def __getitem__(self, index):
         succ = False
@@ -64,36 +63,24 @@ class FeaturesLoader(data.Dataset):
 
     def get_feature(self, index):
         if self.state == 'Normal':  # Load a normal video
-            if len(self.features_list_normal) > 0:
-                idx = random.randint(0, len(self.features_list_normal)-1)
-                feature_subpath = self.features_list_normal[idx].split(os.sep)
-
-            else:  # No normal videos, load an anomalous one
-                idx = random.randint(0, len(self.features_list_anomaly)-1)
-                feature_subpath = self.features_list_anomaly[idx].split(os.sep)
+            idx = random.randint(0, len(self.features_list_normal) - 1)
+            feature_subpath = self.features_list_normal[idx]
+            label = 0
 
         elif self.state == 'Anomalous':  # Load an anomalous video
-            if len(self.features_list_anomaly) > 0:
-                idx = random.randint(0, len(self.features_list_anomaly)-1)
-                feature_subpath = self.features_list_anomaly[idx].split(os.sep)
+            idx = random.randint(0, len(self.features_list_anomaly) - 1)
+            feature_subpath = self.features_list_anomaly[idx]
+            label = 1
 
-            else:  # No anomalous videos, load a normal one
-                idx = random.randint(0, len(self.features_list_normal)-1)
-                feature_subpath = self.features_list_normal[idx].split(os.sep)
-
-        features = read_features(dir=os.sep.join(feature_subpath[:-1]),
-                                 video_name=feature_subpath[-1])
+        features = read_features(f"{feature_subpath}.txt")
         
         self.state = 'Anomalous' if self.state == 'Normal' else 'Normal'
-        feature_subpath = os.sep.join(feature_subpath)
-        label = 1 if "Normal" not in feature_subpath else 0
 
         return features, label
 
     @staticmethod
     def _get_features_list(features_path, annotation_path):
         assert os.path.exists(features_path)
-        v_id = 0
         features_list_normal = []
         features_list_anomaly = []
         with open(annotation_path, 'r') as f:

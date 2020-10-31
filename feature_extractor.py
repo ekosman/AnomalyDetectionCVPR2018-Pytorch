@@ -126,9 +126,7 @@ class FeaturesWriter:
 		self.store(feature, idx)
 
 
-def read_features(video_name, dir):
-	file_path = f"{video_name}.txt"
-	file_path = path.join(dir, file_path)
+def read_features(file_path):
 	if not path.exists(file_path):
 		raise Exception(f"Feature doesn't exist: {file_path}")
 	features = None
