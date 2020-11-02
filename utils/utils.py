@@ -1,7 +1,9 @@
-from torchvision.transforms import transforms
-from . import transforms_video
-import os
 import logging
+import sys
+
+from torchvision.transforms import transforms
+
+from . import transforms_video
 
 
 def register_logger(log_file, stdout=True):
