@@ -78,7 +78,8 @@ class VideoIter(data.Dataset):
 
     def _get_video_list(self, dataset_path):
         features_path = r'/Users/eitankosman/PycharmProjects/anomaly_features'
-        existing_features = [[file.split('.')[0] for file in files] for path, subdirs, files in os.walk(features_path)]
+        existing_features = np.concatenate(
+            [[file.split('.')[0] for file in files] for path, subdirs, files in os.walk(features_path)])
         print(len(existing_features))
         assert os.path.exists(dataset_path), "VideoIter:: failed to locate: `{}'".format(dataset_path)
         vid_list = []
