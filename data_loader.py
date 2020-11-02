@@ -77,11 +77,16 @@ class VideoIter(data.Dataset):
         return batch
 
     def _get_video_list(self, dataset_path):
+        features_path = r'/Users/eitankosman/PycharmProjects/anomaly_features'
+        existing_features = [[file.split('.')[0] for file in files] for path, subdirs, files in os.walk(features_path)]
         assert os.path.exists(dataset_path), "VideoIter:: failed to locate: `{}'".format(dataset_path)
         vid_list = []
         for path, subdirs, files in os.walk(dataset_path):
             for name in files:
                 if 'mp4' not in name:
+                    continue
+                if name.split('.')[0] in existing_features:
+                    logging.info(f"Skipping {name}")
                     continue
                 vid_list.append(os.path.join(path, name))
 
