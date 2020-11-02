@@ -7,7 +7,7 @@ import torch
 import torch.backends.cudnn as cudnn
 from data_loader import VideoIter
 from network.c3d import C3D
-from utils.utils import set_logger, build_transforms
+from utils.utils import build_transforms, register_logger
 
 
 def get_args():
@@ -35,13 +35,11 @@ def get_args():
 	parser.add_argument('--pretrained_3d', type=str,
 						default='',
 						help="load default 3D pretrained model.")
-	parser.add_argument('--resume-epoch', type=int, default=-1,
-						help="resume train")
+
 	# optimization
 	parser.add_argument('--batch-size', type=int, default=8,
 						help="batch size")
-	parser.add_argument('--random-seed', type=int, default=1,
-						help='random seed (default: 1)')
+
 	return parser.parse_args()
 
 
@@ -143,10 +141,9 @@ def main():
 	device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 	args = get_args()
-	set_logger(log_file=args.log_file, debug_mode=args.debug_mode)
+	register_logger(log_file=args.log_file)
 
 	torch.manual_seed(args.random_seed)
-	torch.cuda.manual_seed(args.random_seed)
 	cudnn.benchmark = True
 
 	data_loader = VideoIter(dataset_path=args.dataset_path,
