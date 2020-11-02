@@ -86,7 +86,7 @@ class VideoIter(data.Dataset):
                 if 'mp4' not in name:
                     continue
                 if name.split('.')[0] in existing_features:
-                    logging.info(f"Skipping {name}")
+                    print(f"Skipping {name}")
                     continue
                 vid_list.append(os.path.join(path, name))
 
