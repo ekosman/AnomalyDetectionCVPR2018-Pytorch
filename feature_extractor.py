@@ -143,7 +143,6 @@ def main():
 	args = get_args()
 	register_logger(log_file=args.log_file)
 
-	torch.manual_seed(args.random_seed)
 	cudnn.benchmark = True
 
 	data_loader = VideoIter(dataset_path=args.dataset_path,
