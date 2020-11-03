@@ -26,7 +26,7 @@ class VideoIter(data.Dataset):
         self.return_label = return_label
 
         # data loading
-        video_clips_path = r'video_clips.file'
+        video_clips_path = r'1video_clips.file'
         if os.path.exists(video_clips_path):
             with open(video_clips_path, 'rb') as fp:
                 self.video_clips = pickle.load(fp)
