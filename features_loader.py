@@ -6,6 +6,7 @@ import numpy as np
 import torch
 from torch.utils import data
 from feature_extractor import read_features
+from torch.utils.data.dataset import Dataset
 
 
 class FeaturesLoader(data.Dataset):
@@ -15,7 +16,6 @@ class FeaturesLoader(data.Dataset):
                  bucket_size=30):
 
         super(FeaturesLoader, self).__init__()
-        self.i = 0
         self.features_path = features_path
         self.bucket_size = bucket_size
         # load video list
@@ -185,3 +185,19 @@ class FeaturesLoaderVal(data.Dataset):
                 features_list.append((feature_path, start_end_couples, length))
 
         return features_list
+
+
+class FeaturesDatasetWrapper(Dataset):
+    def __init__(self, features_path,
+                 annotation_path,
+                 bucket_size=30):
+        self.dataset = FeaturesLoader(features_path,
+                                      annotation_path,
+                                      bucket_size)
+
+    def __getitem__(self, index):
+        item = self.dataset[index]
+        return {'input': item[0], 'target': item[1]}
+
+    def __len__(self):
+        return len(self.dataset)

@@ -134,7 +134,7 @@ def read_features(file_path):
 		for i, line in enumerate(data):
 			features[i, :] = [float(x) for x in line.split(' ')]
 
-	return torch.from_numpy(features)
+	return torch.from_numpy(features).float()
 
 
 def main():
