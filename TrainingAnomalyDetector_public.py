@@ -20,8 +20,6 @@ def get_args():
                         help="path to features")
     parser.add_argument('--annotation_path', default="Train_Annotation.txt",
                         help="path to train annotation")
-    parser.add_argument('--model-dir', type=str, default="./exps/model",
-                        help="set logging file.")
     parser.add_argument('--log-file', type=str, default="log.log",
                         help="set logging file.")
     parser.add_argument('--exps_dir', type=str, default="exps",
@@ -32,11 +30,6 @@ def get_args():
                         help="batch size")
     parser.add_argument('--lr-base', type=float, default=0.01,
                         help="learning rate")
-    parser.add_argument('--lr-steps', type=list, default=[int(1e4 * x) for x in [5, 10, 15]],
-                        help="number of samples to pass before changing learning rate")  # 1e6 million
-
-    parser.add_argument('--lr-factor', type=float, default=0.9,
-                        help="reduce the learning with factor")
     parser.add_argument('--end-epoch', type=int, default=200,
                         help="maxmium number of training epoch")
 
@@ -48,28 +41,24 @@ if __name__ == "__main__":
     register_logger(log_file=args.log_file)
     os.makedirs(args.exps_dir, exist_ok=True)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    cudnn.benchmark = True  # enable cudnn tune
 
     train_loader = FeaturesDatasetWrapper(features_path=args.features_path, annotation_path=args.annotation_path)
 
     train_iter = torch.utils.data.DataLoader(train_loader,
                                              batch_size=args.batch_size,
-                                             shuffle=True,
                                              num_workers=0,  # 4, # change this part accordingly
                                              pin_memory=True)
 
     network = AnomalyDetector()
     system = pw.System(model=network, device=device)
+
     """
-        In the original paper:
+    In the original paper:
         lr = 0.01
         epsilon = 1e-8
     """
-    optimizer = torch.optim.Adadelta(network.parameters(),
-                                     lr=args.lr_base,
-                                     eps=1e-8)
-
-    # enable cudnn tune
-    cudnn.benchmark = True
+    optimizer = torch.optim.Adadelta(network.parameters(), lr=args.lr_base, eps=1e-8)
 
     loss_wrapper = pw.loss_wrappers.GenericPointWiseLossWrapper(RegularizedLoss(network, custom_objective))
 
@@ -77,9 +66,7 @@ if __name__ == "__main__":
         loss_wrapper,
         optimizer,
         train_data_loader=train_iter,
-        callbacks=[
-            pw.training_callbacks.NumberOfEpochsStoppingCriterionCallback(args.end_epoch)
-        ]
+        callbacks=[pw.training_callbacks.NumberOfEpochsStoppingCriterionCallback(args.end_epoch)]
     )
 
     system.save_model_state(path.join(args.exps_dir, 'model.weights'))
