@@ -30,7 +30,7 @@ def get_args():
                         help="batch size")
     parser.add_argument('--lr-base', type=float, default=0.01,
                         help="learning rate")
-    parser.add_argument('--end-epoch', type=int, default=200,
+    parser.add_argument('--end-epoch', type=int, default=20000,
                         help="maxmium number of training epoch")
 
     return parser.parse_args()
