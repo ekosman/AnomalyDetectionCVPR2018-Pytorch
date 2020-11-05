@@ -26,18 +26,9 @@ class VideoIter(data.Dataset):
         self.return_label = return_label
 
         # data loading
-        video_clips_path = r'1video_clips.file'
-        if os.path.exists(video_clips_path):
-            with open(video_clips_path, 'rb') as fp:
-                self.video_clips = pickle.load(fp)
-
-        else:
-            self.video_clips = VideoClips(video_paths=self.video_list,
-                                          clip_length_in_frames=self.total_clip_length_in_frames,
-                                          frames_between_clips=self.total_clip_length_in_frames,)
-
-            with open(video_clips_path, 'wb') as fp:
-                pickle.dump(self.video_clips, fp, protocol=pickle.HIGHEST_PROTOCOL)
+        self.video_clips = VideoClips(video_paths=self.video_list,
+                                      clip_length_in_frames=self.total_clip_length_in_frames,
+                                      frames_between_clips=self.total_clip_length_in_frames,)
 
     @property
     def video_count(self):
