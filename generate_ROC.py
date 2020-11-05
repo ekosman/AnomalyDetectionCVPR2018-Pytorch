@@ -2,21 +2,19 @@ import argparse
 import os
 import torch
 import torch.backends.cudnn as cudnn
-from network.anomaly_detector_model import AnomalyDetector, RegularizedLoss, custom_objective
+from network.anomaly_detector_model import AnomalyDetector
 from features_loader import FeaturesLoaderVal
-from network.model import static_model
 from tqdm import tqdm
 from sklearn.metrics import roc_curve, auc
 import matplotlib.pyplot as plt
 from os import path
-import cv2
 import numpy as np
 import pytorch_wrapper as pw
 
 
 def get_args():
     parser = argparse.ArgumentParser(description="PyTorch Video Classification Parser")
-    parser.add_argument('--features_path', default='out',
+    parser.add_argument('--features_path', default='../anomaly_features',
                         help="path to features")
     parser.add_argument('--annotation_path', default="Test_Annotation.txt",
                         help="path to annotations")
@@ -25,13 +23,6 @@ def get_args():
     parser.add_argument('--model-path', type=str, default="./exps/model.weights",
                         help="set logging file.")
     return parser.parse_args()
-
-
-def get_video_length(vid_name):
-    video_path = vid_name + '.mp4'
-    cap = cv2.VideoCapture(video_path)
-    length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    return length
 
 
 if __name__ == "__main__":
@@ -45,7 +36,7 @@ if __name__ == "__main__":
     data_iter = torch.utils.data.DataLoader(data_loader,
                                             batch_size=1,
                                             shuffle=False,
-                                            num_workers=1,  # 4, # change this part accordingly
+                                            num_workers=0,  # 4, # change this part accordingly
                                             pin_memory=True)
 
     network = AnomalyDetector()
@@ -59,18 +50,19 @@ if __name__ == "__main__":
     y_preds = torch.tensor([])
 
     with torch.no_grad():
-        for features, start_end_couples, feature_subpaths, lengths in tqdm(data_iter):
+        for features, start_end_couples, lengths in tqdm(data_iter):
             # features is a batch where each item is a tensor of 32 4096D features
             features = features.to(device)
-            outputs = system.model.predict(features)[0]  # (batch_size, 32)
-            outputs = outputs.reshape(outputs.shape[0], 32)
+            outputs = system.model(features).squeeze(-1)  # (batch_size, 32)
             for vid_len, couples, output in zip(lengths, start_end_couples, outputs.cpu().numpy()):
                 y_true = np.zeros(vid_len)
+                y_pred = np.zeros(vid_len)
+
                 segments_len = vid_len // 32
                 for couple in couples:
                     if couple[0] != -1:
                         y_true[couple[0]: couple[1]] = 1
-                y_pred = np.zeros(vid_len)
+
                 for i in range(32):
                     segment_start_frame = i * segments_len
                     segment_end_frame = (i + 1) * segments_len
@@ -96,6 +88,5 @@ if __name__ == "__main__":
     plt.ylabel('True Positive Rate')
     plt.legend(loc="lower right")
 
-    if not path.exists(r'graphs'):
-        os.mkdir(r'graphs')
+    os.makedirs('graphs', exist_ok=True)
     plt.savefig(path.join('graphs', 'roc_auc.png'))

@@ -23,11 +23,7 @@ class FeaturesLoader(data.Dataset):
         self.features_list_normal, self.features_list_anomaly = FeaturesLoader._get_features_list(
             features_path=self.features_path,
             annotation_path=annotation_path)
-        # existing_features = set(self.get_existing_features())
 
-        # TODO: verify all features exist
-        # self.features_list_normal = list(existing_features.intersection(self.features_list_normal))
-        # self.features_list_anomaly = list(existing_features.intersection(self.features_list_anomaly))
         self.normal_i, self.anomalous_i = 0, 0
 
         self.shuffle()
@@ -101,27 +97,15 @@ class FeaturesLoader(data.Dataset):
 class FeaturesLoaderVal(data.Dataset):
     def __init__(self,
                  features_path,
-                 annotation_path,
-                 name="<NO_NAME>",
-                 shuffle_list_seed=None):
+                 annotation_path,):
 
         super(FeaturesLoaderVal, self).__init__()
-        self.err = 0
         self.features_path = features_path
-        self.rng = np.random.RandomState(shuffle_list_seed if shuffle_list_seed else 0)
-        self.is_shuffled = shuffle_list_seed
         # load video list
         self.state = 'Normal'
         self.features_list = FeaturesLoaderVal._get_features_list(
-            features_path=self.features_path,
+            features_path=features_path,
             annotation_path=annotation_path)
-
-        if self.is_shuffled is not None:
-            self.features_list_anomaly = np.random.permutation(self.features_list_anomaly)
-            self.features_list_normal = np.random.permutation(self.features_list_normal)
-
-        logging.info("VideoIter:: iterator initialized (phase: '{:s}', num: {:d})".format(name, len(
-            self.features_list)))
 
     def __len__(self):
         return len(self.features_list)
@@ -130,43 +114,21 @@ class FeaturesLoaderVal(data.Dataset):
         succ = False
         while not succ:
             try:
-                feature, start_end_couples, feature_subpath, length = self.get_feature(index)
+                data = self.get_feature(index)
                 succ = True
             except Exception as e:
-                self.err += 1
-                print(self.err)
-                index = self.rng.choice(range(0, self.__len__()))
                 logging.warning("VideoIter:: ERROR!! (Force using another index:\n{})\n{}".format(index, e))
 
-        return feature, start_end_couples, feature_subpath, length
-
-    def get_existing_features(self):
-        res = []
-        for dir in os.listdir(self.features_path):
-            dir = path.join(self.features_path, dir)
-            if path.isdir(dir):
-                for file in os.listdir(dir):
-                    file_no_ext = file.split('.')[0]
-                    res.append(path.join(dir, file_no_ext))
-        return res
+        return data
 
     def get_feature(self, index):
         feature_subpath, start_end_couples, length = self.features_list[index]
-        feature_subpath = feature_subpath.split(os.sep)
-        features = read_features(dir=os.sep.join(feature_subpath[:-1]),
-                                 video_name=feature_subpath[-1])
-
-        feature_subpath = os.sep.join(feature_subpath)
-
-        vid_subpath = feature_subpath.split(os.sep)
-        vid_subpath = os.sep.join(vid_subpath[-2:])
-
-        return features, start_end_couples, vid_subpath, length
+        features = read_features(f"{feature_subpath}.txt")
+        return features, start_end_couples, length
 
     @staticmethod
     def _get_features_list(features_path, annotation_path):
         assert os.path.exists(features_path)
-        v_id = 0
         features_list = []
         with open(annotation_path, 'r') as f:
             lines = f.read().splitlines(keepends=False)
