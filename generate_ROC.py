@@ -11,17 +11,20 @@ import matplotlib.pyplot as plt
 from os import path
 import cv2
 import numpy as np
+import pytorch_wrapper as pw
 
 
-parser = argparse.ArgumentParser(description="PyTorch Video Classification Parser")
-parser.add_argument('--features_path', default='out',
-                    help="path to features")
-parser.add_argument('--annotation_path', default="Test_Annotation.txt",
-                    help="path to annotations")
-parser.add_argument('--random-seed', type=int, default=1,
-                    help='random seed (default: 1)')
-parser.add_argument('--model-dir', type=str, default="./exps/model",
-                    help="set logging file.")
+def get_args():
+    parser = argparse.ArgumentParser(description="PyTorch Video Classification Parser")
+    parser.add_argument('--features_path', default='out',
+                        help="path to features")
+    parser.add_argument('--annotation_path', default="Test_Annotation.txt",
+                        help="path to annotations")
+    parser.add_argument('--random-seed', type=int, default=1,
+                        help='random seed (default: 1)')
+    parser.add_argument('--model-path', type=str, default="./exps/model.weights",
+                        help="set logging file.")
+    return parser.parse_args()
 
 
 def get_video_length(vid_name):
@@ -32,11 +35,9 @@ def get_video_length(vid_name):
 
 
 if __name__ == "__main__":
-    args = parser.parse_args()
+    args = get_args()
     device = torch.device("cuda" if torch.cuda.is_available()
                           else "cpu")
-    torch.manual_seed(args.random_seed)
-    torch.cuda.manual_seed(args.random_seed)
 
     data_loader = FeaturesLoaderVal(features_path=args.features_path,
                                     annotation_path=args.annotation_path)
@@ -48,28 +49,20 @@ if __name__ == "__main__":
                                             pin_memory=True)
 
     network = AnomalyDetector()
-    network.to(device)
-    net = static_model(net=network,
-                       criterion=RegularizedLoss(network, custom_objective).cuda(),
-                       model_prefix=args.model_dir,
-                       )
-    model_path = net.get_checkpoint_path(20000)
-    net.load_checkpoint(pretrain_path=model_path, epoch=20000)
-    net.net.to(device)
-    # net.net = torch.nn.DataParallel(net.net).cuda()
+    system = pw.System(model=network, device=device)
+    system.load_model_state(args.model_path)
 
     # enable cudnn tune
     cudnn.benchmark = True
 
-    y_trues = None
-    y_preds = None
+    y_trues = torch.tensor([])
+    y_preds = torch.tensor([])
 
-    for features, start_end_couples, feature_subpaths, lengths in tqdm(data_iter):
-        # features is a batch where each item is a tensor of 32 4096D features
-        features = features.to(device)
-        with torch.no_grad():
-            input_var = torch.autograd.Variable(features)
-            outputs = net.predict(input_var)[0]  # (batch_size, 32)
+    with torch.no_grad():
+        for features, start_end_couples, feature_subpaths, lengths in tqdm(data_iter):
+            # features is a batch where each item is a tensor of 32 4096D features
+            features = features.to(device)
+            outputs = system.model.predict(features)[0]  # (batch_size, 32)
             outputs = outputs.reshape(outputs.shape[0], 32)
             for vid_len, couples, output in zip(lengths, start_end_couples, outputs.cpu().numpy()):
                 y_true = np.zeros(vid_len)
