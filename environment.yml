@@ -1,4 +1,4 @@
-name: torch
+name: adCVPR18
 channels:
   - conda-forge
   - defaults
@@ -320,5 +320,6 @@ dependencies:
   - pip:
     - torch==1.2.0
     - torchvision==0.4.0
+    - pytorch-wrapper==1.1.0
 prefix: /home/ekosman/anaconda3
 

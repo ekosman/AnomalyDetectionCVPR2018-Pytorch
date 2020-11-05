@@ -1,22 +1,29 @@
-from torchvision.transforms import transforms
-from . import transforms_video
-import os
 import logging
+import sys
+
+from torchvision.transforms import transforms
+
+from . import transforms_video
 
 
-def set_logger(log_file='', debug_mode=False):
+def register_logger(log_file, stdout=True):
+    log = logging.getLogger()  # root logger
+    for hdlr in log.handlers[:]:  # remove all old handlers
+        log.removeHandler(hdlr)
+
+    handlers = []
+
+    if stdout:
+        handlers.append(logging.StreamHandler(stream=sys.stdout))
+
     if log_file:
-        if not os.path.exists("./" + os.path.dirname(log_file)):
-            os.makedirs("./" + os.path.dirname(log_file))
-        handlers = [logging.FileHandler(log_file), logging.StreamHandler()]
-    else:
-        handlers = [logging.StreamHandler()]
+        handlers.append(logging.FileHandler(log_file))
 
-    """ add '%(filename)s:%(lineno)d %(levelname)s:' to format show source file """
-    logging.basicConfig(level=logging.DEBUG if debug_mode else logging.INFO,
-                        format='%(asctime)s: %(message)s',
-                        datefmt='%Y-%m-%d %H:%M:%S',
-                        handlers=handlers)
+    logging.basicConfig(format="%(asctime)s %(message)s",
+                        handlers=handlers,
+                        level=logging.INFO,
+                        )
+    logging.root.setLevel(logging.INFO)
 
 
 def build_transforms():

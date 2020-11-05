@@ -48,7 +48,7 @@ def custom_objective(y_pred, y_true):
     anomal_segments_scores_maxes = anomal_segments_scores.max(dim=-1)[0]
 
     hinge_loss = 1 - anomal_segments_scores_maxes + normal_segments_scores_maxes
-    hinge_loss = torch.max(hinge_loss, torch.zeros(hinge_loss.shape[0]).cuda())
+    hinge_loss = torch.max(hinge_loss, torch.zeros_like(hinge_loss))
 
     """
     Smoothness of anomalous video

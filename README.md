@@ -8,7 +8,7 @@ Due to some very big projects in progress, the authors are very busy and unable 
 ```conda env create -f environment.yml```
 
 
-```conda activate torch```
+```conda activate adCVPR18```
 
 ## Download C3D weights
 I couldn't upload here the weights for the C3D model because the file is too big, but it can be found here:
@@ -16,10 +16,10 @@ https://github.com/DavideA/c3d-pytorch
 
 ## Precomputed features
 Can be downloaded from:
-https://drive.google.com/drive/folders/1rZn-UHM_EcIXauJ0wRysQbh0mHQoNrfY?usp=sharing
+https://drive.google.com/drive/folders/1rhOuAdUqyJU4hXIhToUnh5XVvYjQiN50?usp=sharing
 
 ## Features extraction
-```python feature_extractor.py --dataset_path "path-to-dataset" --annotation_path "path-to-train-annos" --annotation_path_test "path-to-test-annos" --pretrained_3d "path-to-pretrained-c3d"```
+```python feature_extractor.py --dataset_path "path-to-dataset"  --pretrained_3d "path-to-pretrained-c3d"```
 
 ## Training
 ```python TrainingAnomalyDetector_public.py --features_path "path-to-dataset" --annotation_path "path-to-train-annos" --annotation_path_test "path-to-test-annos"```
