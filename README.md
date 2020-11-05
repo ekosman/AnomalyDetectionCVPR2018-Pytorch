@@ -13,7 +13,7 @@ https://github.com/DavideA/c3d-pytorch
 
 ## Precomputed features
 Can be downloaded from:
-https://drive.google.com/drive/folders/1rZn-UHM_EcIXauJ0wRysQbh0mHQoNrfY?usp=sharing
+https://drive.google.com/drive/folders/1rhOuAdUqyJU4hXIhToUnh5XVvYjQiN50?usp=sharing
 
 ## Features extraction
 ```python feature_extractor.py --dataset_path "path-to-dataset"  --pretrained_3d "path-to-pretrained-c3d"```
