@@ -42,6 +42,7 @@ if __name__ == "__main__":
     network = AnomalyDetector()
     system = pw.System(model=network, device=device)
     system.load_model_state(args.model_path)
+    model = system.model.eval()
 
     # enable cudnn tune
     cudnn.benchmark = True
@@ -53,7 +54,7 @@ if __name__ == "__main__":
         for features, start_end_couples, lengths in tqdm(data_iter):
             # features is a batch where each item is a tensor of 32 4096D features
             features = features.to(device)
-            outputs = system.model(features).squeeze(-1)  # (batch_size, 32)
+            outputs = model(features).squeeze(-1)  # (batch_size, 32)
             for vid_len, couples, output in zip(lengths, start_end_couples, outputs.cpu().numpy()):
                 y_true = np.zeros(vid_len)
                 y_pred = np.zeros(vid_len)

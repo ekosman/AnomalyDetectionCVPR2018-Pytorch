@@ -12,9 +12,6 @@ from utils.utils import build_transforms, register_logger
 
 def get_args():
 	parser = argparse.ArgumentParser(description="PyTorch Video Classification Parser")
-	# debug
-	parser.add_argument('--debug-mode', action='store_true', default=False,
-						help="print all setting for debugging.")
 	# io
 	parser.add_argument('--dataset_path', default='../kinetics2/kinetics2/AnomalyDetection',
 						help="path to dataset")
@@ -32,13 +29,19 @@ def get_args():
 						help="set logging file.")
 
 	# device
-	parser.add_argument('--pretrained_3d', type=str,
-						default='',
+	parser.add_argument('--pretrained_3d',
+						type=str,
 						help="load default 3D pretrained model.")
 
 	# optimization
 	parser.add_argument('--batch-size', type=int, default=8,
 						help="batch size")
+
+	# model
+	parser.add_argument('--model_type',
+						type=str,
+						help="type of feature extractor",
+						choices=['c3d', 'i3d'])
 
 	return parser.parse_args()
 
