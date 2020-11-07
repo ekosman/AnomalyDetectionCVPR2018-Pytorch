@@ -6,7 +6,7 @@ import torch.backends.cudnn as cudnn
 from features_loader import FeaturesDatasetWrapper
 from network.anomaly_detector_model import AnomalyDetector, custom_objective, RegularizedLoss
 from network.model import model
-from utils.utils import register_logger
+from utils.utils import register_logger, get_torch_device
 import pytorch_wrapper as pw
 from os import path
 import os
@@ -40,7 +40,7 @@ if __name__ == "__main__":
     args = get_args()
     register_logger(log_file=args.log_file)
     os.makedirs(args.exps_dir, exist_ok=True)
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = get_torch_device()
     cudnn.benchmark = True  # enable cudnn tune
 
     train_loader = FeaturesDatasetWrapper(features_path=args.features_path, annotation_path=args.annotation_path)
