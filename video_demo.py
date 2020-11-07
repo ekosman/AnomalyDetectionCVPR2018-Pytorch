@@ -22,8 +22,6 @@ def get_args():
 	parser.add_argument('--video_path',
 						required=True,
 						help="path of the video to be used for demo")
-	parser.add_argument('--features_dir',
-						help="path to dir where you want the featuers saved")
 	parser.add_argument('--feature_extractor',
 						required=True,
 						help='path to the 3d model for feature extraction')
@@ -53,17 +51,16 @@ def load_models(feature_extractor_path, ad_model_path, features_method='c3d', de
 	assert path.exists(feature_extractor_path)
 	assert path.exists(ad_model_path)
 
-	feature_extractor = None
-	anomaly_detector = None
+	feature_extractor, anomaly_detector = None, None
 
 	if features_method == 'c3d':
-		feature_extractor = C3D(pretrained=feature_extractor_path).to(device).eval()
+		feature_extractor = C3D(pretrained=feature_extractor_path)
 	else:
 		raise NotImplementedError(f"Features extraction method {features_method} not implemented")
 
-	anomaly_detector = AnomalyDetector()
-	anomaly_detector = pw.System(model=anomaly_detector, device=device)
-	anomaly_detector.load_model_state(args.model_path)
+	feature_extractor = feature_extractor.to(device).eval()
+	anomaly_detector = pw.System(model=AnomalyDetector(), device=device)
+	anomaly_detector.load_model_state(ad_model_path)
 	anomaly_detector = anomaly_detector.model.eval()
 
 	return anomaly_detector, feature_extractor
@@ -223,9 +220,6 @@ if __name__ == '__main__':
 	features = features_extraction(video_path=args.video_path,
 									model=feature_extractor,
 									device=device,
-									batch_size=1,
-									frame_stride=1,
-									clip_length=16,
 									n_segments=args.n_segments,)
 
 	y_pred = ad_perdiction(model=anomaly_detector,
