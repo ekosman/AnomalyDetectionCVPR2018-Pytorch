@@ -2,12 +2,13 @@ import argparse
 import logging
 import os
 from os import path, mkdir
+
 import numpy as np
 import torch
 import torch.backends.cudnn as cudnn
+
 from data_loader import VideoIter
-from network.c3d import C3D
-from utils.load_model import load_models, load_feature_extractor
+from utils.load_model import load_feature_extractor
 from utils.utils import build_transforms, register_logger, get_torch_device
 
 
@@ -135,11 +136,11 @@ def read_features(file_path):
 	return torch.from_numpy(features).float()
 
 
-def get_features_loader(dataset_path, clip_length, frame_interval, batch_size, num_workers):
+def get_features_loader(dataset_path, clip_length, frame_interval, batch_size, num_workers, mode):
 	data_loader = VideoIter(dataset_path=dataset_path,
 							clip_length=clip_length,
 							frame_stride=frame_interval,
-							video_transform=build_transforms(),
+							video_transform=build_transforms(mode),
 							return_label=False)
 
 	data_iter = torch.utils.data.DataLoader(data_loader,
@@ -163,7 +164,8 @@ def main():
 												args.clip_length,
 												args.frame_interval,
 												args.batch_size,
-												args.num_workers)
+												args.num_workers,
+												args.model_type)
 
 	network = load_feature_extractor(args.features_method, args.pretrained_3d, device)
 
