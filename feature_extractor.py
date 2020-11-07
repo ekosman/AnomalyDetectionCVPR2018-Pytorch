@@ -7,6 +7,7 @@ import torch
 import torch.backends.cudnn as cudnn
 from data_loader import VideoIter
 from network.c3d import C3D
+from utils.load_model import load_models, load_feature_extractor
 from utils.utils import build_transforms, register_logger
 
 
@@ -28,11 +29,6 @@ def get_args():
 	parser.add_argument('--save_dir', type=str, default="features",
 						help="set logging file.")
 
-	# device
-	parser.add_argument('--pretrained_3d',
-						type=str,
-						help="load default 3D pretrained model.")
-
 	# optimization
 	parser.add_argument('--batch-size', type=int, default=8,
 						help="batch size")
@@ -42,6 +38,9 @@ def get_args():
 						type=str,
 						help="type of feature extractor",
 						choices=['c3d', 'i3d'])
+	parser.add_argument('--pretrained_3d',
+						type=str,
+						help="load default 3D pretrained model.")
 
 	return parser.parse_args()
 
@@ -160,10 +159,7 @@ def main():
 											num_workers=args.num_workers,
 											pin_memory=True)
 
-	network = C3D(pretrained=args.pretrained_3d)
-	if device.type != 'cpu':
-		network = torch.nn.DataParallel(network)
-	network = network.to(device)
+	network = load_feature_extractor(args.features_method, args.pretrained_3d, device)
 
 	if not path.exists(args.save_dir):
 		mkdir(args.save_dir)
