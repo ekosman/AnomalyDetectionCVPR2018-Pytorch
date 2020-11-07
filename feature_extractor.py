@@ -36,6 +36,7 @@ def get_args():
 	# model
 	parser.add_argument('--model_type',
 						type=str,
+						required=True,
 						help="type of feature extractor",
 						choices=['c3d', 'i3d'])
 	parser.add_argument('--pretrained_3d',
