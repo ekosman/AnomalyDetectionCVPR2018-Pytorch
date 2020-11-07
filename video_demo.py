@@ -12,8 +12,8 @@ from tqdm import tqdm
 from data_loader import SingleVideoIter
 from feature_extractor import to_segments
 from network.anomaly_detector_model import AnomalyDetector
-from network.c3d import C3D  # network.
-from utils.utils import build_transforms
+from network.c3d import C3D
+from utils.utils import build_transforms, register_logger
 
 
 def get_args():
@@ -33,6 +33,7 @@ def get_args():
 						required=True,
 						help="path to the tarined AD model")
 	parser.add_argument('--n_segments',
+						type=int,
 						default=32,
 						help='number of segments to use for features averaging')
 
@@ -54,10 +55,12 @@ def load_models(feature_extractor_path, ad_model_path, features_method='c3d', de
 	feature_extractor, anomaly_detector = None, None
 
 	if features_method == 'c3d':
+		logging.info(f"Loading feature extractor from {feature_extractor_path}")
 		feature_extractor = C3D(pretrained=feature_extractor_path)
 	else:
 		raise NotImplementedError(f"Features extraction method {features_method} not implemented")
 
+	logging.info(f"Loading anomaly detector from {ad_model_path}")
 	feature_extractor = feature_extractor.to(device).eval()
 	anomaly_detector = pw.System(model=AnomalyDetector(), device=device)
 	anomaly_detector.load_model_state(ad_model_path)
@@ -95,7 +98,7 @@ def features_extraction(video_path, model, device, batch_size=1, frame_stride=1,
 	data_iter = torch.utils.data.DataLoader(data_loader,
 											batch_size=batch_size,
 											shuffle=False,
-											num_workers=32,  # 4, # change this part accordingly
+											num_workers=0,  # 4, # change this part accordingly
 											pin_memory=True)
 
 	logging.info("Extracting features...")
@@ -103,7 +106,7 @@ def features_extraction(video_path, model, device, batch_size=1, frame_stride=1,
 	with torch.no_grad():
 		for data, clip_idxs, dirs, vid_names in tqdm(data_iter):
 			outputs = model(data.to(device)).detach().cpu()
-			features = torch.cat(features, outputs)
+			features = torch.cat([features, outputs])
 
 	features = features.numpy()
 	return to_segments(features, n_segments)
@@ -117,8 +120,10 @@ def ad_perdiction(model, features, device='cuda'):
 	:param device: device to use for loading the features
 	:return: anomaly predictions for the video segments
 	"""
+	logging.info(f"Performing anomaly detection...")
+	features = torch.tensor(features).to(device)
 	with torch.no_grad():
-		preds = model(features.to(device))
+		preds = model(features)
 
 	return preds
 
@@ -134,7 +139,7 @@ def gui(video_path, y_pred, save="Just save", s_path="output_video"):
 	videoReader = cv2.VideoCapture(video_path)
 	isCurrentFrameValid, currentImage = videoReader.read()
 
-	if save == True or save == "Just save":
+	if save or save == "Just save":
 		# fps = videoReader.get(cv2.CV_CAP_PROP_FPS)
 		fps = videoReader.get(cv2.CAP_PROP_FPS)
 		fourcc = cv2.VideoWriter_fourcc(*'XVID')
@@ -210,6 +215,7 @@ def gui(video_path, y_pred, save="Just save", s_path="output_video"):
 # results and video play at the same time
 if __name__ == '__main__':
 	args = get_args()
+	register_logger()
 	device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 	anomaly_detector, feature_extractor = load_models(args.feature_extractor,

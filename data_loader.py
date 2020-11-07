@@ -98,5 +98,5 @@ class SingleVideoIter(VideoIter):
                  return_label=False):
         super(SingleVideoIter, self).__init__(clip_length, frame_stride, video_path, video_transform, return_label)
 
-    def _get_video_list(self, video_path):
-        return [video_path]
+    def _get_video_list(self, dataset_path):
+        return [dataset_path]

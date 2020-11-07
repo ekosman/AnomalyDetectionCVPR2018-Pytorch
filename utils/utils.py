@@ -6,7 +6,7 @@ from torchvision.transforms import transforms
 from . import transforms_video
 
 
-def register_logger(log_file, stdout=True):
+def register_logger(log_file=None, stdout=True):
     log = logging.getLogger()  # root logger
     for hdlr in log.handlers[:]:  # remove all old handlers
         log.removeHandler(hdlr)
@@ -16,7 +16,7 @@ def register_logger(log_file, stdout=True):
     if stdout:
         handlers.append(logging.StreamHandler(stream=sys.stdout))
 
-    if log_file:
+    if log_file is not None:
         handlers.append(logging.FileHandler(log_file))
 
     logging.basicConfig(format="%(asctime)s %(message)s",
