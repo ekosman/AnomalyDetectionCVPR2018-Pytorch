@@ -5,7 +5,6 @@ Pytorch version of - https://github.com/WaqasSultani/AnomalyDetectionCVPR2018
 In this section, I list the future improvements I intend to add to this repository. Please feel free to recommend new features. I also happily accept PR's! :smirk:
 
 * I3D feature extraction
-* Resume training from checkpoint
 
 ## Install anaconda env
 ```conda env create -f environment.yml```
