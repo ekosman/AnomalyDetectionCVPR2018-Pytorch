@@ -31,12 +31,12 @@ https://drive.google.com/drive/folders/1rhOuAdUqyJU4hXIhToUnh5XVvYjQiN50?usp=sha
 
 ![ROC](graphs/roc_auc.png)
 
-## Demo
+## Demo *
 ```python video_demo.py --video_path_list LIST_OF_VIDEO_PATHS --model_dir PATH_TO_MODLE```
 
 This should take any video and run the Anomaly Detection code (including CD3 feature extraction) and output a video with a graph of the Anomaly Detection prediction on the right-hand side (like in the demo code for the paper). It is all still a bit rough but it works and I do plan to add to it so I can always update later.
 
-## Annotation
+## Annotation *
 ```python annotation_methods.py --path_list LIST_OF_VIDEO_PATH --dir_list LIST_OF_LIST_WITH_PATH_AND_VIDEO_NAME --normal_or_not LIST_TRUE_FALUE```
 
 This is currently just for demo but will allow training with nex videos
