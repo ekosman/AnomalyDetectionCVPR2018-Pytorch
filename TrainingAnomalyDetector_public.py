@@ -24,6 +24,8 @@ def get_args():
                         help="set logging file.")
     parser.add_argument('--exps_dir', type=str, default="exps",
                         help="set logging file.")
+    parser.add_argument('--save_name', type=str, default="model",
+                        help="name of the saved model.")
 
     # optimization
     parser.add_argument('--batch-size', type=int, default=60,
@@ -69,4 +71,4 @@ if __name__ == "__main__":
         callbacks=[pw.training_callbacks.NumberOfEpochsStoppingCriterionCallback(args.end_epoch)]
     )
 
-    system.save_model_state(path.join(args.exps_dir, 'model.weights'))
+    system.save_model_state(path.join(args.exps_dir, f'{args.save_name}.weights'))
