@@ -21,5 +21,5 @@ class SaveCallback(AbstractCallback):
 
     def on_epoch_end(self, training_context):
         epoch = training_context['_current_epoch']
-        if epoch % self.save_every != 0:
+        if epoch % self.save_every == 0:
             training_context['system'].save_model_state(path.join(self.target_dir, f'{self.model_name}_{epoch}.weights'))
