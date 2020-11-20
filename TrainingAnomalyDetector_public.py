@@ -2,10 +2,12 @@ import argparse
 
 import torch
 import torch.backends.cudnn as cudnn
+from torch.utils.tensorboard import SummaryWriter
 
 from features_loader import FeaturesDatasetWrapper
 from network.anomaly_detector_model import AnomalyDetector, custom_objective, RegularizedLoss
 from network.model import model
+from utils.callbacks import TensorboardCallback
 from utils.utils import register_logger
 import pytorch_wrapper as pw
 from os import path
@@ -64,11 +66,14 @@ if __name__ == "__main__":
 
     loss_wrapper = pw.loss_wrappers.GenericPointWiseLossWrapper(RegularizedLoss(network, custom_objective))
 
+    tb_writer = SummaryWriter(log_dir=args.exps_dir)
+
     system.train(
         loss_wrapper,
         optimizer,
         train_data_loader=train_iter,
-        callbacks=[pw.training_callbacks.NumberOfEpochsStoppingCriterionCallback(args.end_epoch)]
+        callbacks=[pw.training_callbacks.NumberOfEpochsStoppingCriterionCallback(args.end_epoch),
+                   TensorboardCallback(tb_writer)]
     )
 
     system.save_model_state(path.join(args.exps_dir, f'{args.save_name}.weights'))
