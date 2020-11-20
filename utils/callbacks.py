@@ -7,6 +7,7 @@ class TensorboardCallback(AbstractCallback):
 
     def on_epoch_end(self, training_context):
         print(training_context)
-        self.tb_writer.add_scalars('Train loss',
-                                   training_context['current_loss'],
-                                   training_context['_current_epoch'])
+        if training_context['current_loss'] is not None:
+            self.tb_writer.add_scalars('Train loss',
+                                       training_context['current_loss'],
+                                       training_context['_current_epoch'])
