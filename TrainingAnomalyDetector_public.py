@@ -9,7 +9,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 from features_loader import FeaturesDatasetWrapper
 from network.anomaly_detector_model import AnomalyDetector, custom_objective, RegularizedLoss
-from utils.callbacks import TensorboardCallback
+from utils.callbacks import TensorboardCallback, SaveCallback
 from utils.utils import register_logger
 
 
@@ -31,6 +31,8 @@ def get_args():
     # optimization
     parser.add_argument('--batch-size', type=int, default=60,
                         help="batch size")
+    parser.add_argument('--save-every', type=int, default=100,
+                        help="epochs interval for saving the model checkpoints")
     parser.add_argument('--lr-base', type=float, default=0.01,
                         help="learning rate")
     parser.add_argument('--end-epoch', type=int, default=20000,
@@ -42,7 +44,12 @@ def get_args():
 if __name__ == "__main__":
     args = get_args()
     register_logger(log_file=args.log_file)
-    os.makedirs(args.exps_dir, exist_ok=True)
+
+    models_dir = path.join(args.exps_dir, 'models')
+    tb_dir = path.join(args.exps_dir, 'tensorboard')
+    os.makedirs(models_dir, exist_ok=True)
+    os.makedirs(tb_dir, exist_ok=True)
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     cudnn.benchmark = True  # enable cudnn tune
 
@@ -50,7 +57,7 @@ if __name__ == "__main__":
 
     train_iter = torch.utils.data.DataLoader(train_loader,
                                              batch_size=args.batch_size,
-                                             num_workers=0,  # 4, # change this part accordingly
+                                             num_workers=0,
                                              pin_memory=True)
 
     network = AnomalyDetector()
@@ -65,14 +72,15 @@ if __name__ == "__main__":
 
     loss_wrapper = pw.loss_wrappers.GenericPointWiseLossWrapper(RegularizedLoss(network, custom_objective))
 
-    tb_writer = SummaryWriter(log_dir=args.exps_dir)
+    tb_writer = SummaryWriter(log_dir=tb_dir)
 
     system.train(
         loss_wrapper,
         optimizer,
         train_data_loader=train_iter,
         callbacks=[pw.training_callbacks.NumberOfEpochsStoppingCriterionCallback(args.end_epoch),
-                   TensorboardCallback(tb_writer)]
+                   TensorboardCallback(tb_writer),
+                   SaveCallback(models_dir, args.save_name, args.save_every)]
     )
 
-    system.save_model_state(path.join(args.exps_dir, f'{args.save_name}.weights'))
+    system.save_model_state(path.join(models_dir, f'{args.save_name}_final_{args.end_epoch}.weights'))
