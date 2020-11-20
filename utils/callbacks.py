@@ -7,6 +7,6 @@ class TensorboardCallback(AbstractCallback):
 
     def post_loss_calculation(self, training_context):
         if training_context['current_loss'] is not None:
-            self.tb_writer.add_scalars('Train loss',
-                                       training_context['current_loss'].item(),
-                                       training_context['_current_epoch'])
+            self.tb_writer.add_scalar('Train loss',
+                                      training_context['current_loss'].item(),
+                                      training_context['_current_epoch'])
