@@ -1,17 +1,16 @@
 import argparse
+import os
+from os import path
 
+import pytorch_wrapper as pw
 import torch
 import torch.backends.cudnn as cudnn
 from torch.utils.tensorboard import SummaryWriter
 
 from features_loader import FeaturesDatasetWrapper
 from network.anomaly_detector_model import AnomalyDetector, custom_objective, RegularizedLoss
-from network.model import model
 from utils.callbacks import TensorboardCallback
 from utils.utils import register_logger
-import pytorch_wrapper as pw
-from os import path
-import os
 
 
 def get_args():
