@@ -21,7 +21,7 @@ def get_args():
                         help="path to features")
     parser.add_argument('--annotation_path', default="Train_Annotation.txt",
                         help="path to train annotation")
-    parser.add_argument('--log-file', type=str, default="log.log",
+    parser.add_argument('--log_file', type=str, default="log.log",
                         help="set logging file.")
     parser.add_argument('--exps_dir', type=str, default="exps",
                         help="set logging file.")
@@ -29,13 +29,13 @@ def get_args():
                         help="name of the saved model.")
 
     # optimization
-    parser.add_argument('--batch-size', type=int, default=60,
+    parser.add_argument('--batch_size', type=int, default=60,
                         help="batch size")
-    parser.add_argument('--save-every', type=int, default=100,
+    parser.add_argument('--save_every', type=int, default=100,
                         help="epochs interval for saving the model checkpoints")
-    parser.add_argument('--lr-base', type=float, default=0.01,
+    parser.add_argument('--lr_base', type=float, default=0.01,
                         help="learning rate")
-    parser.add_argument('--end-epoch', type=int, default=20000,
+    parser.add_argument('--end_epoch', type=int, default=20000,
                         help="maxmium number of training epoch")
 
     return parser.parse_args()
