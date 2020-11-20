@@ -10,4 +10,4 @@ class TensorboardCallback(AbstractCallback):
         if training_context['current_loss'] is not None:
             self.tb_writer.add_scalars('Train loss',
                                        training_context['current_loss'],
-                                       training_context['_current_epoch'])
+                                       training_context['_current_epoch'].item())
