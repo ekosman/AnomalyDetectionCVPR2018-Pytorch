@@ -11,34 +11,34 @@ In this section, I list the future improvements I intend to add to this reposito
 * AUC is not exactly as reported in the paper (0.71 vs 0.75)
 * video_demo not running
 
-## Install anaconda env
+## Install Anaconda Environment
 ```conda env create -f environment.yml```
 
 
 ```conda activate adCVPR18```
 
-## Download C3D weights
+## Download C3D Weights
 I couldn't upload here the weights for the C3D model because the file is too big, but it can be found here:
 https://github.com/DavideA/c3d-pytorch
 
-## Precomputed features
+## Precomputed Features
 Can be downloaded from:
 https://drive.google.com/drive/folders/1rhOuAdUqyJU4hXIhToUnh5XVvYjQiN50?usp=sharing
 
-## Pre-trained anomaly detector
+## Pre-Trained Anomaly Detector
 Check out <a href="exps/models">exps/models</a> for for trained models on the pre-computed features
 
 The loss graph during training is shown here:
 
 <img src=graphs/Train_loss.png width="600"/>
 
-## Features extraction
+## Features Extraction
 ```python feature_extractor.py --dataset_path "path-to-dataset"  --pretrained_3d "path-to-pretrained-c3d"```
 
 ## Training
 ```python TrainingAnomalyDetector_public.py --features_path "path-to-dataset" --annotation_path "path-to-train-annos" --annotation_path_test "path-to-test-annos"```
 
-## Generate ROC curve
+## Generate ROC Curve
 ```python generate_ROC.py --features_path "path-to-dataset" --annotation_path "path-to-annos"```
 
 Using my pre-trained model after 40K iterations, I achieve this following performance on the test-set. I'm aware that the current model doesn't achieve AUC of 0.75 as reported in the original paper. This can be caused by different weights of the C3D model.
