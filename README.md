@@ -23,7 +23,7 @@ https://drive.google.com/drive/folders/1rhOuAdUqyJU4hXIhToUnh5XVvYjQiN50?usp=sha
 ## Pre-trained anomaly detector
 Check out <a href="exps/models">exps/models</a> for for trained models on the pre-computed features
 
-The loss graph during training is shown in this graph:
+The loss graph during training is shown here:
 
 <img src=graphs/Train_loss.svg alt="Train loss" width="400">
 
