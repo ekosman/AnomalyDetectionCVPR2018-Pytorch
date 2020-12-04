@@ -25,7 +25,7 @@ Check out <a href="exps/models">exps/models</a> for for trained models on the pr
 
 The loss graph during training is shown here:
 
-<img src=graphs/Train_loss.png width="400"/>
+<img src=graphs/Train_loss.png width="600"/>
 
 ## Features extraction
 ```python feature_extractor.py --dataset_path "path-to-dataset"  --pretrained_3d "path-to-pretrained-c3d"```
@@ -37,7 +37,8 @@ The loss graph during training is shown here:
 ```python generate_ROC.py --features_path "path-to-dataset" --annotation_path "path-to-annos"```
 
 Using my pre-trained model after 40K iterations, I achieve this following performance on the test-set. I'm aware that the current model doesn't achieve AUC of 0.75 as reported in the original paper. This can be caused by different weights of the C3D model.
-![ROC](graphs/roc_auc.png)
+
+<img src=graphs/roc_auc.png width="600"/>
 
 ## Demo *
 ```python video_demo.py --video_path_list LIST_OF_VIDEO_PATHS --model_dir PATH_TO_MODLE```
