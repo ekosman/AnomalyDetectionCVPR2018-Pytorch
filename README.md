@@ -6,6 +6,11 @@ In this section, I list the future improvements I intend to add to this reposito
 
 * I3D feature extraction
 
+## Known Issues:
+
+* AUC is not exactly as reported in the paper (0.71 vs 0.75)
+* video_demo not running
+
 ## Install anaconda env
 ```conda env create -f environment.yml```
 
