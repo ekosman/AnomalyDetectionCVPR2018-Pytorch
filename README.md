@@ -25,7 +25,7 @@ Check out <a href="exps/models">exps/models</a> for for trained models on the pr
 
 The loss graph during training is shown here:
 
-<img src=graphs/Train_loss.svg width="400"/>
+<img src=graphs/Train_loss.png width="400"/>
 
 ## Features extraction
 ```python feature_extractor.py --dataset_path "path-to-dataset"  --pretrained_3d "path-to-pretrained-c3d"```
