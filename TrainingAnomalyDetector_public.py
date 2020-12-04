@@ -27,6 +27,8 @@ def get_args():
                         help="set logging file.")
     parser.add_argument('--save_name', type=str, default="model",
                         help="name of the saved model.")
+    parser.add_argument('--checkpoint', type=str,
+                        help="load a model for resume training")
 
     # optimization
     parser.add_argument('--batch_size', type=int, default=60,
@@ -62,6 +64,8 @@ if __name__ == "__main__":
 
     network = AnomalyDetector()
     system = pw.System(model=network, device=device)
+    if args.checkpoint is not None:
+        system.load_model_state(args.checkpoint)
 
     """
     In the original paper:
