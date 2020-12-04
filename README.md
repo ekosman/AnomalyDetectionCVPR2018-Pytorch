@@ -27,13 +27,6 @@ The loss graph during training is shown here:
 
 <img src=graphs/Train_loss.svg width="400"/>
 
-<h4>SVG set Background Color</h4> 
-  
-        <svg height="100" width="100"> 
-            <circle cx="50" cy="50" r="40" stroke="black" 
-                    stroke-width="3" fill="red" /> 
-        </svg> 
-
 ## Features extraction
 ```python feature_extractor.py --dataset_path "path-to-dataset"  --pretrained_3d "path-to-pretrained-c3d"```
 
