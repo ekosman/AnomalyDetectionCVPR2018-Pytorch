@@ -25,7 +25,7 @@ Check out `exps/models` for for trained models on the pre-computed features
 
 The loss graph during training is shown in this graph:
 
-![loss](graphs/Train_loss.svg)
+<img src=graphs/Train_loss.svg alt="Train loss" width="400">
 
 ## Features extraction
 ```python feature_extractor.py --dataset_path "path-to-dataset"  --pretrained_3d "path-to-pretrained-c3d"```
