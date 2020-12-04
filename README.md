@@ -20,6 +20,13 @@ https://github.com/DavideA/c3d-pytorch
 Can be downloaded from:
 https://drive.google.com/drive/folders/1rhOuAdUqyJU4hXIhToUnh5XVvYjQiN50?usp=sharing
 
+## Pre-trained anomaly detector
+Check out `exps/models` for for trained models on the pre-computed features
+
+The loss graph during training is shown in this graph:
+
+![loss](graphs/Train loss.svg)
+
 ## Features extraction
 ```python feature_extractor.py --dataset_path "path-to-dataset"  --pretrained_3d "path-to-pretrained-c3d"```
 
