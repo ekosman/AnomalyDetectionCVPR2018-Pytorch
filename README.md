@@ -25,7 +25,7 @@ Check out <a href="exps/models">exps/models</a> for for trained models on the pr
 
 The loss graph during training is shown here:
 
-<svg src=graphs/Train_loss.svg alt="Train loss" width="400" background-color: blue;>
+<svg src=graphs/Train_loss.svg alt="Train loss" width="400" background-color: blue>
 <rect width="100%" height="100%" fill="red"/>
 </svg>
 
