@@ -36,7 +36,7 @@ The loss graph during training is shown here:
 ```python feature_extractor.py --dataset_path "path-to-dataset"  --pretrained_3d "path-to-pretrained-c3d"```
 
 ## Training
-```python TrainingAnomalyDetector_public.py --features_path "path-to-dataset" --annotation_path "path-to-train-annos" --annotation_path_test "path-to-test-annos"```
+```python TrainingAnomalyDetector_public.py --features_path "path-to-dataset" --annotation_path "path-to-train-annos"```
 
 ## Generate ROC Curve
 ```python generate_ROC.py --features_path "path-to-dataset" --annotation_path "path-to-annos"```
