@@ -8,8 +8,8 @@ In this section, I list the future improvements I intend to add to this reposito
 
 ## Known Issues:
 
-* AUC is not exactly as reported in the paper (0.71 vs 0.75)
-* video_demo not running
+* AUC is not exactly as reported in the paper (0.71 vs 0.75) - might be affected by the weights of C3D
+* Faulty video_demo
 
 ## Install Anaconda Environment
 ```conda env create -f environment.yml```
