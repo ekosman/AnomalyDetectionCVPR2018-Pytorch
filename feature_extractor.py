@@ -39,7 +39,7 @@ def get_args():
 						type=str,
 						required=True,
 						help="type of feature extractor",
-						choices=['c3d', 'i3d'])
+						choices=['c3d', 'i3d', 'mfnet'])
 	parser.add_argument('--pretrained_3d',
 						type=str,
 						help="load default 3D pretrained model.")
