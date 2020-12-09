@@ -1,6 +1,4 @@
 import argparse
-import os
-from os import path
 
 import pytorch_wrapper as pw
 import torch
@@ -46,6 +44,8 @@ def get_args():
 if __name__ == "__main__":
     args = get_args()
     register_logger(log_file=args.log_file)
+    os.makedirs(args.exps_dir, exist_ok=True)
+    device = get_torch_device()
 
     models_dir = path.join(args.exps_dir, 'models')
     tb_dir = path.join(args.exps_dir, 'tensorboard')

@@ -2,19 +2,18 @@ import argparse
 import logging
 import os
 from os import path, mkdir
+
 import numpy as np
 import torch
 import torch.backends.cudnn as cudnn
+
 from data_loader import VideoIter
-from network.c3d import C3D
-from utils.utils import build_transforms, register_logger
+from utils.load_model import load_feature_extractor
+from utils.utils import build_transforms, register_logger, get_torch_device
 
 
 def get_args():
 	parser = argparse.ArgumentParser(description="PyTorch Video Classification Parser")
-	# debug
-	parser.add_argument('--debug-mode', action='store_true', default=False,
-						help="print all setting for debugging.")
 	# io
 	parser.add_argument('--dataset_path', default='../kinetics2/kinetics2/AnomalyDetection',
 						help="path to dataset")
@@ -31,14 +30,19 @@ def get_args():
 	parser.add_argument('--save_dir', type=str, default="features",
 						help="set logging file.")
 
-	# device
-	parser.add_argument('--pretrained_3d', type=str,
-						default='',
-						help="load default 3D pretrained model.")
-
 	# optimization
 	parser.add_argument('--batch-size', type=int, default=8,
 						help="batch size")
+
+	# model
+	parser.add_argument('--model_type',
+						type=str,
+						required=True,
+						help="type of feature extractor",
+						choices=['c3d', 'i3d'])
+	parser.add_argument('--pretrained_3d',
+						type=str,
+						help="load default 3D pretrained model.")
 
 	return parser.parse_args()
 
@@ -67,11 +71,6 @@ def to_segments(data, num=32):
 			Segments_Features.append(temp_vect.tolist())
 
 	return Segments_Features
-
-
-current_path = None
-current_dir = None
-current_data = None
 
 
 class FeaturesWriter:
@@ -137,30 +136,38 @@ def read_features(file_path):
 	return torch.from_numpy(features).float()
 
 
+def get_features_loader(dataset_path, clip_length, frame_interval, batch_size, num_workers, mode):
+	data_loader = VideoIter(dataset_path=dataset_path,
+							clip_length=clip_length,
+							frame_stride=frame_interval,
+							video_transform=build_transforms(mode),
+							return_label=False)
+
+	data_iter = torch.utils.data.DataLoader(data_loader,
+											batch_size=batch_size,
+											shuffle=False,
+											num_workers=num_workers,
+											pin_memory=True)
+
+	return data_loader, data_iter
+
+
 def main():
-	device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+	device = get_torch_device()
 
 	args = get_args()
 	register_logger(log_file=args.log_file)
 
 	cudnn.benchmark = True
 
-	data_loader = VideoIter(dataset_path=args.dataset_path,
-							clip_length=args.clip_length,
-							frame_stride=args.frame_interval,
-							video_transform=build_transforms(),
-							return_label=False)
+	data_loader, data_iter = get_features_loader(args.dataset_path,
+												args.clip_length,
+												args.frame_interval,
+												args.batch_size,
+												args.num_workers,
+												args.model_type)
 
-	data_iter = torch.utils.data.DataLoader(data_loader,
-											batch_size=args.batch_size,
-											shuffle=False,
-											num_workers=args.num_workers,
-											pin_memory=True)
-
-	network = C3D(pretrained=args.pretrained_3d)
-	if device.type != 'cpu':
-		network = torch.nn.DataParallel(network)
-	network = network.to(device)
+	network = load_feature_extractor(args.features_method, args.pretrained_3d, device)
 
 	if not path.exists(args.save_dir):
 		mkdir(args.save_dir)
