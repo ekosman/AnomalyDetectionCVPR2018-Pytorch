@@ -76,24 +76,24 @@ class VideoIter(data.Dataset):
         return batch
 
     def _get_video_list(self, dataset_path):
-        features_path = r'/Users/eitankosman/PycharmProjects/anomaly_features'
-        existing_features = np.concatenate(
-            [[file.split('.')[0] for file in files] for path, subdirs, files in os.walk(features_path)])
-        print(len(existing_features))
+        # features_path = r'/Users/eitankosman/PycharmProjects/anomaly_features'
+        # existing_features = np.concatenate(
+        #     [[file.split('.')[0] for file in files] for path, subdirs, files in os.walk(features_path)])
+        # print(len(existing_features))
         assert os.path.exists(dataset_path), "VideoIter:: failed to locate: `{}'".format(dataset_path)
         vid_list = []
-        skp = 0
+        # skp = 0
         for path, subdirs, files in os.walk(dataset_path):
             for name in files:
                 if 'mp4' not in name:
                     continue
-                if name.split('.')[0] in existing_features:
-                    print(f"Skipping {name}")
-                    skp += 1
-                    continue
+                # if name.split('.')[0] in existing_features:
+                    # print(f"Skipping {name}")
+                    # skp += 1
+                    # continue
                 vid_list.append(os.path.join(path, name))
 
-        print(f"Skipped {skp}")
+        # print(f"Skipped {skp}")
         return vid_list
 
 
