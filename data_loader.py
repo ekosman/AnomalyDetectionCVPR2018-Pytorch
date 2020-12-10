@@ -30,6 +30,9 @@ class VideoIter(data.Dataset):
                                       clip_length_in_frames=self.total_clip_length_in_frames,
                                       frames_between_clips=self.total_clip_length_in_frames,)
 
+        with open('video_clips.file', 'wb') as fp:
+            pickle.dump(self.video_clips, fp, protocol=pickle.HIGHEST_PROTOCOL)
+
     @property
     def video_count(self):
         return len(self.video_list)
