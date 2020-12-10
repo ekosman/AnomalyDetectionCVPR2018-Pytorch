@@ -167,7 +167,7 @@ class MFNET_3D(nn.Module):
 
     def load_state(self, state_dict):
         # customized partialy load function
-        checkpoint = torch.load(state_dict)
+        checkpoint = torch.load(state_dict, map_location=torch.device('cpu'))
         state_dict = checkpoint['state_dict']
         net_state_keys = list(self.state_dict().keys())
         for name, param in state_dict.items():
