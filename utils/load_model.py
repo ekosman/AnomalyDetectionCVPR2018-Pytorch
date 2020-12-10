@@ -5,6 +5,7 @@ import pytorch_wrapper as pw
 import torch
 
 from network import MFNET
+from network.MFNET import MFNET_3D
 from network.anomaly_detector_model import AnomalyDetector
 from network.c3d import C3D
 from network.i3d import InceptionI3d
@@ -22,7 +23,7 @@ def load_feature_extractor(features_method, feature_extractor_path, device):
 		model.replace_logits(157)
 		model.load_state_dict(torch.load(feature_extractor_path))
 	elif features_method == 'mfnet':
-		model = MFNET()
+		model = MFNET_3D()
 		model.load_state(state_dict=feature_extractor_path)
 	else:
 		raise NotImplementedError(f"Features extraction method {features_method} not implemented")
