@@ -6,6 +6,7 @@ import torch.backends.cudnn as cudnn
 from torch.utils.tensorboard import SummaryWriter
 
 from features_loader import FeaturesDatasetWrapper
+from network.TorchUtils import TorchModel
 from network.anomaly_detector_model import AnomalyDetector, custom_objective, RegularizedLoss
 from utils.callbacks import TensorboardCallback, SaveCallback
 from utils.utils import register_logger
@@ -30,6 +31,8 @@ def get_args():
 
     # optimization
     parser.add_argument('--batch_size', type=int, default=60,
+                        help="batch size")
+    parser.add_argument('--feature_dim', type=int, default=4096,
                         help="batch size")
     parser.add_argument('--save_every', type=int, default=100,
                         help="epochs interval for saving the model checkpoints")
@@ -62,10 +65,12 @@ if __name__ == "__main__":
                                              num_workers=0,
                                              pin_memory=True)
 
-    network = AnomalyDetector()
-    system = pw.System(model=network, device=device)
+    network = AnomalyDetector(args.feature_dim)
+
     if args.checkpoint is not None:
-        system.load_model_state(args.checkpoint)
+        TorchModel.load_model(args.checkpoint)
+    else:
+        model = TorchModel(network)
 
     """
     In the original paper:
@@ -74,17 +79,15 @@ if __name__ == "__main__":
     """
     optimizer = torch.optim.Adadelta(network.parameters(), lr=args.lr_base, eps=1e-8)
 
-    loss_wrapper = pw.loss_wrappers.GenericPointWiseLossWrapper(RegularizedLoss(network, custom_objective))
+    criterion = RegularizedLoss(network, custom_objective)
 
     tb_writer = SummaryWriter(log_dir=tb_dir)
 
-    system.train(
-        loss_wrapper,
-        optimizer,
-        train_data_loader=train_iter,
-        callbacks=[pw.training_callbacks.NumberOfEpochsStoppingCriterionCallback(args.end_epoch),
-                   TensorboardCallback(tb_writer),
-                   SaveCallback(models_dir, args.save_name, args.save_every)]
-    )
+    model.register_callback()
 
-    system.save_model_state(path.join(models_dir, f'{args.save_name}_final_{args.end_epoch}.weights'))
+    model.fit(train_iter=train_iter,
+              criterion=criterion,
+              optimizer=optimizer,
+              epochs=args.epochs,
+              network_model_path_base=args.models_dir,
+              save_every=20000)

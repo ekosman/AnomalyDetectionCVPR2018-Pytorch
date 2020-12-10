@@ -3,9 +3,9 @@ from torch import nn
 
 
 class AnomalyDetector(nn.Module):
-    def __init__(self):
+    def __init__(self, input_dim):
         super(AnomalyDetector, self).__init__()
-        self.fc1 = nn.Linear(4096, 512)
+        self.fc1 = nn.Linear(input_dim, 512)
         self.relu1 = nn.ReLU()
         self.dropout1 = nn.Dropout(0.6)
 

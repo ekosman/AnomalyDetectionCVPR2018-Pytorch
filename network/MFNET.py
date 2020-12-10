@@ -71,9 +71,9 @@ class MFNET_3D(nn.Module):
         super(MFNET_3D, self).__init__()
 
         groups = 16
-        k_sec = {2: 2, \
-                 3: 3, \
-                 4: 3, \
+        k_sec = {2: 3, \
+                 3: 4, \
+                 4: 6, \
                  5: 3}
 
         # conv1 - x224 (x16)

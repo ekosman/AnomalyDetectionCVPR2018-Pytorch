@@ -167,7 +167,7 @@ def main():
 												args.num_workers,
 												args.model_type)
 
-	network = load_feature_extractor(args.model_type, args.pretrained_3d, device)
+	network = load_feature_extractor(args.model_type, args.pretrained_3d, device).eval()
 
 	if not path.exists(args.save_dir):
 		mkdir(args.save_dir)
