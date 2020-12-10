@@ -4,6 +4,7 @@ Author: Yunpeng Chen
 import logging
 from collections import OrderedDict
 
+import torch
 import torch.nn as nn
 
 
@@ -166,6 +167,8 @@ class MFNET_3D(nn.Module):
 
     def load_state(self, state_dict):
         # customized partialy load function
+        checkpoint = torch.load(state_dict)
+        state_dict = checkpoint['state_dict']
         net_state_keys = list(self.state_dict().keys())
         for name, param in state_dict.items():
             name = name.replace('module.', '')
