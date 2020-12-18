@@ -67,3 +67,10 @@ This is currently just for demo but will allow training with nex videos
   note         = "Accessed: 20xx-xx-xx"
 }
 ```
+
+## FAQ
+1. 
+```
+Q: video_demo doesn't show videos
+A: Downlaod and install LAVFilters: http://forum.doom9.org/showthread.php?t=156191
+```

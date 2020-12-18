@@ -3,7 +3,7 @@ from torch import nn
 
 
 class AnomalyDetector(nn.Module):
-    def __init__(self, input_dim):
+    def __init__(self, input_dim=4096):
         super(AnomalyDetector, self).__init__()
         self.fc1 = nn.Linear(input_dim, 512)
         self.relu1 = nn.ReLU()
