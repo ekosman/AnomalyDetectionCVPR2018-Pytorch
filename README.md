@@ -34,7 +34,7 @@ The loss graph during training is shown here:
 <img src=graphs/Train_loss.png width="600"/>
 
 ## Features Extraction
-```python feature_extractor.py --dataset_path "path-to-dataset"  --pretrained_3d "path-to-pretrained-c3d"```
+```python feature_extractor.py --dataset_path "path-to-dataset"  --pretrained_3d "path-to-pretrained-fe"```
 
 ## Training
 ```python TrainingAnomalyDetector_public.py --features_path "path-to-dataset" --annotation_path "path-to-train-annos"```
@@ -47,9 +47,9 @@ Using my pre-trained model after 40K iterations, I achieve this following perfor
 <img src=graphs/roc_auc.png width="600"/>
 
 ## Demo *
-```python video_demo.py --video_path_list LIST_OF_VIDEO_PATHS --model_dir PATH_TO_MODLE```
+```python video_demo.py --feature_extractor "path-to-pretrained-fe" --feature_method "fe-method" --ad_model "path-to-pretrained-ad-model" --n_segments "number-of-segments"```
 
-This should take any video and run the Anomaly Detection code (including CD3 feature extraction) and output a video with a graph of the Anomaly Detection prediction on the right-hand side (like in the demo code for the paper). It is all still a bit rough but it works and I do plan to add to it so I can always update later.
+The GUI would let you load a video and run the Anomaly Detection code (including feature extraction) and output a video with a graph of the Anomaly Detection prediction below.
 
 ## Annotation *
 ```python annotation_methods.py --path_list LIST_OF_VIDEO_PATH --dir_list LIST_OF_LIST_WITH_PATH_AND_VIDEO_NAME --normal_or_not LIST_TRUE_FALUE```
