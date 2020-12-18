@@ -13,7 +13,7 @@ from PyQt5.QtGui import QIcon, QPalette
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtMultimediaWidgets import QVideoWidget
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QLabel, \
-    QSlider, QStyle, QSizePolicy, QFileDialog
+    QSlider, QStyle, QSizePolicy, QFileDialog, QProgressBar
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from tqdm import tqdm
 
@@ -82,7 +82,7 @@ def figure2opencv(figure):
     return img
 
 
-def features_extraction(video_path, model, device, batch_size=1, frame_stride=1, clip_length=16, n_segments=32):
+def features_extraction(video_path, model, device, batch_size=1, frame_stride=1, clip_length=16, n_segments=32, bar=None):
     """
     Extracts features of the video. The returned features will be returned after averaging over the required number of
     video segments.
@@ -98,7 +98,7 @@ def features_extraction(video_path, model, device, batch_size=1, frame_stride=1,
     data_loader = SingleVideoIter(clip_length=clip_length,
                                   frame_stride=frame_stride,
                                   video_path=video_path,
-                                  video_transform=build_transforms(),
+                                  video_transform=build_transforms(mode=args.feature_method),
                                   return_label=False)
     data_iter = torch.utils.data.DataLoader(data_loader,
                                             batch_size=batch_size,
@@ -108,10 +108,17 @@ def features_extraction(video_path, model, device, batch_size=1, frame_stride=1,
 
     logging.info("Extracting features...")
     features = torch.tensor([])
+
+    if bar is not None:
+        bar.setRange(0, len(data_iter))
+
     with torch.no_grad():
-        for data in tqdm(data_iter):
+        for i, data in tqdm(enumerate(data_iter)):
             outputs = model(data.to(device)).detach().cpu()
             features = torch.cat([features, outputs])
+
+            if bar is not None:
+                bar.setValue(i + 1)
 
     features = features.numpy()
     return to_segments(features, n_segments)
@@ -198,12 +205,17 @@ class Window(QWidget):
         self.figure = plt.figure()
         self.canvas = FigureCanvas(self.figure)
 
+        # Feature extraction progress bar
+        self.pbar = QProgressBar()
+        self.pbar.setTextVisible(True)
+
         # create vbox layout
         vboxLayout = QVBoxLayout()
-        vboxLayout.addWidget(self.canvas)
         vboxLayout.addWidget(videowidget)
+        vboxLayout.addWidget(self.canvas)
         vboxLayout.addLayout(hboxLayout)
         vboxLayout.addWidget(self.label)
+        vboxLayout.addWidget(self.pbar)
 
         self.setLayout(vboxLayout)
 
@@ -227,7 +239,8 @@ class Window(QWidget):
             features = features_extraction(video_path=filename,
                                            model=feature_extractor,
                                            device=self.device,
-                                           n_segments=args.n_segments, )
+                                           n_segments=args.n_segments,
+                                           bar=self.pbar)
 
             y_pred = ad_prediction(model=anomaly_detector,
                                    features=features,
