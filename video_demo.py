@@ -288,7 +288,7 @@ class Window(QWidget):
             self.figure.clear()
             ax = self.figure.add_subplot(111)
             ax.set_xlim(0, self.mediaPlayer.duration())
-            ax.set_ylim(-0.5, 1.5)
+            ax.set_ylim(-0.1, 1.1)
             ax.plot(self.y_pred[:position], '*-')
             self.canvas.draw()
 
