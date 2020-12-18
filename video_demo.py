@@ -1,5 +1,6 @@
 import argparse
 import logging
+import sys
 from os import path
 
 import cv2
@@ -7,22 +8,20 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytorch_wrapper as pw
 import torch
-from matplotlib.backends.backend_template import FigureCanvas
+from PyQt5.QtCore import Qt, QUrl
+from PyQt5.QtGui import QIcon, QPalette
+from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
+from PyQt5.QtMultimediaWidgets import QVideoWidget
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QLabel, \
+    QSlider, QStyle, QSizePolicy, QFileDialog
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from tqdm import tqdm
 
 from data_loader import SingleVideoIter
 from feature_extractor import to_segments
 from network.anomaly_detector_model import AnomalyDetector
 from network.c3d import C3D
-from utils.utils import build_transforms, register_logger
-
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QLabel, \
-    QSlider, QStyle, QSizePolicy, QFileDialog
-import sys
-from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
-from PyQt5.QtMultimediaWidgets import QVideoWidget
-from PyQt5.QtGui import QIcon, QPalette
-from PyQt5.QtCore import Qt, QUrl
+from utils.utils import build_transforms
 
 
 def get_args():
@@ -110,7 +109,7 @@ def features_extraction(video_path, model, device, batch_size=1, frame_stride=1,
     logging.info("Extracting features...")
     features = torch.tensor([])
     with torch.no_grad():
-        for data, clip_idxs, dirs, vid_names in tqdm(data_iter):
+        for data in tqdm(data_iter):
             outputs = model(data.to(device)).detach().cpu()
             features = torch.cat([features, outputs])
 
@@ -145,7 +144,7 @@ class Window(QWidget):
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        self.setWindowTitle("PyQt5 Media Player")
+        self.setWindowTitle("Anomaly Media Player")
         self.setGeometry(350, 100, 700, 500)
         self.setWindowIcon(QIcon('player.png'))
 
@@ -156,6 +155,7 @@ class Window(QWidget):
         self.init_ui()
 
         self.y_pred = None
+        self.duration = None
 
         self.show()
 
@@ -224,16 +224,16 @@ class Window(QWidget):
             self.mediaPlayer.setMedia(QMediaContent(QUrl.fromLocalFile(filename)))
             self.playBtn.setEnabled(True)
 
-            features = features_extraction(video_path=args.video_path,
+            features = features_extraction(video_path=filename,
                                            model=feature_extractor,
                                            device=self.device,
                                            n_segments=args.n_segments, )
 
-            self.y_pred = ad_prediction(model=anomaly_detector,
+            y_pred = ad_prediction(model=anomaly_detector,
                                    features=features,
                                    device=self.device, )
 
-            self.y_pred = np.repeat(self.y_pred, self.mediaPlayer.duration() // len(self.y_pred))
+            self.y_pred = y_pred.numpy().flatten()
 
     def play_video(self):
         if self.mediaPlayer.state() == QMediaPlayer.PlayingState:
@@ -258,6 +258,10 @@ class Window(QWidget):
 
     def duration_changed(self, duration):
         self.slider.setRange(0, duration)
+        self.duration = duration
+
+        if self.y_pred is not None:
+            self.y_pred = np.repeat(self.y_pred, duration // len(self.y_pred))
 
     def set_position(self, position):
         self.mediaPlayer.setPosition(position)
@@ -267,11 +271,13 @@ class Window(QWidget):
         self.label.setText("Error: " + self.mediaPlayer.errorString())
 
     def plot(self, position):
-        self.figure.clear()
-        ax = self.figure.add_subplot(111)
-        ax.set_xlim(0, self.mediaPlayer.duration())
-        ax.plot(self.y_pred[:position], '*-')
-        self.canvas.draw()
+        if self.y_pred is not None:
+            self.figure.clear()
+            ax = self.figure.add_subplot(111)
+            ax.set_xlim(0, self.mediaPlayer.duration())
+            ax.set_ylim(-0.5, 1.5)
+            ax.plot(self.y_pred[:position], '*-')
+            self.canvas.draw()
 
 
 if __name__ == '__main__':
