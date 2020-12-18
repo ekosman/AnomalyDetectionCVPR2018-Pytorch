@@ -26,9 +26,17 @@ class VideoIter(data.Dataset):
         self.return_label = return_label
 
         # data loading
-        self.video_clips = VideoClips(video_paths=self.video_list,
-                                      clip_length_in_frames=self.total_clip_length_in_frames,
-                                      frames_between_clips=self.total_clip_length_in_frames,)
+        if os.path.exists('video_clips.file'):
+            with open('video_clips.file', 'rb') as fp:
+                self.video_clips = pickle.load(fp)
+        else:
+            self.video_clips = VideoClips(video_paths=self.video_list,
+                                          clip_length_in_frames=self.total_clip_length_in_frames,
+                                          frames_between_clips=self.total_clip_length_in_frames,)
+
+        if not os.path.exists('video_clips.file'):
+            with open('video_clips.file', 'wb') as fp:
+                pickle.dump(self.video_clips, fp, protocol=pickle.HIGHEST_PROTOCOL)
 
     @property
     def video_count(self):
@@ -68,24 +76,24 @@ class VideoIter(data.Dataset):
         return batch
 
     def _get_video_list(self, dataset_path):
-        features_path = r'/Users/eitankosman/PycharmProjects/anomaly_features'
-        existing_features = np.concatenate(
-            [[file.split('.')[0] for file in files] for path, subdirs, files in os.walk(features_path)])
-        print(len(existing_features))
+        # features_path = r'/Users/eitankosman/PycharmProjects/anomaly_features'
+        # existing_features = np.concatenate(
+        #     [[file.split('.')[0] for file in files] for path, subdirs, files in os.walk(features_path)])
+        # print(len(existing_features))
         assert os.path.exists(dataset_path), "VideoIter:: failed to locate: `{}'".format(dataset_path)
         vid_list = []
-        skp = 0
+        # skp = 0
         for path, subdirs, files in os.walk(dataset_path):
             for name in files:
                 if 'mp4' not in name:
                     continue
-                if name.split('.')[0] in existing_features:
-                    print(f"Skipping {name}")
-                    skp += 1
-                    continue
+                # if name.split('.')[0] in existing_features:
+                    # print(f"Skipping {name}")
+                    # skp += 1
+                    # continue
                 vid_list.append(os.path.join(path, name))
 
-        print(f"Skipped {skp}")
+        # print(f"Skipped {skp}")
         return vid_list
 
 

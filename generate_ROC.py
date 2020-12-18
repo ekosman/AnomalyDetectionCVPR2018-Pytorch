@@ -18,9 +18,7 @@ def get_args():
                         help="path to features")
     parser.add_argument('--annotation_path', default="Test_Annotation.txt",
                         help="path to annotations")
-    parser.add_argument('--random-seed', type=int, default=1,
-                        help='random seed (default: 1)')
-    parser.add_argument('--model-path', type=str, default="./exps/model.weights",
+    parser.add_argument('--model_path', type=str, default="./exps/model.weights",
                         help="set logging file.")
     return parser.parse_args()
 
