@@ -137,7 +137,7 @@ def ad_prediction(model, features, device='cuda'):
     with torch.no_grad():
         preds = model(features)
 
-    return preds
+    return preds.detach().cpu().numpy().flatten()
 
 
 class Window(QWidget):
@@ -242,11 +242,9 @@ class Window(QWidget):
                                            n_segments=args.n_segments,
                                            bar=self.pbar)
 
-            y_pred = ad_prediction(model=anomaly_detector,
+            self.y_pred = ad_prediction(model=anomaly_detector,
                                    features=features,
                                    device=self.device, )
-
-            self.y_pred = y_pred.numpy().flatten()
 
     def play_video(self):
         if self.mediaPlayer.state() == QMediaPlayer.PlayingState:
