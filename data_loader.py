@@ -1,6 +1,7 @@
 import logging
 import os
 import pickle
+import sys
 
 import numpy as np
 import torch.utils.data as data
@@ -71,7 +72,9 @@ class VideoIter(data.Dataset):
                 succ = True
             except Exception as e:
                 index = np.random.choice(range(0, self.__len__()))
-                logging.warning("VideoIter:: ERROR!! (Force using another index:\n{})\n{}".format(index, e))
+                trace_back = sys.exc_info()[2]
+                line = trace_back.tb_lineno
+                logging.warning(f"VideoIter:: ERROR (line number {line} !! (Force using another index:\n{index})\n{e}")
 
         return batch
 
