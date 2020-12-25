@@ -25,7 +25,7 @@ def get_args():
 						help="define the sampling interval between frames.")
 	parser.add_argument('--log-every', type=int, default=50,
 						help="log the writing of clips every n steps.")
-	parser.add_argument('--log-file', type=str, default="",
+	parser.add_argument('--log-file', type=str,
 						help="set logging file.")
 	parser.add_argument('--save_dir', type=str, default="features",
 						help="set logging file.")
