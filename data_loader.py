@@ -1,6 +1,7 @@
 import logging
 import os
 import pickle
+import sys
 
 import numpy as np
 import torch.utils.data as data
@@ -26,17 +27,21 @@ class VideoIter(data.Dataset):
         self.return_label = return_label
 
         # data loading
-        if os.path.exists('video_clips.file'):
-            with open('video_clips.file', 'rb') as fp:
-                self.video_clips = pickle.load(fp)
-        else:
-            self.video_clips = VideoClips(video_paths=self.video_list,
-                                          clip_length_in_frames=self.total_clip_length_in_frames,
-                                          frames_between_clips=self.total_clip_length_in_frames,)
-
-        if not os.path.exists('video_clips.file'):
-            with open('video_clips.file', 'wb') as fp:
-                pickle.dump(self.video_clips, fp, protocol=pickle.HIGHEST_PROTOCOL)
+        self.video_clips = VideoClips(video_paths=self.video_list,
+                                      clip_length_in_frames=self.total_clip_length_in_frames,
+                                      frames_between_clips=self.total_clip_length_in_frames, )
+        #
+        # if os.path.exists('video_clips.file'):
+        #     with open('video_clips.file', 'rb') as fp:
+        #         self.video_clips = pickle.load(fp)
+        # else:
+        #     self.video_clips = VideoClips(video_paths=self.video_list,
+        #                                   clip_length_in_frames=self.total_clip_length_in_frames,
+        #                                   frames_between_clips=self.total_clip_length_in_frames,)
+        #
+        # if not os.path.exists('video_clips.file'):
+        #     with open('video_clips.file', 'wb') as fp:
+        #         pickle.dump(self.video_clips, fp, protocol=pickle.HIGHEST_PROTOCOL)
 
     @property
     def video_count(self):
@@ -71,7 +76,9 @@ class VideoIter(data.Dataset):
                 succ = True
             except Exception as e:
                 index = np.random.choice(range(0, self.__len__()))
-                logging.warning("VideoIter:: ERROR!! (Force using another index:\n{})\n{}".format(index, e))
+                trace_back = sys.exc_info()[2]
+                line = trace_back.tb_lineno
+                logging.warning(f"VideoIter:: ERROR (line number {line}) !! (Force using another index:\n{index})\n{e}")
 
         return batch
 
