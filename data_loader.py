@@ -78,7 +78,7 @@ class VideoIter(data.Dataset):
                 index = np.random.choice(range(0, self.__len__()))
                 trace_back = sys.exc_info()[2]
                 line = trace_back.tb_lineno
-                logging.warning(f"VideoIter:: ERROR (line number {line} !! (Force using another index:\n{index})\n{e}")
+                logging.warning(f"VideoIter:: ERROR (line number {line}) !! (Force using another index:\n{index})\n{e}")
 
         return batch
 
