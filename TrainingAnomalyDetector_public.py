@@ -1,6 +1,7 @@
 import argparse
+import os
+from os import path
 
-import pytorch_wrapper as pw
 import torch
 import torch.backends.cudnn as cudnn
 from torch.utils.tensorboard import SummaryWriter
@@ -8,8 +9,8 @@ from torch.utils.tensorboard import SummaryWriter
 from features_loader import FeaturesDatasetWrapper
 from network.TorchUtils import TorchModel
 from network.anomaly_detector_model import AnomalyDetector, custom_objective, RegularizedLoss
-from utils.callbacks import TensorboardCallback, SaveCallback
-from utils.utils import register_logger
+from utils.callbacks import DefaultModelCallback, TensorBoardCallback
+from utils.utils import register_logger, get_torch_device
 
 
 def get_args():
@@ -46,32 +47,34 @@ def get_args():
 
 if __name__ == "__main__":
     args = get_args()
+
+    # Register directories
     register_logger(log_file=args.log_file)
     os.makedirs(args.exps_dir, exist_ok=True)
-    device = get_torch_device()
-
     models_dir = path.join(args.exps_dir, 'models')
     tb_dir = path.join(args.exps_dir, 'tensorboard')
     os.makedirs(models_dir, exist_ok=True)
     os.makedirs(tb_dir, exist_ok=True)
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # Optimizations
+    device = get_torch_device()
     cudnn.benchmark = True  # enable cudnn tune
 
+    # Data loader
     train_loader = FeaturesDatasetWrapper(features_path=args.features_path, annotation_path=args.annotation_path)
-
     train_iter = torch.utils.data.DataLoader(train_loader,
                                              batch_size=args.batch_size,
                                              num_workers=0,
                                              pin_memory=True)
 
-    network = AnomalyDetector(args.feature_dim)
-
-    if args.checkpoint is not None:
-        TorchModel.load_model(args.checkpoint)
+    # Model
+    if args.checkpoint is not None and path.exists(args.checkpoint):
+        model = TorchModel.load_model(args.checkpoint)
     else:
+        network = AnomalyDetector(args.feature_dim)
         model = TorchModel(network)
 
+    # Training parameters
     """
     In the original paper:
         lr = 0.01
@@ -81,13 +84,15 @@ if __name__ == "__main__":
 
     criterion = RegularizedLoss(network, custom_objective)
 
+    # Callbacks
     tb_writer = SummaryWriter(log_dir=tb_dir)
+    model.register_callback(DefaultModelCallback(loss_names=['total'], visualization_dir=args.exps_dir))
+    model.register_callback(TensorBoardCallback(loss_names=['total'], tb_writer=tb_writer))
 
-    model.register_callback()
-
+    # Training
     model.fit(train_iter=train_iter,
               criterion=criterion,
               optimizer=optimizer,
               epochs=args.epochs,
               network_model_path_base=args.models_dir,
-              save_every=20000)
+              save_every=args.save_every)
