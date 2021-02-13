@@ -68,11 +68,11 @@ if __name__ == "__main__":
                                              pin_memory=True)
 
     # Model
-    network = AnomalyDetector(args.feature_dim)
-
-    model = TorchModel.load_model(args.checkpoint) \
-        if args.checkpoint is not None and path.exists(args.checkpoint) \
-        else model = TorchModel(network)
+    if args.checkpoint is not None and path.exists(args.checkpoint):
+        model = TorchModel.load_model(args.checkpoint)
+    else:
+        network = AnomalyDetector(args.feature_dim)
+        model = TorchModel(network)
 
     # Training parameters
     """
