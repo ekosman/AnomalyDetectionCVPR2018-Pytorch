@@ -6,7 +6,7 @@ import torch
 import torch.backends.cudnn as cudnn
 from torch.utils.tensorboard import SummaryWriter
 
-from features_loader import FeaturesDatasetWrapper
+from features_loader import FeaturesLoader
 from network.TorchUtils import TorchModel
 from network.anomaly_detector_model import AnomalyDetector, custom_objective, RegularizedLoss
 from utils.callbacks import DefaultModelCallback, TensorBoardCallback
@@ -61,7 +61,7 @@ if __name__ == "__main__":
     cudnn.benchmark = True  # enable cudnn tune
 
     # Data loader
-    train_loader = FeaturesDatasetWrapper(features_path=args.features_path, annotation_path=args.annotation_path)
+    train_loader = FeaturesLoader(features_path=args.features_path, annotation_path=args.annotation_path)
     train_iter = torch.utils.data.DataLoader(train_loader,
                                              batch_size=args.batch_size,
                                              num_workers=0,
