@@ -86,8 +86,8 @@ if __name__ == "__main__":
 
     # Callbacks
     tb_writer = SummaryWriter(log_dir=tb_dir)
-    model.register_callback(DefaultModelCallback(loss_names=['total'], visualization_dir=args.exps_dir))
-    model.register_callback(TensorBoardCallback(loss_names=['total'], tb_writer=tb_writer))
+    model.register_callback(DefaultModelCallback(visualization_dir=args.exps_dir))
+    model.register_callback(TensorBoardCallback(tb_writer=tb_writer))
 
     # Training
     model.fit(train_iter=train_iter,
