@@ -19,6 +19,7 @@ from tqdm import tqdm
 
 from data_loader import SingleVideoIter
 from feature_extractor import to_segments
+from network.TorchUtils import TorchModel
 from network.anomaly_detector_model import AnomalyDetector
 from network.c3d import C3D
 from utils.utils import build_transforms
@@ -62,14 +63,14 @@ def load_models(feature_extractor_path, ad_model_path, features_method='c3d', de
     if features_method == 'c3d':
         logging.info(f"Loading feature extractor from {feature_extractor_path}")
         feature_extractor = C3D(pretrained=feature_extractor_path)
+
     else:
         raise NotImplementedError(f"Features extraction method {features_method} not implemented")
 
-    logging.info(f"Loading anomaly detector from {ad_model_path}")
     feature_extractor = feature_extractor.to(device).eval()
-    anomaly_detector = pw.System(model=AnomalyDetector(), device=device)
-    anomaly_detector.load_model_state(ad_model_path)
-    anomaly_detector = anomaly_detector.model.eval()
+
+    logging.info(f"Loading anomaly detector from {ad_model_path}")
+    anomaly_detector = TorchModel.load_model(model_path=ad_model_path).to(device).eval()
 
     return anomaly_detector, feature_extractor
 
