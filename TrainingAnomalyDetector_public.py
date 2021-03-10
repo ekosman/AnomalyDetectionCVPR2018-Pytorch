@@ -81,7 +81,7 @@ if __name__ == "__main__":
         lr = 0.01
         epsilon = 1e-8
     """
-    optimizer = torch.optim.Adadelta(network.parameters(), lr=args.lr_base, eps=1e-8)
+    optimizer = torch.optim.Adadelta(model.parameters(), lr=args.lr_base, eps=1e-8)
 
     criterion = RegularizedLoss(network, custom_objective).to(device)
 
