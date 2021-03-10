@@ -74,6 +74,7 @@ if __name__ == "__main__":
         network = AnomalyDetector(args.feature_dim)
         model = TorchModel(network)
 
+    model.to(device)
     # Training parameters
     """
     In the original paper:
