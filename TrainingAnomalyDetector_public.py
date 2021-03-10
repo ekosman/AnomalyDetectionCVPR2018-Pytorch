@@ -94,5 +94,5 @@ if __name__ == "__main__":
               criterion=criterion,
               optimizer=optimizer,
               epochs=args.epochs,
-              network_model_path_base=args.models_dir,
+              network_model_path_base=models_dir,
               save_every=args.save_every)
