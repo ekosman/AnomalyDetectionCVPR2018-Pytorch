@@ -1,7 +1,6 @@
 from os import path
 import logging
 
-import pytorch_wrapper as pw
 import torch
 
 from network import MFNET
@@ -35,9 +34,8 @@ def load_anomaly_detector(ad_model_path, device):
 	assert path.exists(ad_model_path)
 	logging.info(f"Loading anomaly detector from {ad_model_path}")
 
-	anomaly_detector = pw.System(model=AnomalyDetector(), device=device)
-	anomaly_detector.load_model_state(ad_model_path)
-	return anomaly_detector.model.eval()
+        anomaly_detector = TorchModel.load_model(ad_model_path).to(device)
+	return anomaly_detector.eval()
 
 
 def load_models(feature_extractor_path, ad_model_path, features_method='c3d', device='cuda'):
