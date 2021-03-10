@@ -64,7 +64,7 @@ if __name__ == "__main__":
     train_loader = FeaturesLoader(features_path=args.features_path, annotation_path=args.annotation_path)
     train_iter = torch.utils.data.DataLoader(train_loader,
                                              batch_size=args.batch_size,
-                                             num_workers=0,
+                                             num_workers=8,
                                              pin_memory=True)
 
     # Model
