@@ -33,8 +33,8 @@ def custom_objective(y_pred, y_true):
     # y_true (batch_size)
     lambdas = 8e-5
 
-    normal_vids_indices = (y_true == 0).nonzero().flatten()
-    anomal_vids_indices = (y_true == 1).nonzero().flatten()
+    normal_vids_indices = torch.where(y_true == 0)
+    anomal_vids_indices = torch.where(y_true == 1)
 
     normal_segments_scores = y_pred[normal_vids_indices]  # (batch/2, 32, 1)
     anomal_segments_scores = y_pred[anomal_vids_indices]  # (batch/2, 32, 1)
