@@ -83,7 +83,7 @@ if __name__ == "__main__":
     """
     optimizer = torch.optim.Adadelta(network.parameters(), lr=args.lr_base, eps=1e-8)
 
-    criterion = RegularizedLoss(network, custom_objective)
+    criterion = RegularizedLoss(network, custom_objective).to(device)
 
     # Callbacks
     tb_writer = SummaryWriter(log_dir=tb_dir)
