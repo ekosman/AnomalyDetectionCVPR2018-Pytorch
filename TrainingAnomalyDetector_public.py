@@ -35,11 +35,11 @@ def get_args():
                         help="batch size")
     parser.add_argument('--feature_dim', type=int, default=4096,
                         help="batch size")
-    parser.add_argument('--save_every', type=int, default=100,
+    parser.add_argument('--save_every', type=int, default=20000,
                         help="epochs interval for saving the model checkpoints")
     parser.add_argument('--lr_base', type=float, default=0.01,
                         help="learning rate")
-    parser.add_argument('--end_epoch', type=int, default=20000,
+    parser.add_argument('--epochs', type=int, default=20000,
                         help="maxmium number of training epoch")
 
     return parser.parse_args()
