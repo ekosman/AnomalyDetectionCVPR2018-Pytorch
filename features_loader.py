@@ -42,7 +42,7 @@ class FeaturesLoader(data.Dataset):
                 feature, label = self.get_feature(index)
                 succ = True
             except Exception as e:
-                index = self.rng.choice(range(0, self.__len__()))
+                index = np.random.choice(range(0, self.__len__()))
                 logging.warning("VideoIter:: ERROR!! (Force using another index:\n{})\n{}".format(index, e))
 
         return feature, label
