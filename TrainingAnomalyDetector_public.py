@@ -35,11 +35,11 @@ def get_args():
                         help="batch size")
     parser.add_argument('--feature_dim', type=int, default=4096,
                         help="batch size")
-    parser.add_argument('--save_every', type=int, default=100,
+    parser.add_argument('--save_every', type=int, default=20000,
                         help="epochs interval for saving the model checkpoints")
     parser.add_argument('--lr_base', type=float, default=0.01,
                         help="learning rate")
-    parser.add_argument('--end_epoch', type=int, default=20000,
+    parser.add_argument('--epochs', type=int, default=20000,
                         help="maxmium number of training epoch")
 
     return parser.parse_args()
@@ -64,7 +64,7 @@ if __name__ == "__main__":
     train_loader = FeaturesLoader(features_path=args.features_path, annotation_path=args.annotation_path)
     train_iter = torch.utils.data.DataLoader(train_loader,
                                              batch_size=args.batch_size,
-                                             num_workers=0,
+                                             num_workers=8,
                                              pin_memory=True)
 
     # Model
@@ -94,5 +94,5 @@ if __name__ == "__main__":
               criterion=criterion,
               optimizer=optimizer,
               epochs=args.epochs,
-              network_model_path_base=args.models_dir,
+              network_model_path_base=models_dir,
               save_every=args.save_every)
