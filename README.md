@@ -40,7 +40,7 @@ The loss graph during training is shown here:
 ```python TrainingAnomalyDetector_public.py --features_path "path-to-dataset" --annotation_path "path-to-train-annos"```
 
 ## Generate ROC Curve
-```python generate_ROC.py --features_path "path-to-dataset" --annotation_path "path-to-annos"```
+```python generate_ROC.py --features_path "path-to-dataset" --annotation_path "path-to-annos" --model_path "path-to-model"```
 
 Using my pre-trained model after 40K iterations, I achieve this following performance on the test-set. I'm aware that the current model doesn't achieve AUC of 0.75 as reported in the original paper. This can be caused by different weights of the C3D model.
 
