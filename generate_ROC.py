@@ -37,7 +37,7 @@ if __name__ == "__main__":
                                             num_workers=0,  # 4, # change this part accordingly
                                             pin_memory=True)
 
-    model = TorchModel.load_model(args.checkpoint).to(device).eval()
+    model = TorchModel.load_model(args.model_path).to(device).eval()
 
     # enable cudnn tune
     cudnn.benchmark = True
@@ -86,3 +86,5 @@ if __name__ == "__main__":
 
     os.makedirs('graphs', exist_ok=True)
     plt.savefig(path.join('graphs', 'roc_auc.png'))
+    plt.close()
+    print('ROC curve (area = %0.2f)' % roc_auc)
