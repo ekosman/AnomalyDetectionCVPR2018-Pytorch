@@ -2,6 +2,8 @@ import argparse
 import os
 import torch
 import torch.backends.cudnn as cudnn
+
+from network.TorchUtils import TorchModel
 from network.anomaly_detector_model import AnomalyDetector
 from features_loader import FeaturesLoaderVal
 from tqdm import tqdm
@@ -37,10 +39,7 @@ if __name__ == "__main__":
                                             num_workers=0,  # 4, # change this part accordingly
                                             pin_memory=True)
 
-    network = AnomalyDetector()
-    system = pw.System(model=network, device=device)
-    system.load_model_state(args.model_path)
-    model = system.model.eval()
+    model = TorchModel.load_model(args.checkpoint).to(device).eval()
 
     # enable cudnn tune
     cudnn.benchmark = True
