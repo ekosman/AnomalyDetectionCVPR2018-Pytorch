@@ -4,14 +4,12 @@ import torch
 import torch.backends.cudnn as cudnn
 
 from network.TorchUtils import TorchModel
-from network.anomaly_detector_model import AnomalyDetector
 from features_loader import FeaturesLoaderVal
 from tqdm import tqdm
 from sklearn.metrics import roc_curve, auc
 import matplotlib.pyplot as plt
 from os import path
 import numpy as np
-import pytorch_wrapper as pw
 
 
 def get_args():
