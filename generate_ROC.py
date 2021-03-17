@@ -86,3 +86,5 @@ if __name__ == "__main__":
 
     os.makedirs('graphs', exist_ok=True)
     plt.savefig(path.join('graphs', 'roc_auc.png'))
+    plt.close()
+    print('ROC curve (area = %0.2f)' % roc_auc)
