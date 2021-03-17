@@ -77,7 +77,8 @@ class DefaultModelCallback(Callback):
             plt.ylabel('Loss')
 
             plt.plot(range(1, self.epochs + 1), self.train_losses, label=f'Training loss')
-            plt.plot(range(1, self.epochs + 1), self.val_loss, label=f'Validation loss')
+            if len(self.val_loss) != 0:
+                plt.plot(range(1, self.epochs + 1), self.val_loss, label=f'Validation loss')
 
             plt.savefig(os.path.join(self.visualization_dir, 'loss.png'))
             plt.close()
