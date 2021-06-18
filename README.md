@@ -34,7 +34,7 @@ The loss graph during training is shown here:
 <img src=graphs/Train_loss.png width="600"/>
 
 ## Features Extraction
-```python feature_extractor.py --dataset_path "path-to-dataset" --model_type "fe=model-eg-c3d" --pretrained_3d "path-to-pretrained-fe"```
+```python feature_extractor.py --dataset_path "path-to-dataset" --model_type "fe-model-eg-c3d" --pretrained_3d "path-to-pretrained-fe"```
 
 ## Training
 ```python TrainingAnomalyDetector_public.py --features_path "path-to-dataset" --annotation_path "path-to-train-annos"```
