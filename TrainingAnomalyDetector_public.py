@@ -35,13 +35,13 @@ def get_args():
                         help="batch size")
     parser.add_argument('--feature_dim', type=int, default=4096,
                         help="batch size")
-    parser.add_argument('--save_every', type=int, default=20000,
+    parser.add_argument('--save_every', type=int, default=1,
                         help="epochs interval for saving the model checkpoints")
     parser.add_argument('--lr_base', type=float, default=0.01,
                         help="learning rate")
     parser.add_argument('--iterations_per_epoch', type=int, default=20000,
                         help="number of training iterations")
-    parser.add_argument('--epochs', type=int, default=1,
+    parser.add_argument('--epochs', type=int, default=2,
                         help="number of training epochs")
 
     return parser.parse_args()
@@ -63,7 +63,9 @@ if __name__ == "__main__":
     cudnn.benchmark = True  # enable cudnn tune
 
     # Data loader
-    train_loader = FeaturesLoader(features_path=args.features_path, annotation_path=args.annotation_path)
+    train_loader = FeaturesLoader(features_path=args.features_path,
+                                  annotation_path=args.annotation_path,
+                                  iterations=args.iterations_per_epoch)
 
     # Model
     if args.checkpoint is not None and path.exists(args.checkpoint):

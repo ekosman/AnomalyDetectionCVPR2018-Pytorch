@@ -8,7 +8,7 @@ from torch.utils import data
 from feature_extractor import read_features
 
 
-class FeaturesLoader(data.Dataset):
+class FeaturesLoader:
     def __init__(self,
                  features_path,
                  annotation_path,
@@ -23,9 +23,9 @@ class FeaturesLoader(data.Dataset):
             features_path=self.features_path,
             annotation_path=annotation_path)
 
-        self.normal_i, self.anomalous_i = 0, 0
         self.iterations = iterations
         self.features_cache = dict()
+        self.i = 0
 
     def shuffle(self):
         self.features_list_anomaly = np.random.permutation(self.features_list_anomaly)
@@ -35,6 +35,10 @@ class FeaturesLoader(data.Dataset):
         return self.iterations
 
     def __getitem__(self, index):
+        if self.i == len(self):
+            self.i = 0
+            raise StopIteration
+
         succ = False
         while not succ:
             try:
@@ -44,6 +48,7 @@ class FeaturesLoader(data.Dataset):
                 index = np.random.choice(range(0, self.__len__()))
                 logging.warning("VideoIter:: ERROR!! (Force using another index:\n{})\n{}".format(index, e))
 
+        self.i += 1
         return feature, label
 
     def get_existing_features(self):
