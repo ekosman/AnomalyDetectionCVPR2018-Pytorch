@@ -39,8 +39,10 @@ def get_args():
                         help="epochs interval for saving the model checkpoints")
     parser.add_argument('--lr_base', type=float, default=0.01,
                         help="learning rate")
-    parser.add_argument('--epochs', type=int, default=20000,
-                        help="maxmium number of training epoch")
+    parser.add_argument('--iterations_per_epoch', type=int, default=20000,
+                        help="number of training iterations")
+    parser.add_argument('--epochs', type=int, default=1,
+                        help="number of training epochs")
 
     return parser.parse_args()
 
@@ -62,10 +64,6 @@ if __name__ == "__main__":
 
     # Data loader
     train_loader = FeaturesLoader(features_path=args.features_path, annotation_path=args.annotation_path)
-    train_iter = torch.utils.data.DataLoader(train_loader,
-                                             batch_size=args.batch_size,
-                                             num_workers=8,
-                                             pin_memory=True)
 
     # Model
     if args.checkpoint is not None and path.exists(args.checkpoint):
@@ -91,7 +89,7 @@ if __name__ == "__main__":
     model.register_callback(TensorBoardCallback(tb_writer=tb_writer))
 
     # Training
-    model.fit(train_iter=train_iter,
+    model.fit(train_iter=train_loader,
               criterion=criterion,
               optimizer=optimizer,
               epochs=args.epochs,

@@ -123,7 +123,10 @@ class FeaturesWriter:
 		self.store(feature, idx)
 
 
-def read_features(file_path):
+def read_features(file_path, cache=None):
+	if cache is not None and file_path in cache:
+		return cache[file_path]
+
 	if not path.exists(file_path):
 		raise Exception(f"Feature doesn't exist: {file_path}")
 	features = None
@@ -133,7 +136,9 @@ def read_features(file_path):
 		for i, line in enumerate(data):
 			features[i, :] = [float(x) for x in line.split(' ')]
 
-	return torch.from_numpy(features).float()
+	features = torch.from_numpy(features).float()
+	cache[file_path] = features
+	return features
 
 
 def get_features_loader(dataset_path, clip_length, frame_interval, batch_size, num_workers, mode):

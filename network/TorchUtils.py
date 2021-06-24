@@ -5,6 +5,10 @@ import time
 import torch
 import torch.nn as nn
 
+"""
+Written by Eitan Kosman
+"""
+
 
 def get_torch_device():
     """
