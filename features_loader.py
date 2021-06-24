@@ -6,40 +6,39 @@ import numpy as np
 import torch
 from torch.utils import data
 from feature_extractor import read_features
-from torch.utils.data.dataset import Dataset
 
 
 class FeaturesLoader(data.Dataset):
     def __init__(self,
                  features_path,
                  annotation_path,
-                 bucket_size=30):
+                 bucket_size=30,
+                 iterations=20000):
 
         super(FeaturesLoader, self).__init__()
         self.features_path = features_path
         self.bucket_size = bucket_size
         # load video list
-        self.state = 'Normal'
         self.features_list_normal, self.features_list_anomaly = FeaturesLoader._get_features_list(
             features_path=self.features_path,
             annotation_path=annotation_path)
 
         self.normal_i, self.anomalous_i = 0, 0
-
-        self.shuffle()
+        self.iterations = iterations
+        self.features_cache = dict()
 
     def shuffle(self):
         self.features_list_anomaly = np.random.permutation(self.features_list_anomaly)
         self.features_list_normal = np.random.permutation(self.features_list_normal)
 
     def __len__(self):
-        return self.bucket_size * 2
+        return self.iterations
 
     def __getitem__(self, index):
         succ = False
         while not succ:
             try:
-                feature, label = self.get_feature(index)
+                feature, label = self.get_features()
                 succ = True
             except Exception as e:
                 index = np.random.choice(range(0, self.__len__()))
@@ -57,22 +56,14 @@ class FeaturesLoader(data.Dataset):
                     res.append(path.join(dir, file_no_ext))
         return res
 
-    def get_feature(self, index):
-        if self.state == 'Normal':  # Load a normal video
-            idx = random.randint(0, len(self.features_list_normal) - 1)
-            feature_subpath = self.features_list_normal[idx]
-            label = 0
+    def get_features(self):
+        normal_paths = np.random.choice(self.features_list_normal, size=self.bucket_size)
+        abnormal_paths = np.random.choice(self.features_list_anomaly, size=self.bucket_size)
+        all_paths = np.concatenate([normal_paths, abnormal_paths])
+        features = torch.stack([read_features(f"{feature_subpath}.txt", self.features_cache) for feature_subpath in all_paths])
+        labels = [0] * self.bucket_size + [1] * self.bucket_size
 
-        elif self.state == 'Anomalous':  # Load an anomalous video
-            idx = random.randint(0, len(self.features_list_anomaly) - 1)
-            feature_subpath = self.features_list_anomaly[idx]
-            label = 1
-
-        features = read_features(f"{feature_subpath}.txt")
-        
-        self.state = 'Anomalous' if self.state == 'Normal' else 'Normal'
-
-        return features, label
+        return features, torch.tensor(labels)
 
     @staticmethod
     def _get_features_list(features_path, annotation_path):
@@ -147,19 +138,3 @@ class FeaturesLoaderVal(data.Dataset):
                 features_list.append((feature_path, start_end_couples, length))
 
         return features_list
-
-
-class FeaturesDatasetWrapper(Dataset):
-    def __init__(self, features_path,
-                 annotation_path,
-                 bucket_size=30):
-        self.dataset = FeaturesLoader(features_path,
-                                      annotation_path,
-                                      bucket_size)
-
-    def __getitem__(self, index):
-        item = self.dataset[index]
-        return {'input': item[0], 'target': item[1]}
-
-    def __len__(self):
-        return len(self.dataset)

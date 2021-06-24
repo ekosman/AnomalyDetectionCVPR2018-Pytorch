@@ -36,12 +36,8 @@ def custom_objective(y_pred, y_true):
     normal_vids_indices = torch.where(y_true == 0)
     anomal_vids_indices = torch.where(y_true == 1)
 
-    normal_segments_scores = y_pred[normal_vids_indices]  # (batch/2, 32, 1)
-    anomal_segments_scores = y_pred[anomal_vids_indices]  # (batch/2, 32, 1)
-
-    # just for reducing the last dimension
-    normal_segments_scores = torch.sum(normal_segments_scores, dim=(-1,))  # (batch/2, 32)
-    anomal_segments_scores = torch.sum(anomal_segments_scores, dim=(-1,))  # (batch/2, 32)
+    normal_segments_scores = y_pred[normal_vids_indices].squeeze(-1)  # (batch/2, 32, 1)
+    anomal_segments_scores = y_pred[anomal_vids_indices].squeeze(-1)  # (batch/2, 32, 1)
 
     # get the max score for each video
     normal_segments_scores_maxes = normal_segments_scores.max(dim=-1)[0]
@@ -54,15 +50,14 @@ def custom_objective(y_pred, y_true):
     Smoothness of anomalous video
     """
     smoothed_scores = anomal_segments_scores[:, 1:] - anomal_segments_scores[:, :-1]
-    smoothed_scores_squared = smoothed_scores.pow(2)
-    smoothness_loss = smoothed_scores_squared.sum(dim=-1)
+    smoothed_scores_sum_squared = smoothed_scores.pow(2).sum(dim=-1)
 
     """
     Sparsity of anomalous video
     """
     sparsity_loss = anomal_segments_scores.sum(dim=-1)
 
-    final_loss = (hinge_loss + lambdas*smoothness_loss + lambdas*sparsity_loss).mean()
+    final_loss = (hinge_loss + lambdas*smoothed_scores_sum_squared + lambdas*sparsity_loss).mean()
     return final_loss
 
 
