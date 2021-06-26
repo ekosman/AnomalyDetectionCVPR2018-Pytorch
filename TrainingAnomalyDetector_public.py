@@ -24,9 +24,7 @@ def get_args():
     parser.add_argument('--log_file', type=str, default="log.log",
                         help="set logging file.")
     parser.add_argument('--exps_dir', type=str, default="exps",
-                        help="set logging file.")
-    parser.add_argument('--save_name', type=str, default="model",
-                        help="name of the saved model.")
+                        help="path to the directory where models and tensorboard would be saved.")
     parser.add_argument('--checkpoint', type=str,
                         help="load a model for resume training")
 
