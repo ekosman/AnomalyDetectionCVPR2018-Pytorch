@@ -35,7 +35,8 @@ def build_transforms(mode='c3d'):
     if mode == 'c3d':
         mean = [124 / 255, 117 / 255, 104 / 255]
         std = [1 / (.0167 * 255)] * 3
-        size = 112
+        resize = 128, 171
+        crop = 112
     elif mode == 'i3d':
         mean = [0, 0, 0]
         std = [1, 1, 1]
@@ -49,7 +50,8 @@ def build_transforms(mode='c3d'):
 
     res = transforms.Compose([
         transforms_video.ToTensorVideo(),
-        transforms_video.RandomResizedCropVideo(size, size),
+        transforms_video.ResizeVideo(resize),
+        transforms_video.CenterCropVideo(crop),
         transforms_video.NormalizeVideo(mean=mean, std=std)
     ])
 

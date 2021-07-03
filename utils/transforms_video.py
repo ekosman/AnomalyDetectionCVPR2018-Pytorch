@@ -45,6 +45,19 @@ class RandomCropVideo(RandomCrop):
         return self.__class__.__name__ + '(size={0})'.format(self.size)
 
 
+class ResizeVideo:
+    def __init__(
+            self,
+            size,
+            interpolation_mode="bilinear"
+    ):
+        self.size = size
+        self.interpolation_mode = interpolation_mode
+
+    def __call__(self, clip):
+        return F.resize(clip, self.size, self.interpolation_mode)
+
+
 class RandomResizedCropVideo(RandomResizedCrop):
     def __init__(
         self,
