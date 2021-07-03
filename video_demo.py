@@ -6,15 +6,16 @@ from os import path
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
-import pytorch_wrapper as pw
 import torch
+import pyqtgraph as pg
 from PyQt5.QtCore import Qt, QUrl
 from PyQt5.QtGui import QIcon, QPalette
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtMultimediaWidgets import QVideoWidget
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QLabel, \
-    QSlider, QStyle, QSizePolicy, QFileDialog, QProgressBar
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+    QSlider, QStyle, QSizePolicy, QFileDialog, QProgressBar, QGridLayout
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas, FigureCanvasQTAgg
+from matplotlib.figure import Figure
 from tqdm import tqdm
 
 from data_loader import SingleVideoIter
@@ -141,6 +142,14 @@ def ad_prediction(model, features, device='cuda'):
     return preds.detach().cpu().numpy().flatten()
 
 
+class MplCanvas(FigureCanvasQTAgg):
+
+    def __init__(self, parent=None, width=5, height=4, dpi=100):
+        self.fig = Figure(figsize=(width, height), dpi=dpi)
+        self.axes = self.fig.add_subplot(111)
+        super(MplCanvas, self).__init__(self.fig)
+
+
 class Window(QWidget):
     """
     Anomaly detection gui
@@ -193,32 +202,31 @@ class Window(QWidget):
         self.label = QLabel()
         self.label.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
 
-        # create hbox layout
-        hboxLayout = QHBoxLayout()
-        hboxLayout.setContentsMargins(0, 0, 0, 0)
-
-        # set widgets to the hbox layout
-        hboxLayout.addWidget(openBtn)
-        hboxLayout.addWidget(self.playBtn)
-        hboxLayout.addWidget(self.slider)
+        # create grid layout
+        gridLayout = QGridLayout()
+        # hboxLayout = QHBoxLayout()
+        # hboxLayout.setContentsMargins(0, 0, 0, 0)
 
         # AD signal
-        self.figure = plt.figure()
-        self.canvas = FigureCanvas(self.figure)
+        # self.figure = plt.figure()
+        # self.canvas = FigureCanvas(self.figure)
+        # self.graphWidget = pg.PlotWidget()
+        self.graphWidget = MplCanvas(self, width=5, height=1, dpi=100)
 
         # Feature extraction progress bar
         self.pbar = QProgressBar()
         self.pbar.setTextVisible(True)
 
-        # create vbox layout
-        vboxLayout = QVBoxLayout()
-        vboxLayout.addWidget(videowidget)
-        vboxLayout.addWidget(self.canvas)
-        vboxLayout.addLayout(hboxLayout)
-        vboxLayout.addWidget(self.label)
-        vboxLayout.addWidget(self.pbar)
+        # set widgets to the hbox layout
+        gridLayout.addWidget(self.graphWidget, 0, 0, 1, 5)
+        gridLayout.addWidget(videowidget, 1, 0, 5, 5)
+        gridLayout.addWidget(openBtn, 6, 0, 1, 1)
+        gridLayout.addWidget(self.playBtn, 6, 1, 1, 1)
+        gridLayout.addWidget(self.slider, 6, 2, 1, 3)
+        gridLayout.addWidget(self.pbar, 7, 0, 1, 5)
+        gridLayout.addWidget(self.label, 7, 2, 1, 1)
 
-        self.setLayout(vboxLayout)
+        self.setLayout(gridLayout)
 
         self.mediaPlayer.setVideoOutput(videowidget)
 
@@ -236,6 +244,7 @@ class Window(QWidget):
         if filename != '':
             self.mediaPlayer.setMedia(QMediaContent(QUrl.fromLocalFile(filename)))
             self.playBtn.setEnabled(True)
+            self.label.setText("Extracting features...")
 
             features = features_extraction(video_path=filename,
                                            model=feature_extractor,
@@ -246,6 +255,8 @@ class Window(QWidget):
             self.y_pred = ad_prediction(model=anomaly_detector,
                                    features=features,
                                    device=self.device, )
+
+            self.label.setText("Done! Click the Play button")
 
     def play_video(self):
         if self.mediaPlayer.state() == QMediaPlayer.PlayingState:
@@ -284,12 +295,12 @@ class Window(QWidget):
 
     def plot(self, position):
         if self.y_pred is not None:
-            self.figure.clear()
-            ax = self.figure.add_subplot(111)
+            ax = self.graphWidget.axes
+            ax.clear()
             ax.set_xlim(0, self.mediaPlayer.duration())
             ax.set_ylim(-0.1, 1.1)
-            ax.plot(self.y_pred[:position], '*-')
-            self.canvas.draw()
+            ax.plot(self.y_pred[:position], '*-', linewidth=7)
+            self.graphWidget.draw()
 
 
 if __name__ == '__main__':
