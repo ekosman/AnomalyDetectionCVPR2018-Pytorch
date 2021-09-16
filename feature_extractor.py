@@ -137,7 +137,8 @@ def read_features(file_path, cache=None):
             features[i, :] = [float(x) for x in line.split(' ')]
 
     features = torch.from_numpy(features).float()
-    cache[file_path] = features
+    if cache is not None:
+        cache[file_path] = features
     return features
 
 
