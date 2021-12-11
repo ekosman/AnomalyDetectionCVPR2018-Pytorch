@@ -32,7 +32,7 @@ def get_args():
     parser.add_argument('--batch_size', type=int, default=60,
                         help="batch size")
     parser.add_argument('--feature_dim', type=int, default=4096,
-                        help="batch size")
+                        help="feature dimension")
     parser.add_argument('--save_every', type=int, default=1,
                         help="epochs interval for saving the model checkpoints")
     parser.add_argument('--lr_base', type=float, default=0.01,
@@ -62,6 +62,7 @@ if __name__ == "__main__":
 
     # Data loader
     train_loader = FeaturesLoader(features_path=args.features_path,
+                                  feature_dim=args.feature_dim,
                                   annotation_path=args.annotation_path,
                                   iterations=args.iterations_per_epoch)
 

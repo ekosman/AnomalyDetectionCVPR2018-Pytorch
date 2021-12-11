@@ -11,12 +11,14 @@ from feature_extractor import read_features
 class FeaturesLoader:
     def __init__(self,
                  features_path,
+                 feature_dim,
                  annotation_path,
                  bucket_size=30,
                  iterations=20000):
 
         super(FeaturesLoader, self).__init__()
         self.features_path = features_path
+        self.feature_dim = feature_dim
         self.bucket_size = bucket_size
         # load video list
         self.features_list_normal, self.features_list_anomaly = FeaturesLoader._get_features_list(
@@ -65,9 +67,8 @@ class FeaturesLoader:
         normal_paths = np.random.choice(self.features_list_normal, size=self.bucket_size)
         abnormal_paths = np.random.choice(self.features_list_anomaly, size=self.bucket_size)
         all_paths = np.concatenate([normal_paths, abnormal_paths])
-        features = torch.stack([read_features(f"{feature_subpath}.txt", self.features_cache) for feature_subpath in all_paths])
+        features = torch.stack([read_features(f"{feature_subpath}.txt", self.feature_dim, self.features_cache) for feature_subpath in all_paths])
         labels = [0] * self.bucket_size + [1] * self.bucket_size
-
         return features, torch.tensor(labels)
 
     @staticmethod
@@ -93,10 +94,12 @@ class FeaturesLoader:
 class FeaturesLoaderVal(data.Dataset):
     def __init__(self,
                  features_path,
-                 annotation_path,):
+                 feature_dim,
+                 annotation_path):
 
         super(FeaturesLoaderVal, self).__init__()
         self.features_path = features_path
+        self.feature_dim = feature_dim
         # load video list
         self.state = 'Normal'
         self.features_list = FeaturesLoaderVal._get_features_list(
@@ -119,7 +122,7 @@ class FeaturesLoaderVal(data.Dataset):
 
     def get_feature(self, index):
         feature_subpath, start_end_couples, length = self.features_list[index]
-        features = read_features(f"{feature_subpath}.txt")
+        features = read_features(f"{feature_subpath}.txt", self.feature_dim)
         return features, start_end_couples, length
 
     @staticmethod

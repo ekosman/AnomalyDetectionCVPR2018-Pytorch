@@ -45,14 +45,24 @@ def build_transforms(mode='c3d'):
         mean = [0.485, 0.456, 0.406]
         std = [0.229, 0.224, 0.225]
         size = 224
+    elif mode == '3dResNet':
+        mean = [0.4345, 0.4051, 0.3775]
+        std = [0.2768, 0.2713, 0.2737]
+        size = 224
     else:
         raise NotImplementedError(f"Mode {mode} not implemented")
-
-    res = transforms.Compose([
-        transforms_video.ToTensorVideo(),
-        transforms_video.ResizeVideo(resize),
-        transforms_video.CenterCropVideo(crop),
-        transforms_video.NormalizeVideo(mean=mean, std=std)
-    ])
+    
+    if mode == 'c3d':
+        res = transforms.Compose([
+            transforms_video.ToTensorVideo(),
+            transforms_video.ResizeVideo(resize),
+            transforms_video.CenterCropVideo(crop),
+            transforms_video.NormalizeVideo(mean=mean, std=std)
+        ])
+    else:
+        res = transforms.Compose([
+            transforms_video.ToTensorVideo(),
+            transforms_video.NormalizeVideo(mean=mean, std=std)
+        ])
 
     return res

@@ -16,6 +16,8 @@ def get_args():
     parser = argparse.ArgumentParser(description="PyTorch Video Classification Parser")
     parser.add_argument('--features_path', default='../anomaly_features',
                         help="path to features")
+    parser.add_argument('--feature_dim', type=int, default=4096,
+                        help="feature dimension")
     parser.add_argument('--annotation_path', default="Test_Annotation.txt",
                         help="path to annotations")
     parser.add_argument('--model_path', type=str, default="./exps/model.weights",
@@ -29,6 +31,7 @@ if __name__ == "__main__":
                           else "cpu")
 
     data_loader = FeaturesLoaderVal(features_path=args.features_path,
+                                    feature_dim=args.feature_dim,
                                     annotation_path=args.annotation_path)
 
     data_iter = torch.utils.data.DataLoader(data_loader,
