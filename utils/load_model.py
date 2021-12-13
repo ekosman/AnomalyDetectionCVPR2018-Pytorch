@@ -9,6 +9,7 @@ from network.TorchUtils import TorchModel
 from network.anomaly_detector_model import AnomalyDetector
 from network.c3d import C3D
 from network.i3d import InceptionI3d
+from network.resnet import generate_model
 
 
 def load_feature_extractor(features_method, feature_extractor_path, device):
@@ -25,6 +26,12 @@ def load_feature_extractor(features_method, feature_extractor_path, device):
     elif features_method == 'mfnet':
         model = MFNET_3D()
         model.load_state(state_dict=feature_extractor_path)
+    elif features_method == '3dResNet':
+        model = generate_model(model_depth=101)
+        param_dict = torch.load(feature_extractor_path)['state_dict']
+        param_dict.pop("fc.weight")
+        param_dict.pop("fc.bias")
+        model.load_state_dict(param_dict)
     else:
         raise NotImplementedError(f"Features extraction method {features_method} not implemented")
 

@@ -39,7 +39,7 @@ def get_args():
                         type=str,
                         required=True,
                         help="type of feature extractor",
-                        choices=['c3d', 'i3d', 'mfnet'])
+                        choices=['c3d', 'i3d', 'mfnet', '3dResNet'])
     parser.add_argument('--pretrained_3d',
                         type=str,
                         help="load default 3D pretrained model.")
@@ -123,7 +123,7 @@ class FeaturesWriter:
         self.store(feature, idx)
 
 
-def read_features(file_path, cache=None):
+def read_features(file_path, feature_dim, cache=None):
     if cache is not None and file_path in cache:
         return cache[file_path]
 
@@ -132,7 +132,7 @@ def read_features(file_path, cache=None):
     features = None
     with open(file_path, 'r') as fp:
         data = fp.read().splitlines(keepends=False)
-        features = np.zeros((len(data), 4096))
+        features = np.zeros((len(data), feature_dim))
         for i, line in enumerate(data):
             features[i, :] = [float(x) for x in line.split(' ')]
 
