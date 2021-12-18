@@ -55,6 +55,8 @@ Using my pre-trained model after 40K iterations, I achieve this following perfor
 <img src=graphs/roc_auc.png width="600"/>
 
 ## Demo *
+
+### Off-line (with video loader)
 Arguments:
 * feature_extractor - path to the 3D model to use for feature extraction
 * feature_method - which type of model to use for feature extraction (necessary in order to choose the correct pre-processing)
@@ -64,10 +66,16 @@ Arguments:
 
 The GUI lets you load a video and run the Anomaly Detection code (including feature extraction) and output a video with a graph of the Anomaly Detection prediction below.
 
-## Annotation *
-```python annotation_methods.py --path_list LIST_OF_VIDEO_PATH --dir_list LIST_OF_LIST_WITH_PATH_AND_VIDEO_NAME --normal_or_not LIST_TRUE_FALUE```
+### On-line (via webcam)
+Arguments:
+* feature_extractor - path to the 3D model to use for feature extraction
+* feature_method - which type of model to use for feature extraction (necessary in order to choose the correct pre-processing)
+* ad_model - path to the trained anomaly detection model
+* clip_length - the length of each video clip (in frames)
+```python AD_live_prediction.py --feature_extractor "path-to-pretrained-fe" --feature_method "fe-method" --ad_model "path-to-pretrained-ad-model" --clip_length "number-of-frames"```
 
-This is currently just for demo but will allow training with nex videos
+The GUI lets you load a video and run the Anomaly Detection code (including feature extraction) and output a video with a graph of the Anomaly Detection prediction below.
+
 
 *Contrbuted by Peter Overbury of Sussex Universty IISP Group
 
