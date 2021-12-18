@@ -29,10 +29,6 @@ https://drive.google.com/drive/folders/1rhOuAdUqyJU4hXIhToUnh5XVvYjQiN50?usp=sha
 ## Pre-Trained Anomaly Detector
 Check out <a href="exps/models">exps/models</a> for for trained models on the pre-computed features
 
-The loss graph during training is shown here:
-
-<img src=graphs/Train_loss.png width="600"/>
-
 ## Features Extraction
 Download the dataset from: https://github.com/WaqasSultani/AnomalyDetectionCVPR2018
 Arguments:
