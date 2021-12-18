@@ -1,385 +1,299 @@
+import argparse
+import logging
 import sys
-# insert at 1, 0 is the script path (or '' in REPL)
-import os
-home=os.getcwd()
-sys.path.insert(0, home[0:-len('GUI_stuff')])
-
-from data_loader import VideoIterTrain
-import torch
-
-from utils.utils import set_logger, build_transforms
-
-import pickle
-
-from feature_extractor import FeaturesWriter
-from tqdm import tqdm
-
-from network.anomaly_detector_model import AnomalyDetector, RegularizedLoss, custom_objective
-from network.model import static_model
-
-from features_loader import FeaturesLoaderVal
-
+from os import path
+from PyQt5 import QtGui
+import cv2
 
 import numpy as np
+from numpy.lib.function_base import copy
+import torch
+from PyQt5.QtCore import QThread, Qt, pyqtSignal
+from PyQt5.QtGui import QIcon, QImage, QPalette, QPixmap
+from PyQt5.QtMultimedia import QCamera, QCameraImageCapture, QMediaPlayer, QCameraInfo
+from PyQt5.QtMultimediaWidgets import QCameraViewfinder
+from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QPushButton, QStyle, QFileDialog, QGridLayout, QComboBox
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
+from matplotlib.figure import Figure
+from tqdm import tqdm
 
-from torch.autograd import Variable
-
-if "/home/barbara/" in os.getcwd():
-    pretrained_3d="/home/barbara/Documents/work_git/actionID/AnomalyDetectionCVPR2018-Pytorch-master/c3d-pytorch-master/c3d.pickle"
-elif "/home/peter/" in os.getcwd():
-    pretrained_3d="/home/peter/Documents/actionID/AnomalyDetectionCVPR2018-Pytorch-master/c3d-pytorch-master/c3d.pickle"
-
-
-AD_pertrained_model_dir='/home/peter/Documents/actionID/AnomalyDetectionCVPR2018-Pytorch-master/short_60_low_mem/exps/model'
-
-
+from feature_extractor import to_segments
+from network.TorchUtils import TorchModel
 from network.c3d import C3D
+from utils.utils import build_transforms
 
 
-from skimage.transform import resize
-def get_clip(clip_list, verbose=True):
+def get_args():
+    parser = argparse.ArgumentParser(description="Video Demo For Anomaly Detection")
+
+    parser.add_argument('--feature_extractor',
+                        required=True,
+                        help='path to the 3d model for feature extraction')
+    parser.add_argument('--feature_method',
+                        default='c3d',
+                        choices=['c3d', 'mfnet'],
+                        help='method to use for feature extraction')
+    parser.add_argument('--ad_model',
+                        required=True,
+                        help="path to the trained AD model")
+    parser.add_argument('--clip_length',
+                        type=int,
+                        default=16,
+                        help='define the length of each input sample')
+
+    return parser.parse_args()
+
+
+def load_models(feature_extractor_path, ad_model_path, features_method='c3d', device='cuda'):
     """
-    Loads a clip to be fed to C3D for classification.
-    TODO: should I remove mean here?
-
-    Parameters
-    ----------
-    clip_name: str
-        the name of the clip (subfolder in 'data').
-    verbose: bool
-        if True, shows the unrolled clip (default is True).
-
-    Returns
-    -------
-    Tensor
-        a pytorch batch (n, ch, fr, h, w).
+    Loads both feature extractor and anomaly detector from the given paths
+    :param feature_extractor_path: path of the features extractor weights to load
+    :param ad_model_path: path of the anomaly detector weights to load
+    :param features_method: name of the model to use for features extraction
+    :param device: device to use for the models
+    :return: anomaly_detector, feature_extractor
     """
+    assert path.exists(feature_extractor_path)
+    assert path.exists(ad_model_path)
 
-    clip_list = np.array([frame for frame in clip_list])
+    feature_extractor, anomaly_detector = None, None
 
-    #clip = sorted(glob(join('data', clip_name, '*.png')))
-    #test = io.imread(clip[0])
-    #rtest = resize(test, output_shape=(112, 200), preserve_range=True)
-    clip = np.array([resize(frame, output_shape=(112, 200), preserve_range=True) for frame in clip_list])
-    clip = clip[:, :, 44:44 + 112, :]  # crop centrally
+    if features_method == 'c3d':
+        logging.info(f"Loading feature extractor from {feature_extractor_path}")
+        feature_extractor = C3D(pretrained=feature_extractor_path)
 
-    # if verbose:
-    #     clip_img = np.reshape(clip.transpose(1, 0, 2, 3), (112, 16 * 112, 3))
-    #     io.imshow(clip_img.astype(np.uint8))
-    #     io.show()
+    else:
+        raise NotImplementedError(f"Features extraction method {features_method} not implemented")
 
-    clip = clip.transpose(3, 0, 1, 2)  # ch, fr, h, w
-    clip = np.expand_dims(clip, axis=0)  # batch axis
-    clip = np.float32(clip)
+    feature_extractor = feature_extractor.to(device).eval()
 
-    return torch.from_numpy(clip)
+    logging.info(f"Loading anomaly detector from {ad_model_path}")
+    anomaly_detector = TorchModel.load_model(model_path=ad_model_path).to(device).eval()
 
-def cd3_sigle_extartion(input_clips_f,c3d_network=None):
-    #input_clips = get_clip(input_clips_f, verbose=True)
-    input_clips_t=np.array(input_clips_f)
-    input_clips=torch.from_numpy(np.array(input_clips_f))
-    transforms=build_transforms()
-    input_clips =transforms(input_clips)
-
-    random_seed = 1
-    torch.manual_seed(random_seed)
-    torch.cuda.manual_seed(random_seed)
-
-    if c3d_network==None:
-        device = torch.device("cuda" if torch.cuda.is_available()
-                              else "cpu")
-        print("Now doing the C3D network")
-        #c3d_network = C3D(pretrained=pretrained_3d)
-        #c3d_network.to(device)
-
-        #from C3D_model import C3D
-        #from network.model import static_model
-        #from network.anomaly_detector_model import AnomalyDetector, RegularizedLoss, custom_objective
-
-        c3d_network = C3D()
-        home = os.getcwd()
-        os.chdir(home[0:-len('GUI_stuff')])
-        c3d_network.load_state_dict(torch.load('c3d.pickle'))
-        os.chdir(home)
-        c3d_network.cuda()
-        c3d_network.eval()
+    return anomaly_detector, feature_extractor
 
 
-    #X = Variable(input_clips)
-    #X = X.cuda()
-    X=input_clips
-    X=X.unsqueeze(0)
-    #X=X.cuda()
-    #input_clip=torch.from_numpy(input_clip)
+def features_extraction(frames, model, device, frame_stride=1, transforms=None):
+    """
+    Extracts features of the video. The returned features will be returned after averaging over the required number of
+    video segments.
+    :param frames: a sequence of video frames to predict
+    :param model: model to use for feature extraction
+    :param device: device to use for loading data
+    :param frame_stride: interval between frames to load
+    :return: feature (1, feature_dim), usually (1, 4096) as in the original paper
+    """
+    frames = torch.tensor(frames)
+    frames = transforms(frames).to(device)
+    data = frames[:, range(0, frames.shape[1], frame_stride), ...]
+    data = data.unsqueeze(0)
 
     with torch.no_grad():
-        c3d_outputs = c3d_network(X.cuda())
+        outputs = model(data.to(device)).detach().cpu()
 
-        features_writer = FeaturesWriter()
-        start_frame=0
-        vid_name='test_sigle_run_output'
-        #c3d_outputs[0] as this is for a single use meaning no need to loop over the results
-        features_writer.write(feature=c3d_outputs[0], video_name=vid_name, start_frame=start_frame, dir="test")
-
-        avg_segments=features_writer.dump_NO_save()#dump()
-
-    if c3d_network == None:
-        return c3d_outputs,avg_segments, device,c3d_network
-    else:
-        return c3d_outputs,avg_segments
-
-def cd3_extartion(video_parth,device=None,features_dir="./demo_video",c3d_network=None,train_frame_interval=2,clip_length=16):
-
-    batch_size=1
-    #train_frame_interval=2
-    #clip_length=16
-
-    single_load=True #should not matter
-    home=os.getcwd()
-    load_home=home[0:-len('GUI_stuff')]
-    pretrained_3d=load_home+"/c3d-pytorch-master/c3d.pickle"
-
-    if device==None:
-        device = torch.device("cuda" if torch.cuda.is_available()
-                          else "cpu")
+    return to_segments(outputs.numpy(), 1)
 
 
-    #Load clips
-    print("doing train loader")
-    train_loader = VideoIterTrain(dataset_path=None,
-                                  annotation_path=video_parth,
-                                  clip_length=clip_length,
-                                  frame_stride=train_frame_interval,
-                                  video_transform=build_transforms(),
-                                  name='train',
-                                  return_item_subpath=False,
-                                  single_load=single_load)
-    print("train loader done, train_iter now")
-    train_iter = torch.utils.data.DataLoader(train_loader,
-                                             batch_size=batch_size,
-                                             shuffle=False,
-                                             num_workers=32,  # 4, # change this part accordingly
-                                             pin_memory=True)
-
-    if c3d_network==None:
-        #Possesing with CD3
-        print("Now loading the data to C3D netowr")
-        network = C3D(pretrained=pretrained_3d)
-        network.to(device)
-
-    if not os.path.exists(features_dir):
-        os.mkdir(features_dir)
-
-    features_writer = FeaturesWriter()
-
-    dir_list=[]
-    for i_batch, (data, target, sampled_idx, dirs, vid_names) in tqdm(enumerate(train_iter)):
-        with torch.no_grad():
-            outputs = network(data.cuda())
-            #print("dir " + str(dirs))
-            for i, (dir, vid_name, start_frame) in enumerate(zip(dirs, vid_names, sampled_idx.cpu().numpy())):
-                dir_list.append([dir,vid_name]) #added by Peter 9/5
-                #print("dir "+str(dir))
-                dir = os.path.join(features_dir, dir)
-                features_writer.write(feature=outputs[i], video_name=vid_name, start_frame=start_frame, dir=dir)
-    #print("dumping?")
-    features_writer.dump()
-    if c3d_network==None:
-        return dir_list,network,data
-    else:
-        return dir_list
-
-def AD_sigle_perdiction(model_dir,c3d_features,lengths=16,device=None,network=None):
-    if device==None:
-        device = torch.device("cuda" if torch.cuda.is_available()
-                          else "cpu")
-    if network==None:
-        print("staring the sigle AD networl")
-        # pediction of AD with pertrain network
-        network = AnomalyDetector()
-        network.to(device)
-        net = static_model(net=network,
-                           criterion=RegularizedLoss(network, custom_objective).cuda(),
-                           model_prefix=model_dir,
-                           )
-        model_path = net.get_checkpoint_path(20000)
-        net.load_checkpoint(pretrain_path=model_path, epoch=20000)
-        net.net.to(device)
-    else:
-        net=network
-
-    #no need for anatation or batch loading of the C3D featuers
-
-    #from annotation_methods import annotatate_file
-    #annotation_path=annotatate_file(video_parth,dir_list,normal=True,file_name="Demo_anmotation")
-
-    # #runing vedio in to network
-    # data_loader = FeaturesLoaderVal(features_path=features_dir,
-    #                                 annotation_path=annotation_path)
-    #
-    # data_iter = torch.utils.data.DataLoader(data_loader,
-    #                                         batch_size=1,
-    #                                         shuffle=False,
-    #                                         num_workers=1,  # 4, # change this part accordingly
-    #                                         pin_memory=True)
-    #print("loading of data done")
-
-    #for features, start_end_couples, feature_subpaths, lengths in tqdm(data_iter):
-        # features is a batch where each item is a tensor of 32 4096D features
-    c3d_features=torch.from_numpy(c3d_features)
-    #print(c3d_features.shape)
-    features = c3d_features.to(device)
+def ad_prediction(model, features, device='cuda'):
+    """
+    Creates frediction for the given feature vectors
+    :param model: model to use for anomaly detection
+    :param features: features of the video clips
+    :param device: device to use for loading the features
+    :return: anomaly predictions for the video segments
+    """
+    logging.info(f"Performing anomaly detection...")
+    features = torch.tensor(features).to(device)
     with torch.no_grad():
-        input_var = torch.autograd.Variable(features)
-        outputs = net.predict(input_var)[0]  # (batch_size, 32)
-        outputs = outputs.reshape(1, 32)#outputs.shape[0]
-        for vid_len,  output in zip([lengths],  outputs.cpu().numpy()):
-            y_true = np.zeros(vid_len)
-            segments_len = vid_len // 32
-        #         for couple in couples:
-        #             if couple[0] != -1:
-        #                 y_true[couple[0]: couple[1]] = 1
-            y_pred = np.zeros(vid_len)
-            for i in range(32):
-                segment_start_frame = i * segments_len
-                segment_end_frame = (i + 1) * segments_len
-                y_pred[segment_start_frame: segment_end_frame] = output[i]
+        preds = model(features)
 
-    #print(y_true)
-    #print(y_pred)
-    #print("it is over")
-    return y_pred
+    return preds.detach().cpu().numpy().flatten()
 
 
-def AD_perdiction(model_dir,dir_list,features_dir,video_parth,device=None):
+class VideoThread(QThread):
+    change_pixmap_signal = pyqtSignal(np.ndarray)
 
-    if device==None:
-        device = torch.device("cuda" if torch.cuda.is_available()
-                          else "cpu")
+    def __init__(self):
+        super().__init__()
+        self._run_flag = True
 
-    #pediction of AD with pertrain network
-    network = AnomalyDetector()
-    network.to(device)
-    net = static_model(net=network,
-                           criterion=RegularizedLoss(network, custom_objective).cuda(),
-                           model_prefix=model_dir,
-                           )
-    model_path = net.get_checkpoint_path(20000)
-    net.load_checkpoint(pretrain_path=model_path, epoch=20000)
-    net.net.to(device)
+    def run(self):
+        # capture from web cam
+        cap = cv2.VideoCapture(0)
+        while self._run_flag:
+            ret, cv_img = cap.read()
+            if ret:
+                self.change_pixmap_signal.emit(cv_img)
+        # shut down capture system
+        cap.release()
 
-    from annotation_methods import annotatate_file
-    annotation_path=annotatate_file(video_parth,dir_list,normal=True,file_name="Demo_anmotation")
+    def stop(self):
+        """Sets run flag to False and waits for thread to finish"""
+        self._run_flag = False
+        self.wait()
 
-    #runing vedio in to network
-    data_loader = FeaturesLoaderVal(features_path=features_dir,
-                                    annotation_path=annotation_path)
+class MplCanvas(FigureCanvasQTAgg):
 
-    data_iter = torch.utils.data.DataLoader(data_loader,
-                                            batch_size=1,
-                                            shuffle=False,
-                                            num_workers=1,  # 4, # change this part accordingly
-                                            pin_memory=True)
-    print("loading of data done")
-
-    for features, start_end_couples, feature_subpaths, lengths in tqdm(data_iter):
-        # features is a batch where each item is a tensor of 32 4096D features
-        print(features.shape)
-        features = features.to(device)
-        with torch.no_grad():
-            input_var = torch.autograd.Variable(features)
-            outputs = net.predict(input_var)[0]  # (batch_size, 32)
-            outputs = outputs.reshape(outputs.shape[0], 32)
-            for vid_len, couples, output in zip(lengths, start_end_couples, outputs.cpu().numpy()):
-                y_true = np.zeros(vid_len)
-                segments_len = vid_len // 32
-                for couple in couples:
-                    if couple[0] != -1:
-                        y_true[couple[0]: couple[1]] = 1
-                y_pred = np.zeros(vid_len)
-                print()
-                for i in range(32):
-                    segment_start_frame = i * segments_len
-                    segment_end_frame = (i + 1) * segments_len
-                    y_pred[segment_start_frame: segment_end_frame] = output[i]
-
-    print(y_true)
-    print(y_pred)
-    #print("it is over")
-    return y_pred
-
-def network_setup(ad_model_dir='/home/peter/Documents/actionID/AnomalyDetectionCVPR2018-Pytorch-master/short_60_low_mem/exps/model'):
-    device = torch.device("cuda" if torch.cuda.is_available()
-                          else "cpu")
-
-    c3d_network = C3D(pretrained=pretrained_3d)
-    c3d_network.to(device)
-
-    print("staring the sigle AD networl")
-    # pediction of AD with pertrain network
-    AD_network = AnomalyDetector()
-    AD_network.to(device)
-    net = static_model(net=AD_network,
-                       criterion=RegularizedLoss(AD_network, custom_objective).cuda(),
-                       model_prefix=ad_model_dir,
-                       )
-    model_path = net.get_checkpoint_path(20000)
-    net.load_checkpoint(pretrain_path=model_path, epoch=20000)
-    net.net.to(device)
-
-    return device,c3d_network,net
-
-def testing(clip_size=16,video_input=0):
-    import cv2
-    #GET Video input for cam_feed
-    videoReader = cv2.VideoCapture(video_input)
-    fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    out = cv2.VideoWriter('test_output.avi', fourcc, 20.0, (640, 480))
-
-    frame_count=0
-    frames=[]
-    while frame_count<clip_size:
-        isCurrentFrameValid, currentImage = videoReader.read()
-        frames.append(currentImage)
-        frame_count=frame_count+1
-
-        out.write(currentImage)
-    videoReader.release()
-    out.release()
-    cv2.destroyAllWindows()
-
-    device,c3d_network_n,ad_net=network_setup(ad_model_dir='/home/peter/Documents/actionID/AnomalyDetectionCVPR2018-Pytorch-master/short_60_low_mem/exps/model')
+    def __init__(self, parent=None, width=5, height=4, dpi=100):
+        self.fig = Figure(figsize=(width, height), dpi=dpi)
+        self.axes = self.fig.add_subplot(111)
+        super(MplCanvas, self).__init__(self.fig)
 
 
-    #C3D
-    dir_list,c3d_network,data_batch = cd3_extartion(os.getcwd()+'/'+'test_output.avi', device=device, features_dir="./test",clip_length=clip_size,
-                                         train_frame_interval=1)
-        #the data_batch is the input given to the C3D network. some how there is a added there so that the shape is [1, 3, 16, 244, 244] curently I get a shape of  [3, 16, 244, 244]
-    print("Standered C3D methord complet")
+class Window(QWidget):
+    """
+    Anomaly detection live gui
+    Based on media player code from: https://codeloop.org/python-how-to-create-media-player-in-pyqt5/
+    """
 
-    c3d_outputs,avg_segments=cd3_sigle_extartion(frames, c3d_network=c3d_network_n)
-    print("Single C3D methord complet")
+    def __init__(self, clip_length=16, transforms=None):
+        super().__init__()
 
-    #AD
-    ad_model_dir = '/home/peter/Documents/actionID/AnomalyDetectionCVPR2018-Pytorch-master/short_60_low_mem/exps/model'
-    features_dir="./test"
-    video_parth=os.getcwd()+'/'+'test_output.avi'
-    batch_y_pred = AD_perdiction(ad_model_dir, dir_list,features_dir,video_parth, device=device)
-    print("batch_y_pred ="+str(batch_y_pred))
+        self.clip_length = clip_length
+        self.transforms = transforms
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    sigle_y_pred = AD_sigle_perdiction(ad_model_dir, avg_segments, device=device,lengths=16,network=ad_net)
-    print("single_y_pred =" + str(sigle_y_pred))
+        self.setWindowTitle("Anomaly Media Player")
+        self.setGeometry(350, 100, 700, 500)
+        self.setWindowIcon(QIcon('player.png'))
 
-    # if sigle_y_pred.any() !=batch_y_pred.any():
-    #     print("Error perditions from batch and sigle run are not the same?")
-    #     print("b_y_pred =" + str(batch_y_pred))
-    #     print("s_y_pred =" + str(sigle_y_pred))
+        p = self.palette()
+        p.setColor(QPalette.Window, Qt.black)
+        self.setPalette(p)
 
+        self.init_ui()
 
+        self.y_pred = [1] * 100
 
+        self.show()
 
+    def init_ui(self):
+        # create media player object
+        # self.mediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
 
+        # create videowidget object
+        # videowidget = QVideoWidget()
+
+        # setup camera
+        self.available_cameras = QCameraInfo.availableCameras()
+        self.camera_view = QLabel()
+        self.frames_queue = []
+        self.camera_id = None
+        self.select_camera()
+
+        # creating a combo box for selecting camera
+        camera_selector = QComboBox()
+        camera_selector.setStatusTip("Choose camera")
+        camera_selector.setToolTip("Select Camera")
+        camera_selector.setToolTipDuration(2500)
+        camera_selector.addItems([camera.description()
+                                  for camera in self.available_cameras])
+        camera_selector.currentIndexChanged.connect(self.select_camera)
+
+        # create button for playing
+        self.playBtn = QPushButton()
+        self.playBtn.setEnabled(True)
+        self.playBtn.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
+        self.playBtn.clicked.connect(self.play_video)
+
+        # create grid layout
+        gridLayout = QGridLayout()
+
+        # AD signal
+        self.graphWidget = MplCanvas(self, width=5, height=1, dpi=100)
+
+        # set widgets to the hbox layout
+        gridLayout.addWidget(self.graphWidget, 0, 0, 1, 5)
+        gridLayout.addWidget(self.camera_view, 1, 0, 5, 5)
+        # gridLayout.addWidget(self.playBtn, 6, 0, 1, 5)
+        # gridLayout.addWidget(camera_selector, 7, 0, 1, 5)
+
+        self.setLayout(gridLayout)
+
+        # create the video capture thread
+        self.thread = VideoThread()
+        self.thread.change_pixmap_signal.connect(self.update_image)
+        self.thread.start()
+
+    def update_image(self, cv_img):
+        qt_img = self.convert_cv_qt(cv_img)
+        self.camera_view.setPixmap(qt_img)
+        self.frames_queue.append(cv_img)
+        if len(self.frames_queue) == self.clip_length:
+            batch = copy(self.frames_queue)
+            features = features_extraction(frames=batch,
+                                           model=feature_extractor,
+                                           device=self.device, 
+                                           transforms=self.transforms, )
+
+            new_pred = ad_prediction(model=anomaly_detector,
+                                    features=features,
+                                    device=self.device, )[0]
+            self.y_pred.append(new_pred)
+            del self.y_pred[0]
+            self.plot()
+            self.frames_queue = []
+
+    def convert_cv_qt(self, cv_img):
+        """Convert from an opencv image to QPixmap"""
+        rgb_image = cv2.cvtColor(cv_img, cv2.COLOR_BGR2RGB)
+        h, w, ch = rgb_image.shape
+        display_height, display_width = self.camera_view.height(), self.camera_view.width()
+        bytes_per_line = ch * w
+        convert_to_Qt_format = QtGui.QImage(rgb_image.data, w, h, bytes_per_line, QtGui.QImage.Format_RGB888)
+        p = convert_to_Qt_format.scaled(display_width, display_height, Qt.KeepAspectRatio)
+        return QPixmap.fromImage(p)
+
+    def select_camera(self, camera=0):
+        # getting the selected camera
+        self.camera = cv2.VideoCapture(camera) 
+  
+        # getting current camera name
+        self.current_camera_name = self.available_cameras[camera].description()
+
+    def play_video(self):
+        if self.mediaPlayer.state() == QMediaPlayer.PlayingState:
+            self.mediaPlayer.pause()
+        else:
+            self.mediaPlayer.play()
+
+    def mediastate_changed(self, state):
+        if self.mediaPlayer.state() == QMediaPlayer.PlayingState:
+            self.playBtn.setIcon(
+                self.style().standardIcon(QStyle.SP_MediaPause)
+            )
+
+        else:
+            self.playBtn.setIcon(
+                self.style().standardIcon(QStyle.SP_MediaPlay)
+
+            )
+
+    def handle_errors(self):
+        self.playBtn.setEnabled(False)
+        self.label.setText("Error: " + self.mediaPlayer.errorString())
+
+    def plot(self):
+        ax = self.graphWidget.axes
+        ax.clear()
+        # ax.set_xlim(0, self.mediaPlayer.duration())
+        ax.set_ylim(-0.1, 1.1)
+        ax.plot(self.y_pred, '*-', linewidth=7)
+        self.graphWidget.draw()
 
 
 if __name__ == '__main__':
-    testing()
+    args = get_args()
+
+    anomaly_detector, feature_extractor = load_models(args.feature_extractor,
+                                                      args.ad_model,
+                                                      features_method=args.feature_method,
+                                                      device=torch.device("cuda" if torch.cuda.is_available() else "cpu"), )
+
+    transforms = build_transforms(mode=args.feature_method)
+
+    app = QApplication(sys.argv)
+    window = Window(args.clip_length, transforms)
+    # window.run()
+
+    sys.exit(app.exec_())
