@@ -76,14 +76,6 @@ def load_models(feature_extractor_path, ad_model_path, features_method='c3d', de
     return anomaly_detector, feature_extractor
 
 
-def figure2opencv(figure):
-    figure.canvas.draw()
-    img = np.fromstring(figure.canvas.tostring_rgb(), dtype=np.uint8, sep='')
-    img = img.reshape(figure.canvas.get_width_height()[::-1] + (3,))
-    img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-    return img
-
-
 def features_extraction(video_path, model, device, batch_size=1, frame_stride=1, clip_length=16, n_segments=32, bar=None):
     """
     Extracts features of the video. The returned features will be returned after averaging over the required number of

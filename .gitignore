@@ -1,2 +1,4 @@
 .vscode/launch.json
-__pycache__/data_loader.cpython-39.pyc
+AD_live_perdiction.py
+*/__pycache__/*.pyc
+__pycache__/*.pyc
