@@ -1,4 +1,0 @@
-3dResNet r3d101_KM_200ep can be download here:
-https://drive.google.com/file/d/1kQAvOhtL-sGadblfd3NmDirXq8vYQPvf/view?usp=sharing
-3dResNet r3d152_KM_200ep here:
-https://drive.google.com/uc?id=17wdy_DS9UY37J9XTV5XCLqxOFgXiv3ZK&export=download
