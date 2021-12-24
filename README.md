@@ -24,7 +24,12 @@ https://github.com/DavideA/c3d-pytorch
 
 ## Precomputed Features
 Can be downloaded from:
+
+### C3D features
 https://drive.google.com/drive/folders/1rhOuAdUqyJU4hXIhToUnh5XVvYjQiN50?usp=sharing
+
+### ResNet-152 features
+https://drive.google.com/file/d/17wdy_DS9UY37J9XTV5XCLqxOFgXiv3ZK/view
 
 ## Pre-Trained Anomaly Detector
 Check out <a href="exps/models">exps/models</a> for for trained models on the pre-computed features
