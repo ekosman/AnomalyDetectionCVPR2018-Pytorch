@@ -31,9 +31,6 @@ https://drive.google.com/drive/folders/1rhOuAdUqyJU4hXIhToUnh5XVvYjQiN50?usp=sha
 ### ResNet-101 features (by @Daniele Mascali)
 https://drive.google.com/file/d/1kQAvOhtL-sGadblfd3NmDirXq8vYQPvf/view?usp=sharing
 
-### ResNet-152 features (by @Daniele Mascali)
-https://drive.google.com/uc?id=17wdy_DS9UY37J9XTV5XCLqxOFgXiv3ZK&export=download
-
 ### ResNet-152 features (by @Henryy-rs)
 https://drive.google.com/file/d/17wdy_DS9UY37J9XTV5XCLqxOFgXiv3ZK/view
 
