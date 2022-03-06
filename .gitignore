@@ -3,3 +3,4 @@ AD_live_perdiction.py
 */__pycache__/*.pyc
 __pycache__/*.pyc
 pretrained/c3d.pickle
+.vscode/settings.json
