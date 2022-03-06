@@ -67,7 +67,7 @@ class FeaturesLoader:
         abnormal_paths = np.random.choice(self.features_list_anomaly, size=self.bucket_size)
         all_paths = np.concatenate([normal_paths, abnormal_paths])
         features = torch.stack([read_features(f"{feature_subpath}.txt", self.feature_dim, self.features_cache) for feature_subpath in all_paths])
-        labels = [0] * self.bucket_size + [1] * self.bucket_size
+        labels = [0] * self.bucket_size + [1] * self.bucket_size  # TODO: check
         return features, torch.tensor(labels)
 
     @staticmethod

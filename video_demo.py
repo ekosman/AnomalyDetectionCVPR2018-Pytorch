@@ -18,7 +18,6 @@ from tqdm import tqdm
 from data_loader import SingleVideoIter
 from feature_extractor import to_segments
 from network.TorchUtils import TorchModel
-from network.anomaly_detector_model import AnomalyDetector
 from network.c3d import C3D
 from utils.utils import build_transforms
 
@@ -132,17 +131,17 @@ def ad_prediction(model, features, device='cuda'):
 
 
 class MplCanvas(FigureCanvasQTAgg):
-
     def __init__(self, parent=None, width=5, height=4, dpi=100):
         self.fig = Figure(figsize=(width, height), dpi=dpi)
         self.axes = self.fig.add_subplot(111)
-        super(MplCanvas, self).__init__(self.fig)
+        super().__init__(self.fig)
 
 
 class Window(QWidget):
     """
     Anomaly detection gui
-    Based on media player code from: https://codeloop.org/python-how-to-create-media-player-in-pyqt5/
+    Based on media player code from: 
+    https://codeloop.org/python-how-to-create-media-player-in-pyqt5/
     """
 
     def __init__(self):
