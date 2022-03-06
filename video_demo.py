@@ -3,18 +3,15 @@ import logging
 import sys
 from os import path
 
-import cv2
-import matplotlib.pyplot as plt
 import numpy as np
 import torch
-import pyqtgraph as pg
 from PyQt5.QtCore import Qt, QUrl
 from PyQt5.QtGui import QIcon, QPalette
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtMultimediaWidgets import QVideoWidget
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QLabel, \
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, \
     QSlider, QStyle, QSizePolicy, QFileDialog, QProgressBar, QGridLayout
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas, FigureCanvasQTAgg
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 from tqdm import tqdm
 
@@ -126,7 +123,7 @@ def ad_prediction(model, features, device='cuda'):
     :param device: device to use for loading the features
     :return: anomaly predictions for the video segments
     """
-    logging.info(f"Performing anomaly detection...")
+    logging.info("Performing anomaly detection...")
     features = torch.tensor(features).to(device)
     with torch.no_grad():
         preds = model(features)

@@ -1,6 +1,5 @@
 import logging
 import os
-import random
 from os import path
 import numpy as np
 import torch
@@ -48,7 +47,7 @@ class FeaturesLoader:
                 succ = True
             except Exception as e:
                 index = np.random.choice(range(0, self.__len__()))
-                logging.warning("VideoIter:: ERROR!! (Force using another index:\n{})\n{}".format(index, e))
+                logging.warning(f"VideoIter:: ERROR!! (Force using another index:\n{index})\n{e}")
 
         self.i += 1
         return feature, label
@@ -116,7 +115,7 @@ class FeaturesLoaderVal(data.Dataset):
                 data = self.get_feature(index)
                 succ = True
             except Exception as e:
-                logging.warning("VideoIter:: ERROR!! (Force using another index:\n{})\n{}".format(index, e))
+                logging.warning(f"VideoIter:: ERROR!! (Force using another index:\n{index})\n{e}")
 
         return data
 

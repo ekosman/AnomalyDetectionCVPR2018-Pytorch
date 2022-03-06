@@ -3,7 +3,7 @@ import os
 from os import path
 
 import torch
-import torch.backends.cudnn as cudnn
+from torch.backends import cudnn
 from torch.utils.tensorboard import SummaryWriter
 
 from features_loader import FeaturesLoader

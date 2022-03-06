@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
-import numpy as np
 import numbers
 import random
 
-import torch
+import numpy as np
+
 from torchvision.transforms import (
     RandomCrop,
     RandomResizedCrop,

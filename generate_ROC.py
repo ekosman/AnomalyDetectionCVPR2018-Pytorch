@@ -1,7 +1,7 @@
 import argparse
 import os
 import torch
-import torch.backends.cudnn as cudnn
+from torch.backends import cudnn
 
 from network.TorchUtils import TorchModel
 from features_loader import FeaturesLoaderVal

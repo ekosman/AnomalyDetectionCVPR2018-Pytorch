@@ -76,9 +76,9 @@ class DefaultModelCallback(Callback):
             plt.xlabel('Epoch')
             plt.ylabel('Loss')
 
-            plt.plot(range(1, self.epochs + 1), self.train_losses, label=f'Training loss')
+            plt.plot(range(1, self.epochs + 1), self.train_losses, label='Training loss')
             if len(self.val_loss) != 0:
-                plt.plot(range(1, self.epochs + 1), self.val_loss, label=f'Validation loss')
+                plt.plot(range(1, self.epochs + 1), self.val_loss, label='Validation loss')
 
             plt.savefig(os.path.join(self.visualization_dir, 'loss.png'))
             plt.close()
@@ -170,10 +170,10 @@ class TensorBoardCallback(Callback):
     def on_training_iteration_end(self, train_loss, val_loss):
         if train_loss is not None:
             self.tb_writer.add_scalars("Epoch loss",
-                                       {f"Loss (train)": train_loss},
+                                       {"Loss (train)": train_loss},
                                        self.epoch)
 
         if val_loss is not None:
             self.tb_writer.add_scalars("Epoch loss",
-                                       {f"Loss (validation)": val_loss},
+                                       {"Loss (validation)": val_loss},
                                        self.epoch)

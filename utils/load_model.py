@@ -3,10 +3,8 @@ import logging
 
 import torch
 
-from network import MFNET
 from network.MFNET import MFNET_3D
 from network.TorchUtils import TorchModel
-from network.anomaly_detector_model import AnomalyDetector
 from network.c3d import C3D
 from network.i3d import InceptionI3d
 from network.resnet import generate_model

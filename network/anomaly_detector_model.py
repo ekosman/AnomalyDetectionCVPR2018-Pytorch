@@ -4,7 +4,7 @@ from torch import nn
 
 class AnomalyDetector(nn.Module):
     def __init__(self, input_dim=4096):
-        super(AnomalyDetector, self).__init__()
+        super().__init__()
         self.fc1 = nn.Linear(input_dim, 512)
         self.relu1 = nn.ReLU()
         self.dropout1 = nn.Dropout(0.6)
@@ -21,7 +21,7 @@ class AnomalyDetector(nn.Module):
         nn.init.xavier_normal_(self.fc2.weight)
         nn.init.xavier_normal_(self.fc3.weight)
 
-    def forward(self, x):
+    def forward(self, x): # pylint: disable=arguments-differ
         x = self.dropout1(self.relu1(self.fc1(x)))
         x = self.dropout2(self.fc2(x))
         x = self.sig(self.fc3(x))
@@ -46,15 +46,11 @@ def custom_objective(y_pred, y_true):
     hinge_loss = 1 - anomal_segments_scores_maxes + normal_segments_scores_maxes
     hinge_loss = torch.max(hinge_loss, torch.zeros_like(hinge_loss))
 
-    """
-    Smoothness of anomalous video
-    """
+    # Smoothness of anomalous video
     smoothed_scores = anomal_segments_scores[:, 1:] - anomal_segments_scores[:, :-1]
     smoothed_scores_sum_squared = smoothed_scores.pow(2).sum(dim=-1)
 
-    """
-    Sparsity of anomalous video
-    """
+    # Sparsity of anomalous video
     sparsity_loss = anomal_segments_scores.sum(dim=-1)
 
     final_loss = (hinge_loss + lambdas*smoothed_scores_sum_squared + lambdas*sparsity_loss).mean()
@@ -68,7 +64,7 @@ class RegularizedLoss(torch.nn.Module):
         self.model = model
         self.objective = original_objective
 
-    def forward(self, y_pred, y_true):
+    def forward(self, y_pred, y_true): # pylint: disable=arguments-differ
         # loss
         # Our loss is defined with respect to l2 regularization, as used in the original keras code
         fc1_params = torch.cat(tuple([x.view(-1) for x in self.model.fc1.parameters()]))
