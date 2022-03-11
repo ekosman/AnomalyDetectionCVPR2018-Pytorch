@@ -157,10 +157,11 @@ class VideoThread(QThread):
 
 
 class MplCanvas(FigureCanvasQTAgg):
+    # pylint: disable=unused-argument
     def __init__(self, parent=None, width=5, height=4, dpi=100) -> None:
         self.fig = Figure(figsize=(width, height), dpi=dpi)
         self.axes = self.fig.add_subplot(111)
-        super(MplCanvas, self).__init__(self.fig)
+        super().__init__(self.fig)
 
 
 class Window(QWidget):
@@ -172,6 +173,10 @@ class Window(QWidget):
 
     def __init__(self, clip_length=16, transforms=None) -> None:
         super().__init__()
+
+        self.camera = None
+        self.current_camera_name = None
+        self.frames_queue = []
 
         self.clip_length = clip_length
         self.transforms = transforms

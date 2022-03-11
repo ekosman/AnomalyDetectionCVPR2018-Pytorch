@@ -105,10 +105,10 @@ def features_extraction(
     frame_stride: int = 1,
     clip_length: int = 16,
     n_segments: int = 32,
-    bar=None,
+    progress_bar=None,
 ) -> List[np.array]:
     """
-    Extracts features of the video.The returned features will 
+    Extracts features of the video.The returned features will
     be returned after averaging over the required number of video segments.
     :param video_path: path of the video to predict
     :param model: model to use for feature extraction
@@ -117,6 +117,7 @@ def features_extraction(
     :param frame_stride: interval between frames to load
     :param clip_length: number of frames to use for loading each video sample
     :param n_segments: how many chunks the video should be divided into
+    :param progress_bar: TODO
     :return: features list (n_segments, feature_dim), usually (32, 4096) as in the original paper
     """
     data_loader = SingleVideoIter(
@@ -135,18 +136,18 @@ def features_extraction(
     )
 
     logging.info("Extracting features...")
-    features = torch.tensor([])
+    features = torch.tensor([])  # pylint: disable=not-callable
 
-    if bar is not None:
-        bar.setRange(0, len(data_iter))
+    if progress_bar is not None:
+        progress_bar.setRange(0, len(data_iter))
 
     with torch.no_grad():
         for i, data in tqdm(enumerate(data_iter)):
             outputs = model(data.to(device)).detach().cpu()
             features = torch.cat([features, outputs])
 
-            if bar is not None:
-                bar.setValue(i + 1)
+            if progress_bar is not None:
+                progress_bar.setValue(i + 1)
 
     features = features.numpy()
     return to_segments(features, n_segments)
@@ -161,7 +162,7 @@ def ad_prediction(model: nn.Module, features: nn.Tensor, device="cuda") -> Tenso
     :return: anomaly predictions for the video segments
     """
     logging.info("Performing anomaly detection...")
-    features = torch.tensor(features).to(device)
+    features = torch.tensor(features).to(device)  # pylint: disable=not-callable
     with torch.no_grad():
         preds = model(features)
 
@@ -169,6 +170,7 @@ def ad_prediction(model: nn.Module, features: nn.Tensor, device="cuda") -> Tenso
 
 
 class MplCanvas(FigureCanvasQTAgg):
+    # pylint: disable=unused-argument
     def __init__(self, parent=None, width=5, height=4, dpi=100):
         self.fig = Figure(figsize=(width, height), dpi=dpi)
         self.axes = self.fig.add_subplot(111)
@@ -277,7 +279,7 @@ class Window(QWidget):
                 model=feature_extractor,
                 device=self.device,
                 n_segments=args.n_segments,
-                bar=self.pbar,
+                progress_bar=self.pbar,
             )
 
             self.y_pred = ad_prediction(
@@ -292,6 +294,7 @@ class Window(QWidget):
         else:
             self.mediaPlayer.play()
 
+    # pylint: disable=unused-argument
     def mediastate_changed(self, state):
         if self.mediaPlayer.state() == QMediaPlayer.PlayingState:
             self.playBtn.setIcon(self.style().standardIcon(QStyle.SP_MediaPause))
