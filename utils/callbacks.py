@@ -54,7 +54,7 @@ class DefaultModelCallback(Callback):
         Args:
             log_every (iterations): logging intervals
         """
-        super(DefaultModelCallback, self).__init__()
+        super().__init__()
         self.visualization_dir = visualization_dir
         self.log_every = log_every
         self.epochs = 0
@@ -150,7 +150,7 @@ class TensorBoardCallback(Callback):
         Args:
             tb_writer: tensorboard logger instance
         """
-        super(TensorBoardCallback, self).__init__()
+        super().__init__()
         self.tb_writer = tb_writer
         self.epoch = 0
 

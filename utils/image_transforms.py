@@ -6,31 +6,7 @@ import numpy as np
 import torch
 
 
-class Compose(object):
-    """Composes several video_transforms together.
-
-    Args:
-        transforms (List[Transform]): list of transforms to compose.
-
-    Example:
-        >>> video_transforms.Compose([
-        >>>     video_transforms.CenterCrop(10),
-        >>>     video_transforms.ToTensor(),
-        >>> ])
-    """
-
-    def __init__(self, transforms, aug_seed=0):
-        self.transforms = transforms
-        for i, t in enumerate(self.transforms):
-            t.set_random_state(seed=(aug_seed + i))
-
-    def __call__(self, data):
-        for t in self.transforms:
-            data = t(data)
-        return data
-
-
-class Transform(object):
+class Transform:
     """base class for all transformation"""
 
     def set_random_state(self, seed=None):
@@ -212,6 +188,7 @@ class RandomVerticalFlip(Transform):
             data = np.flipud(data)
             data = np.ascontiguousarray(data)
         return data
+
 
 class ToTensor(Transform):
     """Converts a numpy.ndarray (H x W x C) in the range
