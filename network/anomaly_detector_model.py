@@ -1,5 +1,5 @@
 import torch
-from torch import nn
+from torch import Tensor, nn
 
 
 class AnomalyDetector(nn.Module):
@@ -21,14 +21,14 @@ class AnomalyDetector(nn.Module):
         nn.init.xavier_normal_(self.fc2.weight)
         nn.init.xavier_normal_(self.fc3.weight)
 
-    def forward(self, x): # pylint: disable=arguments-differ
+    def forward(self, x:Tensor): # pylint: disable=arguments-differ
         x = self.dropout1(self.relu1(self.fc1(x)))
         x = self.dropout2(self.fc2(x))
         x = self.sig(self.fc3(x))
         return x
 
 
-def custom_objective(y_pred, y_true):
+def custom_objective(y_pred: Tensor, y_true: Tensor):
     # y_pred (batch_size, 32, 1)
     # y_true (batch_size)
     lambdas = 8e-5
@@ -64,7 +64,7 @@ class RegularizedLoss(torch.nn.Module):
         self.model = model
         self.objective = original_objective
 
-    def forward(self, y_pred, y_true): # pylint: disable=arguments-differ
+    def forward(self, y_pred:Tensor, y_true:Tensor): # pylint: disable=arguments-differ
         # loss
         # Our loss is defined with respect to l2 regularization, as used in the original keras code
         fc1_params = torch.cat(tuple([x.view(-1) for x in self.model.fc1.parameters()]))

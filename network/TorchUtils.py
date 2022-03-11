@@ -1,9 +1,14 @@
 import logging
 import os
 import time
+from typing import Iterable
 
 import torch
-import torch.nn as nn
+from torch import Tensor, nn
+from torch.utils.data import DataLoader
+from torch.optim import Optimizer
+
+from utils.callbacks import Callback
 
 """
 Written by Eitan Kosman
@@ -15,10 +20,10 @@ def get_torch_device():
     Retrieves the device to run torch models, with preferability to GPU (denoted as cuda by torch)
     Returns: Device to run the models
     """
-    return torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    return torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-def load_model(model_path):
+def load_model(model_path: str):
     """
     Loads a Pytorch model
     Args:
@@ -28,12 +33,12 @@ def load_model(model_path):
 
     """
     logging.info(f"Load the model from: {model_path}")
-    model = torch.load(model_path, map_location='cpu')
+    model = torch.load(model_path, map_location="cpu")
     logging.info(model)
     return model
 
 
-def get_loader_shape(loader):
+def get_loader_shape(loader: Iterable):
     assert len(loader) != 0
     return loader[0].shape
 
@@ -51,7 +56,7 @@ class TorchModel(nn.Module):
         self.is_data_parallel = False
         self.callbacks = []
 
-    def register_callback(self, callback_fn):
+    def register_callback(self, callback_fn: Callback):
         """
         Register a callback to be called after each evaluation run
         Args:
@@ -72,7 +77,7 @@ class TorchModel(nn.Module):
         return self
 
     @classmethod
-    def load_model(cls, model_path):
+    def load_model(cls, model_path: str):
         """
         Loads a pickled model
         Args:
@@ -88,17 +93,21 @@ class TorchModel(nn.Module):
                 method = getattr(callback, notification)
                 method(*args, **kwargs)
             except (AttributeError, TypeError) as e:
-                logging.error(f"callback {callback.__class__.__name__} doesn't fully implement the required interface {e}")
+                logging.error(
+                    f"callback {callback.__class__.__name__} doesn't fully implement the required interface {e}"
+                )
 
-    def fit(self,
-            train_iter,
-            criterion,
-            optimizer,
-            eval_iter=None,
-            epochs=10,
-            network_model_path_base=None,
-            save_every=None,
-            evaluate_every=None,):
+    def fit(
+        self,
+        train_iter: DataLoader,
+        criterion: nn.Module,
+        optimizer: Optimizer,
+        eval_iter: DataLoader = None,
+        epochs: int = 10,
+        network_model_path_base: str = None,
+        save_every: int = None,
+        evaluate_every: int = None,
+    ):
         """
 
         Args:
@@ -113,41 +122,41 @@ class TorchModel(nn.Module):
                             you probably want ot choose a high value for this
         """
         criterion = criterion.to(self.device)
-        self.notify_callbacks('on_training_start', epochs)
+        self.notify_callbacks("on_training_start", epochs)
 
         for epoch in range(epochs):
-            train_loss = self.do_epoch(criterion=criterion,
-                                       optimizer=optimizer,
-                                       data_iter=train_iter,
-                                       epoch=epoch)
+            train_loss = self.do_epoch(
+                criterion=criterion,
+                optimizer=optimizer,
+                data_iter=train_iter,
+                epoch=epoch,
+            )
 
             if save_every and network_model_path_base and epoch % save_every == 0:
                 logging.info(f"Save the model after epoch {epoch}")
-                self.save(os.path.join(network_model_path_base, f'epoch_{epoch}.pt'))
+                self.save(os.path.join(network_model_path_base, f"epoch_{epoch}.pt"))
 
             val_loss = None
             if eval_iter and evaluate_every and epoch % evaluate_every == 0:
                 logging.info(f"Evaluating after epoch {epoch}")
-                val_loss = self.evaluate(criterion=criterion,
-                                         data_iter=eval_iter, )
+                val_loss = self.evaluate(criterion=criterion, data_iter=eval_iter,)
 
-            self.notify_callbacks('on_training_iteration_end', train_loss, val_loss)
+            self.notify_callbacks("on_training_iteration_end", train_loss, val_loss)
 
-        self.notify_callbacks('on_training_end', self.model)
+        self.notify_callbacks("on_training_end", self.model)
         # Save the last model anyway...
         if network_model_path_base:
-            self.save(os.path.join(network_model_path_base, f'epoch_{epoch + 1}.pt'))
+            self.save(os.path.join(network_model_path_base, f"epoch_{epoch + 1}.pt"))
 
-    def evaluate(self, criterion, data_iter):
+    def evaluate(self, criterion: nn.Module, data_iter: DataLoader):
         """
         Evaluates the model
         Args:
             criterion: Loss function for calculating the evaluation
-
             data_iter: torch data iterator
         """
         self.eval()
-        self.notify_callbacks('on_evaluation_start', len(data_iter))
+        self.notify_callbacks("on_evaluation_start", len(data_iter))
         total_loss = 0
 
         with torch.no_grad():
@@ -158,23 +167,31 @@ class TorchModel(nn.Module):
                 outputs = self.model(batch)
                 loss = criterion(outputs, targets)
 
-                self.notify_callbacks('on_evaluation_step',
-                                      iteration,
-                                      outputs.detach().cpu(),
-                                      targets.detach().cpu(),
-                                      loss.item())
+                self.notify_callbacks(
+                    "on_evaluation_step",
+                    iteration,
+                    outputs.detach().cpu(),
+                    targets.detach().cpu(),
+                    loss.item(),
+                )
 
                 total_loss += loss.item()
 
         loss = total_loss / len(data_iter)
-        self.notify_callbacks('on_evaluation_end')
+        self.notify_callbacks("on_evaluation_end")
         return loss
 
-    def do_epoch(self, criterion, optimizer, data_iter, epoch):
+    def do_epoch(
+        self,
+        criterion: nn.Module,
+        optimizer: Optimizer,
+        data_iter: DataLoader,
+        epoch: int,
+    ):
         total_loss = 0
         total_time = 0
         self.train()
-        self.notify_callbacks('on_epoch_start', epoch, len(data_iter))
+        self.notify_callbacks("on_epoch_start", epoch, len(data_iter))
         for iteration, (batch, targets) in enumerate(data_iter):
             self.iteration += 1
             start_time = time.time()
@@ -196,19 +213,17 @@ class TorchModel(nn.Module):
 
             total_time += end_time - start_time
 
-            self.notify_callbacks('on_epoch_step',
-                                  self.iteration,
-                                  iteration,
-                                  loss.item(),
-                                  )
+            self.notify_callbacks(
+                "on_epoch_step", self.iteration, iteration, loss.item(),
+            )
             self.iteration += 1
 
         loss = total_loss / len(data_iter)
 
-        self.notify_callbacks('on_epoch_end', loss)
+        self.notify_callbacks("on_epoch_end", loss)
         return loss
 
-    def data_to_device(self, data, device):
+    def data_to_device(self, data: Tensor, device: str):
         """
         Transfers a tensor data to a device
         Args:
@@ -224,7 +239,7 @@ class TorchModel(nn.Module):
 
         return data
 
-    def save(self, model_path):
+    def save(self, model_path: str):
         """
         Saves the model to the given path. If currently using data parallel, the method
         will save the original model and not the data parallel instance of it

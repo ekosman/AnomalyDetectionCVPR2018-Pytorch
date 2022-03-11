@@ -2,9 +2,11 @@ import argparse
 import logging
 import os
 from os import path, mkdir
+from typing import Dict, Union
 
 import numpy as np
 import torch
+from torch import Tensor
 from torch.backends import cudnn
 
 from data_loader import VideoIter
@@ -70,7 +72,7 @@ def get_args():
     return parser.parse_args()
 
 
-def to_segments(data, num=32):
+def to_segments(data: Union[Tensor, np.ndarray], num: int = 32):
     """
 	These code is taken from:
 	https://github.com/rajanjitenpatel/C3D_feature_extraction/blob/b5894fa06d43aa62b3b64e85b07feb0853e7011a/extract_C3D_feature.py#L805
@@ -94,7 +96,7 @@ def to_segments(data, num=32):
 
 
 class FeaturesWriter:
-    def __init__(self, num_videos, chunk_size=16):
+    def __init__(self, num_videos: int, chunk_size: int = 16):
         self.path = None
         self.dir = None
         self.data = None
@@ -102,7 +104,7 @@ class FeaturesWriter:
         self.num_videos = num_videos
         self.dump_count = 0
 
-    def _init_video(self, video_name, dir):
+    def _init_video(self, video_name: str, dir: str):
         self.path = path.join(dir, f"{video_name}.txt")
         self.dir = dir
         self.data = dict()
@@ -122,17 +124,19 @@ class FeaturesWriter:
                 d = [str(x) for x in d]
                 fp.write(" ".join(d) + "\n")
 
-    def _is_new_video(self, video_name, dir):
+    def _is_new_video(self, video_name: str, dir: str):
         new_path = path.join(dir, f"{video_name}.txt")
         if self.path != new_path and self.path is not None:
             return True
 
         return False
 
-    def store(self, feature, idx):
+    def store(self, feature: Union[Tensor, np.ndarray], idx: int):
         self.data[idx] = list(feature)
 
-    def write(self, feature, video_name, idx, dir):
+    def write(
+        self, feature: Union[Tensor, np.ndarray], video_name: str, idx: int, dir: str
+    ):
         if not self.has_video():
             self._init_video(video_name, dir)
 
@@ -143,7 +147,7 @@ class FeaturesWriter:
         self.store(feature, idx)
 
 
-def read_features(file_path, feature_dim, cache=None):
+def read_features(file_path, feature_dim: int, cache: Dict = None):
     if cache is not None and file_path in cache:
         return cache[file_path]
 
@@ -163,7 +167,12 @@ def read_features(file_path, feature_dim, cache=None):
 
 
 def get_features_loader(
-    dataset_path, clip_length, frame_interval, batch_size, num_workers, mode
+    dataset_path: str,
+    clip_length: int,
+    frame_interval: int,
+    batch_size: int,
+    num_workers: int,
+    mode: str,
 ):
     data_loader = VideoIter(
         dataset_path=dataset_path,

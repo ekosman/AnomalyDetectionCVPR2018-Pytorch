@@ -39,7 +39,7 @@ class C3D(nn.Module):
         if pretrained:
             self.__load_pretrained_weights()
 
-    def forward(self, x):
+    def forward(self, x:Tensor):
         x = self.relu(self.conv1(x))
         x = self.pool1(x)
         x = self.relu(self.conv2(x))

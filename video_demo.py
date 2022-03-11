@@ -5,12 +5,23 @@ from os import path
 
 import numpy as np
 import torch
+from torch import nn
 from PyQt5.QtCore import Qt, QUrl
 from PyQt5.QtGui import QIcon, QPalette
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtMultimediaWidgets import QVideoWidget
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, \
-    QSlider, QStyle, QSizePolicy, QFileDialog, QProgressBar, QGridLayout
+from PyQt5.QtWidgets import (
+    QApplication,
+    QWidget,
+    QPushButton,
+    QLabel,
+    QSlider,
+    QStyle,
+    QSizePolicy,
+    QFileDialog,
+    QProgressBar,
+    QGridLayout,
+)
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 from tqdm import tqdm
@@ -25,25 +36,36 @@ from utils.utils import build_transforms
 def get_args():
     parser = argparse.ArgumentParser(description="Video Demo For Anomaly Detection")
 
-    parser.add_argument('--feature_extractor',
-                        required=True,
-                        help='path to the 3d model for feature extraction')
-    parser.add_argument('--feature_method',
-                        default='c3d',
-                        choices=['c3d', 'mfnet'],
-                        help='method to use for feature extraction')
-    parser.add_argument('--ad_model',
-                        required=True,
-                        help="path to the trained AD model")
-    parser.add_argument('--n_segments',
-                        type=int,
-                        default=32,
-                        help='number of segments to use for features averaging')
+    parser.add_argument(
+        "--feature_extractor",
+        required=True,
+        help="path to the 3d model for feature extraction",
+    )
+    parser.add_argument(
+        "--feature_method",
+        default="c3d",
+        choices=["c3d", "mfnet"],
+        help="method to use for feature extraction",
+    )
+    parser.add_argument(
+        "--ad_model", required=True, help="path to the trained AD model"
+    )
+    parser.add_argument(
+        "--n_segments",
+        type=int,
+        default=32,
+        help="number of segments to use for features averaging",
+    )
 
     return parser.parse_args()
 
 
-def load_models(feature_extractor_path, ad_model_path, features_method='c3d', device='cuda'):
+def load_models(
+    feature_extractor_path: str,
+    ad_model_path: str,
+    features_method: str = "c3d",
+    device: str = "cuda",
+):
     """
     Loads both feature extractor and anomaly detector from the given paths
     :param feature_extractor_path: path of the features extractor weights to load
@@ -57,12 +79,14 @@ def load_models(feature_extractor_path, ad_model_path, features_method='c3d', de
 
     feature_extractor, anomaly_detector = None, None
 
-    if features_method == 'c3d':
+    if features_method == "c3d":
         logging.info(f"Loading feature extractor from {feature_extractor_path}")
         feature_extractor = C3D(pretrained=feature_extractor_path)
 
     else:
-        raise NotImplementedError(f"Features extraction method {features_method} not implemented")
+        raise NotImplementedError(
+            f"Features extraction method {features_method} not implemented"
+        )
 
     feature_extractor = feature_extractor.to(device).eval()
 
@@ -72,7 +96,16 @@ def load_models(feature_extractor_path, ad_model_path, features_method='c3d', de
     return anomaly_detector, feature_extractor
 
 
-def features_extraction(video_path, model, device, batch_size=1, frame_stride=1, clip_length=16, n_segments=32, bar=None):
+def features_extraction(
+    video_path: str,
+    model: nn.Module,
+    device: str,
+    batch_size: int = 1,
+    frame_stride: int = 1,
+    clip_length: int = 16,
+    n_segments: int = 32,
+    bar=None,
+):
     """
     Extracts features of the video. The returned features will be returned after averaging over the required number of
     video segments.
@@ -85,16 +118,20 @@ def features_extraction(video_path, model, device, batch_size=1, frame_stride=1,
     :param n_segments: how many chunks the video should be divided into
     :return: features list (n_segments, feature_dim), usually (32, 4096) as in the original paper
     """
-    data_loader = SingleVideoIter(clip_length=clip_length,
-                                  frame_stride=frame_stride,
-                                  video_path=video_path,
-                                  video_transform=build_transforms(mode=args.feature_method),
-                                  return_label=False)
-    data_iter = torch.utils.data.DataLoader(data_loader,
-                                            batch_size=batch_size,
-                                            shuffle=False,
-                                            num_workers=0,  # 4, # change this part accordingly
-                                            pin_memory=True)
+    data_loader = SingleVideoIter(
+        clip_length=clip_length,
+        frame_stride=frame_stride,
+        video_path=video_path,
+        video_transform=build_transforms(mode=args.feature_method),
+        return_label=False,
+    )
+    data_iter = torch.utils.data.DataLoader(
+        data_loader,
+        batch_size=batch_size,
+        shuffle=False,
+        num_workers=0,  # 4, # change this part accordingly
+        pin_memory=True,
+    )
 
     logging.info("Extracting features...")
     features = torch.tensor([])
@@ -114,7 +151,7 @@ def features_extraction(video_path, model, device, batch_size=1, frame_stride=1,
     return to_segments(features, n_segments)
 
 
-def ad_prediction(model, features, device='cuda'):
+def ad_prediction(model: nn.Module, features: nn.Tensor, device="cuda"):
     """
     Creates frediction for the given feature vectors
     :param model: model to use for anomaly detection
@@ -151,7 +188,7 @@ class Window(QWidget):
 
         self.setWindowTitle("Anomaly Media Player")
         self.setGeometry(350, 100, 700, 500)
-        self.setWindowIcon(QIcon('player.png'))
+        self.setWindowIcon(QIcon("player.png"))
 
         p = self.palette()
         p.setColor(QPalette.Window, Qt.black)
@@ -172,7 +209,7 @@ class Window(QWidget):
         videowidget = QVideoWidget()
 
         # create open button
-        openBtn = QPushButton('Open Video')
+        openBtn = QPushButton("Open Video")
         openBtn.clicked.connect(self.open_file)
 
         # create button for playing
@@ -229,20 +266,22 @@ class Window(QWidget):
     def open_file(self):
         filename, _ = QFileDialog.getOpenFileName(self, "Open Video")
         print(filename)
-        if filename != '':
+        if filename != "":
             self.mediaPlayer.setMedia(QMediaContent(QUrl.fromLocalFile(filename)))
             self.playBtn.setEnabled(True)
             self.label.setText("Extracting features...")
 
-            features = features_extraction(video_path=filename,
-                                           model=feature_extractor,
-                                           device=self.device,
-                                           n_segments=args.n_segments,
-                                           bar=self.pbar)
+            features = features_extraction(
+                video_path=filename,
+                model=feature_extractor,
+                device=self.device,
+                n_segments=args.n_segments,
+                bar=self.pbar,
+            )
 
-            self.y_pred = ad_prediction(model=anomaly_detector,
-                                   features=features,
-                                   device=self.device, )
+            self.y_pred = ad_prediction(
+                model=anomaly_detector, features=features, device=self.device,
+            )
 
             self.label.setText("Done! Click the Play button")
 
@@ -254,15 +293,10 @@ class Window(QWidget):
 
     def mediastate_changed(self, state):
         if self.mediaPlayer.state() == QMediaPlayer.PlayingState:
-            self.playBtn.setIcon(
-                self.style().standardIcon(QStyle.SP_MediaPause)
-            )
+            self.playBtn.setIcon(self.style().standardIcon(QStyle.SP_MediaPause))
 
         else:
-            self.playBtn.setIcon(
-                self.style().standardIcon(QStyle.SP_MediaPlay)
-
-            )
+            self.playBtn.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
 
     def position_changed(self, position):
         self.slider.setValue(position)
@@ -287,17 +321,19 @@ class Window(QWidget):
             ax.clear()
             ax.set_xlim(0, self.mediaPlayer.duration())
             ax.set_ylim(-0.1, 1.1)
-            ax.plot(self.y_pred[:position], '*-', linewidth=7)
+            ax.plot(self.y_pred[:position], "*-", linewidth=7)
             self.graphWidget.draw()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     args = get_args()
 
-    anomaly_detector, feature_extractor = load_models(args.feature_extractor,
-                                                      args.ad_model,
-                                                      features_method=args.feature_method,
-                                                      device=torch.device("cuda" if torch.cuda.is_available() else "cpu"), )
+    anomaly_detector, feature_extractor = load_models(
+        args.feature_extractor,
+        args.ad_model,
+        features_method=args.feature_method,
+        device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
+    )
 
     app = QApplication(sys.argv)
     window = Window()

@@ -9,13 +9,19 @@ import numpy as np
 from numpy.lib.function_base import copy
 import torch
 from PyQt5.QtCore import QThread, Qt, pyqtSignal
-from PyQt5.QtGui import QIcon, QImage, QPalette, QPixmap
-from PyQt5.QtMultimedia import QCamera, QCameraImageCapture, QMediaPlayer, QCameraInfo
-from PyQt5.QtMultimediaWidgets import QCameraViewfinder
-from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QPushButton, QStyle, QFileDialog, QGridLayout, QComboBox
+from PyQt5.QtGui import QIcon, QPalette, QPixmap
+from PyQt5.QtMultimedia import QMediaPlayer, QCameraInfo
+from PyQt5.QtWidgets import (
+    QApplication,
+    QLabel,
+    QWidget,
+    QPushButton,
+    QStyle,
+    QGridLayout,
+    QComboBox,
+)
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
-from tqdm import tqdm
 
 from feature_extractor import to_segments
 from network.TorchUtils import TorchModel
@@ -26,25 +32,33 @@ from utils.utils import build_transforms
 def get_args():
     parser = argparse.ArgumentParser(description="Video Demo For Anomaly Detection")
 
-    parser.add_argument('--feature_extractor',
-                        required=True,
-                        help='path to the 3d model for feature extraction')
-    parser.add_argument('--feature_method',
-                        default='c3d',
-                        choices=['c3d', 'mfnet'],
-                        help='method to use for feature extraction')
-    parser.add_argument('--ad_model',
-                        required=True,
-                        help="path to the trained AD model")
-    parser.add_argument('--clip_length',
-                        type=int,
-                        default=16,
-                        help='define the length of each input sample')
+    parser.add_argument(
+        "--feature_extractor",
+        required=True,
+        help="path to the 3d model for feature extraction",
+    )
+    parser.add_argument(
+        "--feature_method",
+        default="c3d",
+        choices=["c3d", "mfnet"],
+        help="method to use for feature extraction",
+    )
+    parser.add_argument(
+        "--ad_model", required=True, help="path to the trained AD model"
+    )
+    parser.add_argument(
+        "--clip_length",
+        type=int,
+        default=16,
+        help="define the length of each input sample",
+    )
 
     return parser.parse_args()
 
 
-def load_models(feature_extractor_path, ad_model_path, features_method='c3d', device='cuda'):
+def load_models(
+    feature_extractor_path, ad_model_path, features_method="c3d", device="cuda"
+):
     """
     Loads both feature extractor and anomaly detector from the given paths
     :param feature_extractor_path: path of the features extractor weights to load
@@ -58,12 +72,14 @@ def load_models(feature_extractor_path, ad_model_path, features_method='c3d', de
 
     feature_extractor, anomaly_detector = None, None
 
-    if features_method == 'c3d':
+    if features_method == "c3d":
         logging.info(f"Loading feature extractor from {feature_extractor_path}")
         feature_extractor = C3D(pretrained=feature_extractor_path)
 
     else:
-        raise NotImplementedError(f"Features extraction method {features_method} not implemented")
+        raise NotImplementedError(
+            f"Features extraction method {features_method} not implemented"
+        )
 
     feature_extractor = feature_extractor.to(device).eval()
 
@@ -94,7 +110,7 @@ def features_extraction(frames, model, device, frame_stride=1, transforms=None):
     return to_segments(outputs.numpy(), 1)
 
 
-def ad_prediction(model, features, device='cuda'):
+def ad_prediction(model, features, device="cuda"):
     """
     Creates frediction for the given feature vectors
     :param model: model to use for anomaly detection
@@ -132,8 +148,8 @@ class VideoThread(QThread):
         self._run_flag = False
         self.wait()
 
-class MplCanvas(FigureCanvasQTAgg):
 
+class MplCanvas(FigureCanvasQTAgg):
     def __init__(self, parent=None, width=5, height=4, dpi=100):
         self.fig = Figure(figsize=(width, height), dpi=dpi)
         self.axes = self.fig.add_subplot(111)
@@ -155,7 +171,7 @@ class Window(QWidget):
 
         self.setWindowTitle("Anomaly Media Player")
         self.setGeometry(350, 100, 700, 500)
-        self.setWindowIcon(QIcon('player.png'))
+        self.setWindowIcon(QIcon("player.png"))
 
         p = self.palette()
         p.setColor(QPalette.Window, Qt.black)
@@ -186,8 +202,9 @@ class Window(QWidget):
         camera_selector.setStatusTip("Choose camera")
         camera_selector.setToolTip("Select Camera")
         camera_selector.setToolTipDuration(2500)
-        camera_selector.addItems([camera.description()
-                                  for camera in self.available_cameras])
+        camera_selector.addItems(
+            [camera.description() for camera in self.available_cameras]
+        )
         camera_selector.currentIndexChanged.connect(self.select_camera)
 
         # create button for playing
@@ -221,14 +238,16 @@ class Window(QWidget):
         self.frames_queue.append(cv_img)
         if len(self.frames_queue) == self.clip_length:
             batch = copy(self.frames_queue)
-            features = features_extraction(frames=batch,
-                                           model=feature_extractor,
-                                           device=self.device, 
-                                           transforms=self.transforms, )
+            features = features_extraction(
+                frames=batch,
+                model=feature_extractor,
+                device=self.device,
+                transforms=self.transforms,
+            )
 
-            new_pred = ad_prediction(model=anomaly_detector,
-                                    features=features,
-                                    device=self.device, )[0]
+            new_pred = ad_prediction(
+                model=anomaly_detector, features=features, device=self.device,
+            )[0]
             self.y_pred.append(new_pred)
             del self.y_pred[0]
             self.plot()
@@ -238,16 +257,23 @@ class Window(QWidget):
         """Convert from an opencv image to QPixmap"""
         rgb_image = cv2.cvtColor(cv_img, cv2.COLOR_BGR2RGB)
         h, w, ch = rgb_image.shape
-        display_height, display_width = self.camera_view.height(), self.camera_view.width()
+        display_height, display_width = (
+            self.camera_view.height(),
+            self.camera_view.width(),
+        )
         bytes_per_line = ch * w
-        convert_to_Qt_format = QtGui.QImage(rgb_image.data, w, h, bytes_per_line, QtGui.QImage.Format_RGB888)
-        p = convert_to_Qt_format.scaled(display_width, display_height, Qt.KeepAspectRatio)
+        convert_to_Qt_format = QtGui.QImage(
+            rgb_image.data, w, h, bytes_per_line, QtGui.QImage.Format_RGB888
+        )
+        p = convert_to_Qt_format.scaled(
+            display_width, display_height, Qt.KeepAspectRatio
+        )
         return QPixmap.fromImage(p)
 
     def select_camera(self, camera=0):
         # getting the selected camera
-        self.camera = cv2.VideoCapture(camera) 
-  
+        self.camera = cv2.VideoCapture(camera)
+
         # getting current camera name
         self.current_camera_name = self.available_cameras[camera].description()
 
@@ -259,15 +285,10 @@ class Window(QWidget):
 
     def mediastate_changed(self, state):
         if self.mediaPlayer.state() == QMediaPlayer.PlayingState:
-            self.playBtn.setIcon(
-                self.style().standardIcon(QStyle.SP_MediaPause)
-            )
+            self.playBtn.setIcon(self.style().standardIcon(QStyle.SP_MediaPause))
 
         else:
-            self.playBtn.setIcon(
-                self.style().standardIcon(QStyle.SP_MediaPlay)
-
-            )
+            self.playBtn.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
 
     def handle_errors(self):
         self.playBtn.setEnabled(False)
@@ -278,17 +299,19 @@ class Window(QWidget):
         ax.clear()
         # ax.set_xlim(0, self.mediaPlayer.duration())
         ax.set_ylim(-0.1, 1.1)
-        ax.plot(self.y_pred, '*-', linewidth=7)
+        ax.plot(self.y_pred, "*-", linewidth=7)
         self.graphWidget.draw()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     args = get_args()
 
-    anomaly_detector, feature_extractor = load_models(args.feature_extractor,
-                                                      args.ad_model,
-                                                      features_method=args.feature_method,
-                                                      device=torch.device("cuda" if torch.cuda.is_available() else "cpu"), )
+    anomaly_detector, feature_extractor = load_models(
+        args.feature_extractor,
+        args.ad_model,
+        features_method=args.feature_method,
+        device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
+    )
 
     transforms = build_transforms(mode=args.feature_method)
 
