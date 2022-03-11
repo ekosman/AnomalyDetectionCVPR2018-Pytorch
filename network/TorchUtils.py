@@ -4,7 +4,7 @@ import time
 from typing import Iterable
 
 import torch
-from torch import Tensor, nn
+from torch import Tensor, device, nn
 from torch.utils.data import DataLoader
 from torch.optim import Optimizer
 
@@ -15,7 +15,7 @@ Written by Eitan Kosman
 """
 
 
-def get_torch_device():
+def get_torch_device() -> device:
     """
     Retrieves the device to run torch models, with preferability to GPU (denoted as cuda by torch)
     Returns: Device to run the models
@@ -23,7 +23,7 @@ def get_torch_device():
     return torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-def load_model(model_path: str):
+def load_model(model_path: str) -> nn.Module:
     """
     Loads a Pytorch model
     Args:
@@ -48,7 +48,7 @@ class TorchModel(nn.Module):
     Wrapper class for a torch model to make it comfortable to train and load models
     """
 
-    def __init__(self, model):
+    def __init__(self, model) -> None:
         super(TorchModel, self).__init__()
         self.device = get_torch_device()
         self.iteration = 0
@@ -56,7 +56,7 @@ class TorchModel(nn.Module):
         self.is_data_parallel = False
         self.callbacks = []
 
-    def register_callback(self, callback_fn: Callback):
+    def register_callback(self, callback_fn: Callback) -> None:
         """
         Register a callback to be called after each evaluation run
         Args:
@@ -87,7 +87,7 @@ class TorchModel(nn.Module):
         """
         return cls(load_model(model_path))
 
-    def notify_callbacks(self, notification, *args, **kwargs):
+    def notify_callbacks(self, notification, *args, **kwargs) -> None:
         for callback in self.callbacks:
             try:
                 method = getattr(callback, notification)
@@ -107,7 +107,7 @@ class TorchModel(nn.Module):
         network_model_path_base: str = None,
         save_every: int = None,
         evaluate_every: int = None,
-    ):
+    ) -> None:
         """
 
         Args:
@@ -148,7 +148,7 @@ class TorchModel(nn.Module):
         if network_model_path_base:
             self.save(os.path.join(network_model_path_base, f"epoch_{epoch + 1}.pt"))
 
-    def evaluate(self, criterion: nn.Module, data_iter: DataLoader):
+    def evaluate(self, criterion: nn.Module, data_iter: DataLoader) -> float:
         """
         Evaluates the model
         Args:
@@ -187,7 +187,7 @@ class TorchModel(nn.Module):
         optimizer: Optimizer,
         data_iter: DataLoader,
         epoch: int,
-    ):
+    ) -> float:
         total_loss = 0
         total_time = 0
         self.train()
@@ -223,7 +223,7 @@ class TorchModel(nn.Module):
         self.notify_callbacks("on_epoch_end", loss)
         return loss
 
-    def data_to_device(self, data: Tensor, device: str):
+    def data_to_device(self, data: Tensor, device: str) -> Tensor:
         """
         Transfers a tensor data to a device
         Args:
@@ -239,7 +239,7 @@ class TorchModel(nn.Module):
 
         return data
 
-    def save(self, model_path: str):
+    def save(self, model_path: str) -> None:
         """
         Saves the model to the given path. If currently using data parallel, the method
         will save the original model and not the data parallel instance of it

@@ -17,7 +17,7 @@ from utils.callbacks import DefaultModelCallback, TensorBoardCallback
 from utils.utils import register_logger, get_torch_device
 
 
-def get_args():
+def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="PyTorch Video Classification Parser")
 
     # io

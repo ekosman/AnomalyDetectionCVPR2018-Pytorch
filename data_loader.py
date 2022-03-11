@@ -1,8 +1,10 @@
 import logging
 import os
 import sys
+from typing import List, Tuple
 
 import numpy as np
+from torch import Tensor
 import torch.utils.data as data
 from torchvision.datasets.video_utils import VideoClips
 
@@ -15,7 +17,7 @@ class VideoIter(data.Dataset):
         dataset_path=None,
         video_transform=None,
         return_label=False,
-    ):
+    ) -> None:
         super(VideoIter, self).__init__()
         # video clip properties
         self.frames_stride = frame_stride
@@ -35,10 +37,10 @@ class VideoIter(data.Dataset):
         )
 
     @property
-    def video_count(self):
+    def video_count(self) -> int:
         return len(self.video_list)
 
-    def getitem_from_raw_video(self, idx: int):
+    def getitem_from_raw_video(self, idx: int) -> Tuple[Tensor, int, str, str]:
         video, _, _, _ = self.video_clips.get_clip(idx)
         video_idx, clip_idx = self.video_clips.get_clip_location(idx)
         video_path = self.video_clips.video_paths[video_idx]
@@ -58,10 +60,10 @@ class VideoIter(data.Dataset):
 
         return video, clip_idx, dir, file
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.video_clips)
 
-    def __getitem__(self, index:int):
+    def __getitem__(self, index: int):
         succ = False
         while not succ:
             try:
@@ -77,7 +79,7 @@ class VideoIter(data.Dataset):
 
         return batch
 
-    def _get_video_list(self, dataset_path:str):
+    def _get_video_list(self, dataset_path: str) -> List[str]:
         assert os.path.exists(
             dataset_path
         ), "VideoIter:: failed to locate: `{}'".format(dataset_path)
@@ -100,15 +102,15 @@ class SingleVideoIter(VideoIter):
         video_path,
         video_transform=None,
         return_label=False,
-    ):
+    ) -> None:
         super(SingleVideoIter, self).__init__(
             clip_length, frame_stride, video_path, video_transform, return_label
         )
 
-    def _get_video_list(self, dataset_path:str):
+    def _get_video_list(self, dataset_path: str) -> List[str]:
         return [dataset_path]
 
-    def __getitem__(self, idx:int):
+    def __getitem__(self, idx: int) -> Tensor:
         video, _, _, _ = self.video_clips.get_clip(idx)
         in_clip_frames = list(
             range(0, self.total_clip_length_in_frames, self.frames_stride)

@@ -1,16 +1,20 @@
 from os import path
 import logging
+from typing import Tuple, Union
 
 import torch
+from torch import nn
 
 from network.MFNET import MFNET_3D
 from network.TorchUtils import TorchModel
 from network.c3d import C3D
-from network.i3d import InceptionI3d
 from network.resnet import generate_model
+from utils.types import Device
 
 
-def load_feature_extractor(features_method, feature_extractor_path, device):
+def load_feature_extractor(
+    features_method: str, feature_extractor_path: str, device: Union[torch.device, str]
+) -> nn.Module:
     assert path.exists(feature_extractor_path)
     logging.info(f"Loading feature extractor from {feature_extractor_path}")
 
@@ -34,7 +38,7 @@ def load_feature_extractor(features_method, feature_extractor_path, device):
     return model.to(device)
 
 
-def load_anomaly_detector(ad_model_path, device):
+def load_anomaly_detector(ad_model_path: str, device: Device):
     assert path.exists(ad_model_path)
     logging.info(f"Loading anomaly detector from {ad_model_path}")
 
@@ -43,8 +47,11 @@ def load_anomaly_detector(ad_model_path, device):
 
 
 def load_models(
-    feature_extractor_path, ad_model_path, features_method="c3d", device="cuda"
-):
+    feature_extractor_path: str,
+    ad_model_path: str,
+    features_method: str = "c3d",
+    device: str = "cuda",
+) -> Tuple[nn.Module, nn.Module]:
     """
 	Loads both feature extractor and anomaly detector from the given paths
 	:param feature_extractor_path: path of the features extractor weights to load

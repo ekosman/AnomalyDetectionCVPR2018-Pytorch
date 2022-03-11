@@ -2,10 +2,11 @@ import argparse
 import logging
 import sys
 from os import path
+from typing import List, Tuple
 
 import numpy as np
 import torch
-from torch import nn
+from torch import Tensor, nn
 from PyQt5.QtCore import Qt, QUrl
 from PyQt5.QtGui import QIcon, QPalette
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
@@ -33,7 +34,7 @@ from network.c3d import C3D
 from utils.utils import build_transforms
 
 
-def get_args():
+def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Video Demo For Anomaly Detection")
 
     parser.add_argument(
@@ -65,7 +66,7 @@ def load_models(
     ad_model_path: str,
     features_method: str = "c3d",
     device: str = "cuda",
-):
+) -> Tuple[nn.Module, nn.Module]:
     """
     Loads both feature extractor and anomaly detector from the given paths
     :param feature_extractor_path: path of the features extractor weights to load
@@ -105,7 +106,7 @@ def features_extraction(
     clip_length: int = 16,
     n_segments: int = 32,
     bar=None,
-):
+) -> List[np.array]:
     """
     Extracts features of the video. The returned features will be returned after averaging over the required number of
     video segments.
@@ -151,7 +152,7 @@ def features_extraction(
     return to_segments(features, n_segments)
 
 
-def ad_prediction(model: nn.Module, features: nn.Tensor, device="cuda"):
+def ad_prediction(model: nn.Module, features: nn.Tensor, device="cuda") -> Tensor:
     """
     Creates frediction for the given feature vectors
     :param model: model to use for anomaly detection

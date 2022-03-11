@@ -1,8 +1,10 @@
 import logging
 import os
 from os import path
+from typing import List, Tuple
 import numpy as np
 import torch
+from torch import Tensor
 from torch.utils import data
 from feature_extractor import read_features
 
@@ -15,7 +17,7 @@ class FeaturesLoader:
         annotation_path,
         bucket_size=30,
         iterations=20000,
-    ):
+    ) -> None:
 
         super(FeaturesLoader, self).__init__()
         self.features_path = features_path
@@ -33,14 +35,14 @@ class FeaturesLoader:
         self.features_cache = dict()
         self.i = 0
 
-    def shuffle(self):
+    def shuffle(self) -> None:
         self.features_list_anomaly = np.random.permutation(self.features_list_anomaly)
         self.features_list_normal = np.random.permutation(self.features_list_normal)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return self.iterations
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int) -> Tuple[Tensor, int]:
         if self.i == len(self):
             self.i = 0
             raise StopIteration
@@ -60,6 +62,7 @@ class FeaturesLoader:
         return feature, label
 
     def get_existing_features(self):
+        # TODO: check if used
         res = []
         for dir in os.listdir(self.features_path):
             dir = path.join(self.features_path, dir)
@@ -69,7 +72,7 @@ class FeaturesLoader:
                     res.append(path.join(dir, file_no_ext))
         return res
 
-    def get_features(self):
+    def get_features(self) -> Tensor:
         normal_paths = np.random.choice(
             self.features_list_normal, size=self.bucket_size
         )
@@ -91,7 +94,9 @@ class FeaturesLoader:
         )
 
     @staticmethod
-    def _get_features_list(features_path, annotation_path):
+    def _get_features_list(
+        features_path: str, annotation_path: str
+    ) -> Tuple[List[str], List[str]]:
         assert os.path.exists(features_path)
         features_list_normal = []
         features_list_anomaly = []
@@ -125,7 +130,7 @@ class FeaturesLoaderVal(data.Dataset):
     def __len__(self):
         return len(self.features_list)
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int):
         succ = False
         while not succ:
             try:
@@ -138,13 +143,13 @@ class FeaturesLoaderVal(data.Dataset):
 
         return data
 
-    def get_feature(self, index):
+    def get_feature(self, index: int):
         feature_subpath, start_end_couples, length = self.features_list[index]
         features = read_features(f"{feature_subpath}.txt", self.feature_dim)
         return features, start_end_couples, length
 
     @staticmethod
-    def _get_features_list(features_path, annotation_path):
+    def _get_features_list(features_path: str, annotation_path: str):
         assert os.path.exists(features_path)
         features_list = []
         with open(annotation_path, "r") as f:

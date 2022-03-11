@@ -13,7 +13,7 @@ from network.TorchUtils import TorchModel
 from features_loader import FeaturesLoaderVal
 
 
-def get_args():
+def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="PyTorch Video Classification Parser")
     parser.add_argument(
         "--features_path", default="../anomaly_features", help="path to features"

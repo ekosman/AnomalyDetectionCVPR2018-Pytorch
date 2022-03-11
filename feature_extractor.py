@@ -2,19 +2,20 @@ import argparse
 import logging
 import os
 from os import path, mkdir
-from typing import Dict, Union
+from typing import Dict, List, Tuple, Union
 
 import numpy as np
 import torch
 from torch import Tensor
 from torch.backends import cudnn
+from torch.utils.data import DataLoader
 
 from data_loader import VideoIter
 from utils.load_model import load_feature_extractor
 from utils.utils import build_transforms, register_logger, get_torch_device
 
 
-def get_args():
+def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="PyTorch Video Classification Parser")
     # io
     parser.add_argument(
@@ -72,7 +73,7 @@ def get_args():
     return parser.parse_args()
 
 
-def to_segments(data: Union[Tensor, np.ndarray], num: int = 32):
+def to_segments(data: Union[Tensor, np.ndarray], num: int = 32) -> List[np.array]:
     """
 	These code is taken from:
 	https://github.com/rajanjitenpatel/C3D_feature_extraction/blob/b5894fa06d43aa62b3b64e85b07feb0853e7011a/extract_C3D_feature.py#L805
@@ -104,15 +105,15 @@ class FeaturesWriter:
         self.num_videos = num_videos
         self.dump_count = 0
 
-    def _init_video(self, video_name: str, dir: str):
+    def _init_video(self, video_name: str, dir: str) -> None:
         self.path = path.join(dir, f"{video_name}.txt")
         self.dir = dir
         self.data = dict()
 
-    def has_video(self):
+    def has_video(self) -> bool:
         return self.data is not None
 
-    def dump(self):
+    def dump(self) -> None:
         logging.info(f"{self.dump_count} / {self.num_videos}:	Dumping {self.path}")
         self.dump_count += 1
         if not path.exists(self.dir):
@@ -124,19 +125,19 @@ class FeaturesWriter:
                 d = [str(x) for x in d]
                 fp.write(" ".join(d) + "\n")
 
-    def _is_new_video(self, video_name: str, dir: str):
+    def _is_new_video(self, video_name: str, dir: str) -> bool:
         new_path = path.join(dir, f"{video_name}.txt")
         if self.path != new_path and self.path is not None:
             return True
 
         return False
 
-    def store(self, feature: Union[Tensor, np.ndarray], idx: int):
+    def store(self, feature: Union[Tensor, np.ndarray], idx: int) -> None:
         self.data[idx] = list(feature)
 
     def write(
         self, feature: Union[Tensor, np.ndarray], video_name: str, idx: int, dir: str
-    ):
+    ) -> None:
         if not self.has_video():
             self._init_video(video_name, dir)
 
@@ -147,7 +148,7 @@ class FeaturesWriter:
         self.store(feature, idx)
 
 
-def read_features(file_path, feature_dim: int, cache: Dict = None):
+def read_features(file_path, feature_dim: int, cache: Dict = None) -> np.ndarray:
     if cache is not None and file_path in cache:
         return cache[file_path]
 
@@ -173,7 +174,7 @@ def get_features_loader(
     batch_size: int,
     num_workers: int,
     mode: str,
-):
+) -> Tuple[DataLoader, DataLoader]:
     data_loader = VideoIter(
         dataset_path=dataset_path,
         clip_length=clip_length,

@@ -2,12 +2,14 @@ import argparse
 import logging
 import sys
 from os import path
+from typing import List, Tuple
 from PyQt5 import QtGui
 import cv2
 
 import numpy as np
 from numpy.lib.function_base import copy
 import torch
+from torch import nn
 from PyQt5.QtCore import QThread, Qt, pyqtSignal
 from PyQt5.QtGui import QIcon, QPalette, QPixmap
 from PyQt5.QtMultimedia import QMediaPlayer, QCameraInfo
@@ -29,7 +31,7 @@ from network.c3d import C3D
 from utils.utils import build_transforms
 
 
-def get_args():
+def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Video Demo For Anomaly Detection")
 
     parser.add_argument(
@@ -58,7 +60,7 @@ def get_args():
 
 def load_models(
     feature_extractor_path, ad_model_path, features_method="c3d", device="cuda"
-):
+) -> Tuple[nn.Module, nn.Module]:
     """
     Loads both feature extractor and anomaly detector from the given paths
     :param feature_extractor_path: path of the features extractor weights to load
@@ -89,7 +91,9 @@ def load_models(
     return anomaly_detector, feature_extractor
 
 
-def features_extraction(frames, model, device, frame_stride=1, transforms=None):
+def features_extraction(
+    frames, model, device, frame_stride=1, transforms=None
+) -> List[np.array]:
     """
     Extracts features of the video. The returned features will be returned after averaging over the required number of
     video segments.
@@ -110,7 +114,7 @@ def features_extraction(frames, model, device, frame_stride=1, transforms=None):
     return to_segments(outputs.numpy(), 1)
 
 
-def ad_prediction(model, features, device="cuda"):
+def ad_prediction(model, features, device="cuda") -> np.ndarray:
     """
     Creates frediction for the given feature vectors
     :param model: model to use for anomaly detection
@@ -129,11 +133,11 @@ def ad_prediction(model, features, device="cuda"):
 class VideoThread(QThread):
     change_pixmap_signal = pyqtSignal(np.ndarray)
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._run_flag = True
 
-    def run(self):
+    def run(self) -> None:
         # capture from web cam
         cap = cv2.VideoCapture(0)
         while self._run_flag:
@@ -143,14 +147,14 @@ class VideoThread(QThread):
         # shut down capture system
         cap.release()
 
-    def stop(self):
+    def stop(self) -> None:
         """Sets run flag to False and waits for thread to finish"""
         self._run_flag = False
         self.wait()
 
 
 class MplCanvas(FigureCanvasQTAgg):
-    def __init__(self, parent=None, width=5, height=4, dpi=100):
+    def __init__(self, parent=None, width=5, height=4, dpi=100) -> None:
         self.fig = Figure(figsize=(width, height), dpi=dpi)
         self.axes = self.fig.add_subplot(111)
         super(MplCanvas, self).__init__(self.fig)
@@ -162,7 +166,7 @@ class Window(QWidget):
     Based on media player code from: https://codeloop.org/python-how-to-create-media-player-in-pyqt5/
     """
 
-    def __init__(self, clip_length=16, transforms=None):
+    def __init__(self, clip_length=16, transforms=None) -> None:
         super().__init__()
 
         self.clip_length = clip_length
@@ -183,7 +187,7 @@ class Window(QWidget):
 
         self.show()
 
-    def init_ui(self):
+    def init_ui(self) -> None:
         # create media player object
         # self.mediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
 
@@ -232,7 +236,7 @@ class Window(QWidget):
         self.thread.change_pixmap_signal.connect(self.update_image)
         self.thread.start()
 
-    def update_image(self, cv_img):
+    def update_image(self, cv_img) -> None:
         qt_img = self.convert_cv_qt(cv_img)
         self.camera_view.setPixmap(qt_img)
         self.frames_queue.append(cv_img)
@@ -254,6 +258,7 @@ class Window(QWidget):
             self.frames_queue = []
 
     def convert_cv_qt(self, cv_img):
+        # TODO: typing
         """Convert from an opencv image to QPixmap"""
         rgb_image = cv2.cvtColor(cv_img, cv2.COLOR_BGR2RGB)
         h, w, ch = rgb_image.shape
@@ -270,31 +275,31 @@ class Window(QWidget):
         )
         return QPixmap.fromImage(p)
 
-    def select_camera(self, camera=0):
+    def select_camera(self, camera=0) -> None:
         # getting the selected camera
         self.camera = cv2.VideoCapture(camera)
 
         # getting current camera name
         self.current_camera_name = self.available_cameras[camera].description()
 
-    def play_video(self):
+    def play_video(self) -> None:
         if self.mediaPlayer.state() == QMediaPlayer.PlayingState:
             self.mediaPlayer.pause()
         else:
             self.mediaPlayer.play()
 
-    def mediastate_changed(self, state):
+    def mediastate_changed(self, state) -> None:
         if self.mediaPlayer.state() == QMediaPlayer.PlayingState:
             self.playBtn.setIcon(self.style().standardIcon(QStyle.SP_MediaPause))
 
         else:
             self.playBtn.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
 
-    def handle_errors(self):
+    def handle_errors(self) -> None:
         self.playBtn.setEnabled(False)
         self.label.setText("Error: " + self.mediaPlayer.errorString())
 
-    def plot(self):
+    def plot(self) -> None:
         ax = self.graphWidget.axes
         ax.clear()
         # ax.set_xlim(0, self.mediaPlayer.duration())
