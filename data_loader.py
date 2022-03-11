@@ -73,6 +73,7 @@ class VideoIter(data.Dataset):
                 index = np.random.choice(range(0, self.__len__()))
                 trace_back = sys.exc_info()[2]
                 line = trace_back.tb_lineno
+                # pylint: disable=line-too-long
                 logging.warning(
                     f"VideoIter:: ERROR (line number {line}) !! (Force using another index:\n{index})\n{e}"
                 )
@@ -84,7 +85,7 @@ class VideoIter(data.Dataset):
             dataset_path
         ), "VideoIter:: failed to locate: `{}'".format(dataset_path)
         vid_list = []
-        for path, subdirs, files in os.walk(dataset_path):
+        for path, _, files in os.walk(dataset_path):
             for name in files:
                 if "mp4" not in name:
                     continue

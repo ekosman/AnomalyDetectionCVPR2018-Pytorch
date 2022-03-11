@@ -42,15 +42,11 @@ class RandomCropVideo(RandomCrop):
         return F.crop(clip, i, j, h, w)
 
     def __repr__(self):
-        return self.__class__.__name__ + '(size={0})'.format(self.size)
+        return self.__class__.__name__ + "(size={0})".format(self.size)
 
 
 class ResizeVideo:
-    def __init__(
-            self,
-            size,
-            interpolation_mode="bilinear"
-    ):
+    def __init__(self, size, interpolation_mode="bilinear"):
         self.size = size
         self.interpolation_mode = interpolation_mode
 
@@ -60,10 +56,7 @@ class ResizeVideo:
 
 class RandomResizedCropVideo(RandomResizedCrop):
     def __init__(
-        self,
-        size,
-        crop,
-        interpolation_mode="bilinear",
+        self, size, crop, interpolation_mode="bilinear",
     ):
         if isinstance(size, tuple):
             assert len(size) == 2, "size should be tuple (height, width)"
@@ -92,14 +85,16 @@ class RandomResizedCropVideo(RandomResizedCrop):
             j = np.random.randint(clip.shape[3] - self.crop)
         else:
             j = 0
-        clip = clip[..., i:i+self.crop, j:j+self.crop]
+        clip = clip[..., i : i + self.crop, j : j + self.crop]
         return clip
 
     def __repr__(self):
-        return self.__class__.__name__ + \
-            '(size={0}, interpolation_mode={1}, scale={2}, ratio={3})'.format(
+        return (
+            self.__class__.__name__
+            + "(size={0}, interpolation_mode={1}, scale={2}, ratio={3})".format(
                 self.size, self.interpolation_mode, self.scale, self.ratio
             )
+        )
 
 
 class CenterCropVideo(object):
@@ -120,7 +115,7 @@ class CenterCropVideo(object):
         return F.center_crop(clip, self.crop_size)
 
     def __repr__(self):
-        return self.__class__.__name__ + '(crop_size={0})'.format(self.crop_size)
+        return self.__class__.__name__ + "(crop_size={0})".format(self.crop_size)
 
 
 class NormalizeVideo(object):
@@ -145,8 +140,9 @@ class NormalizeVideo(object):
         return F.normalize(clip, self.mean, self.std, self.inplace)
 
     def __repr__(self):
-        return self.__class__.__name__ + '(mean={0}, std={1}, inplace={2})'.format(
-            self.mean, self.std, self.inplace)
+        return self.__class__.__name__ + "(mean={0}, std={1}, inplace={2})".format(
+            self.mean, self.std, self.inplace
+        )
 
 
 class ToTensorVideo(object):

@@ -3,13 +3,13 @@ import logging
 import sys
 from os import path
 from typing import List, Tuple
-from PyQt5 import QtGui
 import cv2
 
 import numpy as np
 from numpy.lib.function_base import copy
 import torch
-from torch import nn
+from torch import Tensor, nn
+from PyQt5 import QtGui
 from PyQt5.QtCore import QThread, Qt, pyqtSignal
 from PyQt5.QtGui import QIcon, QPalette, QPixmap
 from PyQt5.QtMultimedia import QMediaPlayer, QCameraInfo
@@ -28,6 +28,7 @@ from matplotlib.figure import Figure
 from feature_extractor import to_segments
 from network.TorchUtils import TorchModel
 from network.c3d import C3D
+from utils.types import Device
 from utils.utils import build_transforms
 
 
@@ -95,15 +96,15 @@ def features_extraction(
     frames, model, device, frame_stride=1, transforms=None
 ) -> List[np.array]:
     """
-    Extracts features of the video. The returned features will be returned after averaging over the required number of
-    video segments.
+    Extracts features of the video. The returned features will be returned after
+    averaging over the required number of video segments.
     :param frames: a sequence of video frames to predict
     :param model: model to use for feature extraction
     :param device: device to use for loading data
     :param frame_stride: interval between frames to load
     :return: feature (1, feature_dim), usually (1, 4096) as in the original paper
     """
-    frames = torch.tensor(frames)
+    frames = torch.tensor(frames)  # pylint: disable=not-callable
     frames = transforms(frames).to(device)
     data = frames[:, range(0, frames.shape[1], frame_stride), ...]
     data = data.unsqueeze(0)
@@ -114,7 +115,9 @@ def features_extraction(
     return to_segments(outputs.numpy(), 1)
 
 
-def ad_prediction(model, features, device="cuda") -> np.ndarray:
+def ad_prediction(
+    model: nn.Module, features: Tensor, device: Device = "cuda"
+) -> np.ndarray:
     """
     Creates frediction for the given feature vectors
     :param model: model to use for anomaly detection
@@ -122,8 +125,8 @@ def ad_prediction(model, features, device="cuda") -> np.ndarray:
     :param device: device to use for loading the features
     :return: anomaly predictions for the video segments
     """
-    logging.info(f"Performing anomaly detection...")
-    features = torch.tensor(features).to(device)
+    logging.info("Performing anomaly detection...")
+    features = torch.tensor(features).to(device)  # pylint: disable=not-callable
     with torch.no_grad():
         preds = model(features)
 
@@ -163,7 +166,8 @@ class MplCanvas(FigureCanvasQTAgg):
 class Window(QWidget):
     """
     Anomaly detection live gui
-    Based on media player code from: https://codeloop.org/python-how-to-create-media-player-in-pyqt5/
+    Based on media player code from:
+    https://codeloop.org/python-how-to-create-media-player-in-pyqt5/
     """
 
     def __init__(self, clip_length=16, transforms=None) -> None:
@@ -257,8 +261,7 @@ class Window(QWidget):
             self.plot()
             self.frames_queue = []
 
-    def convert_cv_qt(self, cv_img):
-        # TODO: typing
+    def convert_cv_qt(self, cv_img: np.ndarray) -> QPixmap:
         """Convert from an opencv image to QPixmap"""
         rgb_image = cv2.cvtColor(cv_img, cv2.COLOR_BGR2RGB)
         h, w, ch = rgb_image.shape
@@ -288,7 +291,7 @@ class Window(QWidget):
         else:
             self.mediaPlayer.play()
 
-    def mediastate_changed(self, state) -> None:
+    def mediastate_changed(self, *_args) -> None:
         if self.mediaPlayer.state() == QMediaPlayer.PlayingState:
             self.playBtn.setIcon(self.style().standardIcon(QStyle.SP_MediaPause))
 

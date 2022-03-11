@@ -48,7 +48,7 @@ class Resize(Transform):
         self.interpolation = interpolation
 
     def __call__(self, data):
-        h, w, c = data.shape
+        h, w = data.shape[:2]
 
         if isinstance(self.size, int):
             slen = self.size

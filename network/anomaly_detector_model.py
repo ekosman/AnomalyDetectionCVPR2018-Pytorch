@@ -1,3 +1,4 @@
+from typing import Callable
 import torch
 from torch import Tensor, nn
 
@@ -60,7 +61,9 @@ def custom_objective(y_pred: Tensor, y_true: Tensor):
 
 
 class RegularizedLoss(torch.nn.Module):
-    def __init__(self, model, original_objective, lambdas=0.001) -> None:
+    def __init__(
+        self, model: nn.Module, original_objective: Callable, lambdas: float = 0.001
+    ) -> None:
         super(RegularizedLoss, self).__init__()
         self.lambdas = lambdas
         self.model = model
@@ -85,4 +88,3 @@ class RegularizedLoss(torch.nn.Module):
             + l2_regularization
             + l3_regularization
         )
-

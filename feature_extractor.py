@@ -90,7 +90,7 @@ def to_segments(data: Union[Tensor, np.ndarray], num: int = 32) -> List[np.array
             temp_vect = data[ss:ee, :].mean(axis=0)
 
         temp_vect = temp_vect / np.linalg.norm(temp_vect)
-        if len(temp_vect) != 0:
+        if temp_vect:
             Segments_Features.append(temp_vect.tolist())
 
     return Segments_Features
@@ -226,6 +226,7 @@ def main():
                 zip(dirs, vid_names, clip_idxs)
             ):
                 if loop_i == 0:
+                    # pylint: disable=line-too-long
                     logging.info(
                         f"Video {features_writer.dump_count} / {features_writer.num_videos} : Writing clip {clip_idx} of video {vid_name}"
                     )

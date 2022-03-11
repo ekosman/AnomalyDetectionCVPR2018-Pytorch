@@ -2,7 +2,7 @@ import logging
 import sys
 
 import torch
-from torch import device
+from torch import device  # pylint: disable=no-name-in-module
 from torchvision.transforms import transforms
 
 from . import transforms_video

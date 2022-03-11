@@ -1,18 +1,18 @@
+"""
+Written by Eitan Kosman
+"""
+
 import logging
 import os
 import time
 from typing import Iterable
 
+from torch.optim import Optimizer
 import torch
 from torch import Tensor, device, nn
 from torch.utils.data import DataLoader
-from torch.optim import Optimizer
 
 from utils.callbacks import Callback
-
-"""
-Written by Eitan Kosman
-"""
 
 
 def get_torch_device() -> device:
@@ -39,7 +39,7 @@ def load_model(model_path: str) -> nn.Module:
 
 
 def get_loader_shape(loader: Iterable):
-    assert len(loader) != 0
+    assert loader
     return loader[0].shape
 
 
@@ -94,7 +94,7 @@ class TorchModel(nn.Module):
                 method(*args, **kwargs)
             except (AttributeError, TypeError) as e:
                 logging.error(
-                    f"callback {callback.__class__.__name__} doesn't fully implement the required interface {e}"
+                    f"callback {callback.__class__.__name__} doesn't fully implement the required interface {e}"  # pylint: disable=line-too-long
                 )
 
     def fit(
@@ -118,8 +118,9 @@ class TorchModel(nn.Module):
             epochs: amount of epochs
             network_model_path_base: where to save the models
             save_every: saving model checkpoints every specified amount of epochs
-            evaluate_every: perform evaluation every specified amount of epochs. If the evaluation is expensive,
-                            you probably want ot choose a high value for this
+            evaluate_every: perform evaluation every specified amount of epochs.
+                            If the evaluation is expensive, you probably want to
+                            choose a high value for this
         """
         criterion = criterion.to(self.device)
         self.notify_callbacks("on_training_start", epochs)
@@ -230,9 +231,9 @@ class TorchModel(nn.Module):
             data: torch tensor
             device: target device
         """
-        if type(data) == list:
+        if isinstance(data, list):
             data = [d.to(device) for d in data]
-        elif type(data) == tuple:
+        elif isinstance(data, tuple):
             data = tuple([d.to(device) for d in data])
         else:
             data = data.to(device)

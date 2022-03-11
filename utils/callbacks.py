@@ -80,7 +80,7 @@ class DefaultModelCallback(Callback):
             plt.plot(
                 range(1, self.epochs + 1), self.train_losses, label="Training loss"
             )
-            if len(self.val_loss) != 0:
+            if self.val_loss:
                 plt.plot(
                     range(1, self.epochs + 1), self.val_loss, label="Validation loss"
                 )
@@ -101,6 +101,7 @@ class DefaultModelCallback(Callback):
 
             loss_string = f"loss: {loss}"
 
+            # pylint: disable=line-too-long
             logging.info(
                 f"Epoch {self.epoch}/{self.epochs}      Iteration {epoch_iteration}/{self.epoch_iterations}    {loss_string}    Time: {average_time} seconds/iteration"
             )
@@ -119,6 +120,7 @@ class DefaultModelCallback(Callback):
         pass
 
     def on_training_iteration_end(self, train_loss, val_loss) -> None:
+        # pylint: disable=line-too-long
         train_loss_string = f"Train loss: {train_loss}"
         if val_loss:
             val_loss_string = f"Validation loss: {val_loss}"

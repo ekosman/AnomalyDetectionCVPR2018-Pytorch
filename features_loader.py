@@ -61,17 +61,6 @@ class FeaturesLoader:
         self.i += 1
         return feature, label
 
-    def get_existing_features(self):
-        # TODO: check if used
-        res = []
-        for dir in os.listdir(self.features_path):
-            dir = path.join(self.features_path, dir)
-            if path.isdir(dir):
-                for file in os.listdir(dir):
-                    file_no_ext = file.split(".")[0]
-                    res.append(path.join(dir, file_no_ext))
-        return res
-
     def get_features(self) -> Tensor:
         normal_paths = np.random.choice(
             self.features_list_normal, size=self.bucket_size

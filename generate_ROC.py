@@ -1,12 +1,12 @@
 import argparse
 import os
+from os import path
 import torch
 from torch.backends import cudnn
 
 from tqdm import tqdm
 from sklearn.metrics import roc_curve, auc
 import matplotlib.pyplot as plt
-from os import path
 import numpy as np
 
 from network.TorchUtils import TorchModel
@@ -56,6 +56,7 @@ if __name__ == "__main__":
     # enable cudnn tune
     cudnn.benchmark = True
 
+    # pylint: disable=not-callable
     y_trues = torch.tensor([])
     y_preds = torch.tensor([])
 
