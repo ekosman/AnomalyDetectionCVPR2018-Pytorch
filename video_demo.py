@@ -108,8 +108,8 @@ def features_extraction(
     bar=None,
 ) -> List[np.array]:
     """
-    Extracts features of the video. The returned features will be returned after averaging over the required number of
-    video segments.
+    Extracts features of the video.The returned features will 
+    be returned after averaging over the required number of video segments.
     :param video_path: path of the video to predict
     :param model: model to use for feature extraction
     :param device: device to use for loading data
@@ -178,7 +178,7 @@ class MplCanvas(FigureCanvasQTAgg):
 class Window(QWidget):
     """
     Anomaly detection gui
-    Based on media player code from: 
+    Based on media player code from:
     https://codeloop.org/python-how-to-create-media-player-in-pyqt5/
     """
 
