@@ -1,3 +1,5 @@
+""""This module contains a video loader."""
+
 import logging
 import os
 import sys

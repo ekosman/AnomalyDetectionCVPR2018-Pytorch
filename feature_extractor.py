@@ -1,3 +1,5 @@
+""""This module contains a training procedure for video feature extraction."""
+
 import argparse
 import logging
 import os
@@ -16,7 +18,10 @@ from utils.utils import build_transforms, register_logger, get_torch_device
 
 
 def get_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="PyTorch Video Classification Parser")
+    """ Reads command line args and returns the parser object the represent the specified arguments."""
+
+    parser = argparse.ArgumentParser(description="Video Feature Extraction Parser")
+
     # io
     parser.add_argument(
         "--dataset_path",
@@ -73,16 +78,24 @@ def get_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def to_segments(data: Union[Tensor, np.ndarray], num: int = 32) -> List[np.array]:
-    """
-	These code is taken from:
+def to_segments(
+    data: Union[Tensor, np.ndarray], n_segments: int = 32
+) -> List[np.array]:
+    """ These code is taken from:
 	https://github.com/rajanjitenpatel/C3D_feature_extraction/blob/b5894fa06d43aa62b3b64e85b07feb0853e7011a/extract_C3D_feature.py#L805
-	:param data: list of features of a certain video
-	:return: list of 32 segments
-	"""
+
+    Args:
+        data (Union[Tensor, np.ndarray]): List of features of a certain video
+        n_segments (int, optional): Number of segments
+
+    Returns:
+        List[np.array]: List of `num` segments
+    """
     data = np.array(data)
     Segments_Features = []
-    thirty2_shots = np.round(np.linspace(0, len(data) - 1, num=num + 1)).astype(int)
+    thirty2_shots = np.round(np.linspace(0, len(data) - 1, num=n_segments + 1)).astype(
+        int
+    )
     for ss, ee in zip(thirty2_shots[:-1], thirty2_shots[1:]):
         if ss == ee:
             temp_vect = data[min(ss, data.shape[0] - 1), :]
@@ -222,7 +235,7 @@ def main():
         for data, clip_idxs, dirs, vid_names in data_iter:
             outputs = network(data.to(device)).detach().cpu().numpy()
 
-            for i, (dir, vid_name, clip_idx) in enumerate(
+            for i, (_dir, vid_name, clip_idx) in enumerate(
                 zip(dirs, vid_names, clip_idxs)
             ):
                 if loop_i == 0:
@@ -234,9 +247,9 @@ def main():
                 loop_i += 1
                 loop_i %= args.log_every
 
-                dir = path.join(args.save_dir, dir)
+                _dir = path.join(args.save_dir, _dir)
                 features_writer.write(
-                    feature=outputs[i], video_name=vid_name, idx=clip_idx, dir=dir,
+                    feature=outputs[i], video_name=vid_name, idx=clip_idx, dir=_dir,
                 )
 
     features_writer.dump()

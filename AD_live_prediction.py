@@ -1,3 +1,5 @@
+""""This module contains a procedure for real time anomaly detection."""
+
 import argparse
 import logging
 import sys
@@ -98,12 +100,17 @@ def features_extraction(
     """
     Extracts features of the video. The returned features will be returned after
     averaging over the required number of video segments.
-    :param frames: a sequence of video frames to predict
-    :param model: model to use for feature extraction
-    :param device: device to use for loading data
-    :param frame_stride: interval between frames to load
-    :return: feature (1, feature_dim), usually (1, 4096) as in the original paper
+
+    Args:
+        frames: a sequence of video frames to predict
+        model: model to use for feature extraction
+        device: device to use for loading data
+        frame_stride: interval between frames to load
+
+    Returns:
+        feature (1, feature_dim), usually (1, 4096) as in the original paper
     """
+
     frames = torch.tensor(frames)  # pylint: disable=not-callable
     frames = transforms(frames).to(device)
     data = frames[:, range(0, frames.shape[1], frame_stride), ...]
@@ -120,11 +127,16 @@ def ad_prediction(
 ) -> np.ndarray:
     """
     Creates frediction for the given feature vectors
-    :param model: model to use for anomaly detection
-    :param features: features of the video clips
-    :param device: device to use for loading the features
-    :return: anomaly predictions for the video segments
+
+    Args:
+        model: model to use for anomaly detection
+        features: features of the video clips
+        device: device to use for loading the features
+
+    Returns:
+        Anomaly predictions for the video segments
     """
+
     logging.info("Performing anomaly detection...")
     features = torch.tensor(features).to(device)  # pylint: disable=not-callable
     with torch.no_grad():
@@ -197,11 +209,7 @@ class Window(QWidget):
         self.show()
 
     def init_ui(self) -> None:
-        # create media player object
-        # self.mediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
-
-        # create videowidget object
-        # videowidget = QVideoWidget()
+        """Create media player object"""
 
         # setup camera
         self.available_cameras = QCameraInfo.availableCameras()
@@ -235,8 +243,6 @@ class Window(QWidget):
         # set widgets to the hbox layout
         gridLayout.addWidget(self.graphWidget, 0, 0, 1, 5)
         gridLayout.addWidget(self.camera_view, 1, 0, 5, 5)
-        # gridLayout.addWidget(self.playBtn, 6, 0, 1, 5)
-        # gridLayout.addWidget(camera_selector, 7, 0, 1, 5)
 
         self.setLayout(gridLayout)
 
@@ -330,6 +336,5 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
     window = Window(args.clip_length, transforms)
-    # window.run()
 
     sys.exit(app.exec_())
