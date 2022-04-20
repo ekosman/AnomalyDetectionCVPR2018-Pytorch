@@ -232,13 +232,9 @@ class Window(QWidget):
 
         # create grid layout
         gridLayout = QGridLayout()
-        # hboxLayout = QHBoxLayout()
-        # hboxLayout.setContentsMargins(0, 0, 0, 0)
 
         # AD signal
-        # self.figure = plt.figure()
-        # self.canvas = FigureCanvas(self.figure)
-        # self.graphWidget = pg.PlotWidget()
+
         self.graphWidget = MplCanvas(self, width=5, height=1, dpi=100)
 
         # Feature extraction progress bar
