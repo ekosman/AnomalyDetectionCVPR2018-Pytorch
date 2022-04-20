@@ -1,6 +1,7 @@
+""""This module contains a training procedure for video anomaly detection."""
+
 import argparse
-import os
-from os import path
+from os import path, makedirs
 
 import torch
 from torch.backends import cudnn
@@ -18,7 +19,9 @@ from utils.utils import register_logger, get_torch_device
 
 
 def get_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="PyTorch Video Classification Parser")
+    """ Reads command line args and returns the parser object the represent the specified arguments.
+    """
+    parser = argparse.ArgumentParser(description="Video Anomaly Detection Parser")
 
     # io
     parser.add_argument("--features_path", default="features", help="path to features")
@@ -70,11 +73,11 @@ if __name__ == "__main__":
 
     # Register directories
     register_logger(log_file=args.log_file)
-    os.makedirs(args.exps_dir, exist_ok=True)
+    makedirs(args.exps_dir, exist_ok=True)
     models_dir = path.join(args.exps_dir, "models")
     tb_dir = path.join(args.exps_dir, "tensorboard")
-    os.makedirs(models_dir, exist_ok=True)
-    os.makedirs(tb_dir, exist_ok=True)
+    makedirs(models_dir, exist_ok=True)
+    makedirs(tb_dir, exist_ok=True)
 
     # Optimizations
     device = get_torch_device()
