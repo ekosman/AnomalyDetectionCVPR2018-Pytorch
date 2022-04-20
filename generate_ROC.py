@@ -1,3 +1,5 @@
+""""This module contains an evaluation procedure for video anomaly detection."""
+
 import argparse
 import os
 from os import path
@@ -14,7 +16,10 @@ from features_loader import FeaturesLoaderVal
 
 
 def get_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="PyTorch Video Classification Parser")
+    """ Reads command line args and returns the parser object the represent the specified arguments."""
+    parser = argparse.ArgumentParser(
+        description="Video Anomaly Detection Evaluation Parser"
+    )
     parser.add_argument(
         "--features_path", default="../anomaly_features", help="path to features"
     )

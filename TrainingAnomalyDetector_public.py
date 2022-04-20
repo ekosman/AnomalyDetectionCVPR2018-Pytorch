@@ -21,7 +21,9 @@ from utils.utils import register_logger, get_torch_device
 def get_args() -> argparse.Namespace:
     """ Reads command line args and returns the parser object the represent the specified arguments.
     """
-    parser = argparse.ArgumentParser(description="Video Anomaly Detection Parser")
+    parser = argparse.ArgumentParser(
+        description="Video Anomaly Detection Training Parser"
+    )
 
     # io
     parser.add_argument("--features_path", default="features", help="path to features")
