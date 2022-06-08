@@ -68,7 +68,7 @@ load-plugins=
 # W0622: Redefining built-in 'FOO'
 # W0702: No exception type(s) specified
 #
-disable=C0103,C0111,C0301,C0302,E1103,I0011,R0201,R0801,R0902,R0903,R0904,R0911,R0912,R0913,R0914,R0915,W0141,W0142,W0232,W0401,W0603,W0614,W0621,W0622,W0702,W0703,W1201,E1121
+disable=C0103,C0302,E1103,I0011,R0801,R0902,R0903,R0904,R0911,R0912,R0913,R0914,R0915,W0401,W0603,W0614,W0621,W0622,W0702,W0703,W1201,E1121,logging-fstring-interpolation,consider-using-generator
 
 
 [REPORTS]
@@ -155,7 +155,7 @@ ignore-docstrings=yes
 [FORMAT]
 
 # Maximum number of characters on a single line.
-max-line-length=80
+max-line-length=120
 
 # Maximum number of lines in a module
 max-module-lines=1000

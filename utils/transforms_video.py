@@ -1,20 +1,16 @@
 #!/usr/bin/env python3
 
-import numpy as np
 import numbers
 import random
 
-import torch
-from torchvision.transforms import (
-    RandomCrop,
-    RandomResizedCrop,
-)
+import numpy as np
+
+from torchvision.transforms import RandomResizedCrop
 
 from . import functional_video as F
 
 
 __all__ = [
-    "RandomCropVideo",
     "RandomResizedCropVideo",
     "CenterCropVideo",
     "NormalizeVideo",
@@ -23,34 +19,8 @@ __all__ = [
 ]
 
 
-class RandomCropVideo(RandomCrop):
-    def __init__(self, size):
-        if isinstance(size, numbers.Number):
-            self.size = (int(size), int(size))
-        else:
-            self.size = size
-
-    def __call__(self, clip):
-        """
-        Args:
-            clip (torch.tensor): Video clip to be cropped. Size is (C, T, H, W)
-        Returns:
-            torch.tensor: randomly cropped/resized video clip.
-                size is (C, T, OH, OW)
-        """
-        i, j, h, w = self.get_params(clip, self.size)
-        return F.crop(clip, i, j, h, w)
-
-    def __repr__(self):
-        return self.__class__.__name__ + '(size={0})'.format(self.size)
-
-
 class ResizeVideo:
-    def __init__(
-            self,
-            size,
-            interpolation_mode="bilinear"
-    ):
+    def __init__(self, size, interpolation_mode="bilinear"):
         self.size = size
         self.interpolation_mode = interpolation_mode
 
@@ -60,10 +30,7 @@ class ResizeVideo:
 
 class RandomResizedCropVideo(RandomResizedCrop):
     def __init__(
-        self,
-        size,
-        crop,
-        interpolation_mode="bilinear",
+        self, size, crop, interpolation_mode="bilinear",
     ):
         if isinstance(size, tuple):
             assert len(size) == 2, "size should be tuple (height, width)"
@@ -92,17 +59,18 @@ class RandomResizedCropVideo(RandomResizedCrop):
             j = np.random.randint(clip.shape[3] - self.crop)
         else:
             j = 0
-        clip = clip[..., i:i+self.crop, j:j+self.crop]
+        clip = clip[..., i : i + self.crop, j : j + self.crop]
         return clip
 
     def __repr__(self):
-        return self.__class__.__name__ + \
-            '(size={0}, interpolation_mode={1}, scale={2}, ratio={3})'.format(
-                self.size, self.interpolation_mode, self.scale, self.ratio
-            )
+        return (
+            self.__class__.__name__
+            + f"(size={self.size}, interpolation_mode={self.interpolation_mode}, "
+            + f"scale={self.scale}, ratio={self.ratio})"
+        )
 
 
-class CenterCropVideo(object):
+class CenterCropVideo:
     def __init__(self, crop_size):
         if isinstance(crop_size, numbers.Number):
             self.crop_size = (int(crop_size), int(crop_size))
@@ -120,10 +88,10 @@ class CenterCropVideo(object):
         return F.center_crop(clip, self.crop_size)
 
     def __repr__(self):
-        return self.__class__.__name__ + '(crop_size={0})'.format(self.crop_size)
+        return self.__class__.__name__ + f"(crop_size={self.crop_size})"
 
 
-class NormalizeVideo(object):
+class NormalizeVideo:
     """
     Normalize the video clip by mean subtraction and division by standard deviation
     Args:
@@ -145,11 +113,13 @@ class NormalizeVideo(object):
         return F.normalize(clip, self.mean, self.std, self.inplace)
 
     def __repr__(self):
-        return self.__class__.__name__ + '(mean={0}, std={1}, inplace={2})'.format(
-            self.mean, self.std, self.inplace)
+        return (
+            self.__class__.__name__
+            + f"(mean={self.mean}, std={self.std}, inplace={self.inplace})"
+        )
 
 
-class ToTensorVideo(object):
+class ToTensorVideo:
     """
     Convert tensor data type from uint8 to float, divide value by 255.0 and
     permute the dimenions of clip tensor
@@ -171,7 +141,7 @@ class ToTensorVideo(object):
         return self.__class__.__name__
 
 
-class RandomHorizontalFlipVideo(object):
+class RandomHorizontalFlipVideo:
     """
     Flip the video clip along the horizonal direction with a given probability
     Args:
@@ -193,4 +163,4 @@ class RandomHorizontalFlipVideo(object):
         return clip
 
     def __repr__(self):
-        return self.__class__.__name__ + "(p={0})".format(self.p)
+        return self.__class__.__name__ + f"(p={self.p})"

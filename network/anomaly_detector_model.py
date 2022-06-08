@@ -1,10 +1,11 @@
+from typing import Callable
 import torch
-from torch import nn
+from torch import Tensor, nn
 
 
 class AnomalyDetector(nn.Module):
-    def __init__(self, input_dim=4096):
-        super(AnomalyDetector, self).__init__()
+    def __init__(self, input_dim=4096) -> None:
+        super().__init__()
         self.fc1 = nn.Linear(input_dim, 512)
         self.relu1 = nn.ReLU()
         self.dropout1 = nn.Dropout(0.6)
@@ -21,14 +22,14 @@ class AnomalyDetector(nn.Module):
         nn.init.xavier_normal_(self.fc2.weight)
         nn.init.xavier_normal_(self.fc3.weight)
 
-    def forward(self, x):
+    def forward(self, x: Tensor) -> Tensor:  # pylint: disable=arguments-differ
         x = self.dropout1(self.relu1(self.fc1(x)))
         x = self.dropout2(self.fc2(x))
         x = self.sig(self.fc3(x))
         return x
 
 
-def custom_objective(y_pred, y_true):
+def custom_objective(y_pred: Tensor, y_true: Tensor):
     # y_pred (batch_size, 32, 1)
     # y_true (batch_size)
     lambdas = 8e-5
@@ -46,29 +47,31 @@ def custom_objective(y_pred, y_true):
     hinge_loss = 1 - anomal_segments_scores_maxes + normal_segments_scores_maxes
     hinge_loss = torch.max(hinge_loss, torch.zeros_like(hinge_loss))
 
-    """
-    Smoothness of anomalous video
-    """
+    # Smoothness of anomalous video
     smoothed_scores = anomal_segments_scores[:, 1:] - anomal_segments_scores[:, :-1]
     smoothed_scores_sum_squared = smoothed_scores.pow(2).sum(dim=-1)
 
-    """
-    Sparsity of anomalous video
-    """
+    # Sparsity of anomalous video
     sparsity_loss = anomal_segments_scores.sum(dim=-1)
 
-    final_loss = (hinge_loss + lambdas*smoothed_scores_sum_squared + lambdas*sparsity_loss).mean()
+    final_loss = (
+        hinge_loss + lambdas * smoothed_scores_sum_squared + lambdas * sparsity_loss
+    ).mean()
     return final_loss
 
 
 class RegularizedLoss(torch.nn.Module):
-    def __init__(self, model, original_objective, lambdas=0.001):
-        super(RegularizedLoss, self).__init__()
+    def __init__(
+        self, model: nn.Module, original_objective: Callable, lambdas: float = 0.001
+    ) -> None:
+        super().__init__()
         self.lambdas = lambdas
         self.model = model
         self.objective = original_objective
 
-    def forward(self, y_pred, y_true):
+    def forward(
+        self, y_pred: Tensor, y_true: Tensor
+    ):  # pylint: disable=arguments-differ
         # loss
         # Our loss is defined with respect to l2 regularization, as used in the original keras code
         fc1_params = torch.cat(tuple([x.view(-1) for x in self.model.fc1.parameters()]))
@@ -79,5 +82,9 @@ class RegularizedLoss(torch.nn.Module):
         l2_regularization = self.lambdas * torch.norm(fc2_params, p=2)
         l3_regularization = self.lambdas * torch.norm(fc3_params, p=2)
 
-        return self.objective(y_pred, y_true) + l1_regularization + l2_regularization + l3_regularization
-
+        return (
+            self.objective(y_pred, y_true)
+            + l1_regularization
+            + l2_regularization
+            + l3_regularization
+        )

@@ -1,21 +1,26 @@
+""""This module contains a video loader."""
+
 import logging
 import os
-import pickle
 import sys
+from typing import List, Tuple
 
 import numpy as np
-import torch.utils.data as data
+from torch import Tensor
+from torch.utils import data
 from torchvision.datasets.video_utils import VideoClips
 
 
 class VideoIter(data.Dataset):
-    def __init__(self,
-                 clip_length,
-                 frame_stride,
-                 dataset_path=None,
-                 video_transform=None,
-                 return_label=False):
-        super(VideoIter, self).__init__()
+    def __init__(
+        self,
+        clip_length,
+        frame_stride,
+        dataset_path=None,
+        video_transform=None,
+        return_label=False,
+    ) -> None:
+        super().__init__()
         # video clip properties
         self.frames_stride = frame_stride
         self.total_clip_length_in_frames = clip_length * frame_stride
@@ -27,37 +32,29 @@ class VideoIter(data.Dataset):
         self.return_label = return_label
 
         # data loading
-        self.video_clips = VideoClips(video_paths=self.video_list,
-                                      clip_length_in_frames=self.total_clip_length_in_frames,
-                                      frames_between_clips=self.total_clip_length_in_frames, )
-        #
-        # if os.path.exists('video_clips.file'):
-        #     with open('video_clips.file', 'rb') as fp:
-        #         self.video_clips = pickle.load(fp)
-        # else:
-        #     self.video_clips = VideoClips(video_paths=self.video_list,
-        #                                   clip_length_in_frames=self.total_clip_length_in_frames,
-        #                                   frames_between_clips=self.total_clip_length_in_frames,)
-        #
-        # if not os.path.exists('video_clips.file'):
-        #     with open('video_clips.file', 'wb') as fp:
-        #         pickle.dump(self.video_clips, fp, protocol=pickle.HIGHEST_PROTOCOL)
+        self.video_clips = VideoClips(
+            video_paths=self.video_list,
+            clip_length_in_frames=self.total_clip_length_in_frames,
+            frames_between_clips=self.total_clip_length_in_frames,
+        )
 
     @property
-    def video_count(self):
+    def video_count(self) -> int:
         return len(self.video_list)
 
-    def getitem_from_raw_video(self, idx):
+    def getitem_from_raw_video(self, idx: int) -> Tuple[Tensor, int, str, str]:
         video, _, _, _ = self.video_clips.get_clip(idx)
         video_idx, clip_idx = self.video_clips.get_clip_location(idx)
         video_path = self.video_clips.video_paths[video_idx]
-        in_clip_frames = list(range(0, self.total_clip_length_in_frames, self.frames_stride))
+        in_clip_frames = list(
+            range(0, self.total_clip_length_in_frames, self.frames_stride)
+        )
         video = video[in_clip_frames]
         if self.video_transform is not None:
             video = self.video_transform(video)
 
         dir, file = video_path.split(os.sep)[-2:]
-        file = file.split('.')[0]
+        file = file.split(".")[0]
 
         if self.return_label:
             label = 0 if "Normal" in video_path else 1
@@ -65,10 +62,10 @@ class VideoIter(data.Dataset):
 
         return video, clip_idx, dir, file
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.video_clips)
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int):
         succ = False
         while not succ:
             try:
@@ -78,16 +75,21 @@ class VideoIter(data.Dataset):
                 index = np.random.choice(range(0, self.__len__()))
                 trace_back = sys.exc_info()[2]
                 line = trace_back.tb_lineno
-                logging.warning(f"VideoIter:: ERROR (line number {line}) !! (Force using another index:\n{index})\n{e}")
+                # pylint: disable=line-too-long
+                logging.warning(
+                    f"VideoIter:: ERROR (line number {line}) !! (Force using another index:\n{index})\n{e}"
+                )
 
         return batch
 
-    def _get_video_list(self, dataset_path):
-        assert os.path.exists(dataset_path), "VideoIter:: failed to locate: `{}'".format(dataset_path)
+    def _get_video_list(self, dataset_path: str) -> List[str]:
+        assert os.path.exists(
+            dataset_path
+        ), f"VideoIter:: failed to locate: `{dataset_path}'"
         vid_list = []
-        for path, subdirs, files in os.walk(dataset_path):
+        for path, _, files in os.walk(dataset_path):
             for name in files:
-                if 'mp4' not in name:
+                if "mp4" not in name:
                     continue
                 vid_list.append(os.path.join(path, name))
 
@@ -96,20 +98,26 @@ class VideoIter(data.Dataset):
 
 
 class SingleVideoIter(VideoIter):
-    def __init__(self,
-                 clip_length,
-                 frame_stride,
-                 video_path,
-                 video_transform=None,
-                 return_label=False):
-        super(SingleVideoIter, self).__init__(clip_length, frame_stride, video_path, video_transform, return_label)
+    def __init__(
+        self,
+        clip_length,
+        frame_stride,
+        video_path,
+        video_transform=None,
+        return_label=False,
+    ) -> None:
+        super().__init__(
+            clip_length, frame_stride, video_path, video_transform, return_label
+        )
 
-    def _get_video_list(self, dataset_path):
+    def _get_video_list(self, dataset_path: str) -> List[str]:
         return [dataset_path]
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx: int) -> Tensor:
         video, _, _, _ = self.video_clips.get_clip(idx)
-        in_clip_frames = list(range(0, self.total_clip_length_in_frames, self.frames_stride))
+        in_clip_frames = list(
+            range(0, self.total_clip_length_in_frames, self.frames_stride)
+        )
         video = video[in_clip_frames]
         if self.video_transform is not None:
             video = self.video_transform(video)
