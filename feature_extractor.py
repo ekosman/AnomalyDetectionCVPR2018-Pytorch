@@ -121,7 +121,7 @@ class FeaturesWriter:
     def _init_video(self, video_name: str, dir: str) -> None:
         self.path = path.join(dir, f"{video_name}.txt")
         self.dir = dir
-        self.data = dict()
+        self.data = {}
 
     def has_video(self) -> bool:
         return self.data is not None
