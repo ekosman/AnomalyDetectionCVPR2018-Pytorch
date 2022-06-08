@@ -20,4 +20,4 @@ jobs:
           pip install pylint
       - name: Analysing the code with pylint
         run: |
-          pylint --disable=import-error,missing-function-docstring,missing-class-docstring $(git ls-files '*.py')
+          pylint --disable=import-error,missing-function-docstring,missing-class-docstring,missing-module-docstring $(git ls-files '*.py')
