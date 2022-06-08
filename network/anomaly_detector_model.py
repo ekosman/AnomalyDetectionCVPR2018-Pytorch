@@ -64,7 +64,7 @@ class RegularizedLoss(torch.nn.Module):
     def __init__(
         self, model: nn.Module, original_objective: Callable, lambdas: float = 0.001
     ) -> None:
-        super(RegularizedLoss, self).__init__()
+        super().__init__()
         self.lambdas = lambdas
         self.model = model
         self.objective = original_objective
