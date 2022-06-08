@@ -18,7 +18,7 @@ from utils.utils import build_transforms, register_logger, get_torch_device
 
 
 def get_args() -> argparse.Namespace:
-    """ Reads command line args and returns the parser object the represent the specified arguments."""
+    """Reads command line args and returns the parser object the represent the specified arguments."""
 
     parser = argparse.ArgumentParser(description="Video Feature Extraction Parser")
 
@@ -81,8 +81,8 @@ def get_args() -> argparse.Namespace:
 def to_segments(
     data: Union[Tensor, np.ndarray], n_segments: int = 32
 ) -> List[np.array]:
-    """ These code is taken from:
-	https://github.com/rajanjitenpatel/C3D_feature_extraction/blob/b5894fa06d43aa62b3b64e85b07feb0853e7011a/extract_C3D_feature.py#L805
+    """These code is taken from:
+        https://github.com/rajanjitenpatel/C3D_feature_extraction/blob/b5894fa06d43aa62b3b64e85b07feb0853e7011a/extract_C3D_feature.py#L805
 
     Args:
         data (Union[Tensor, np.ndarray]): List of features of a certain video
@@ -249,7 +249,10 @@ def main():
 
                 _dir = path.join(args.save_dir, _dir)
                 features_writer.write(
-                    feature=outputs[i], video_name=vid_name, idx=clip_idx, dir=_dir,
+                    feature=outputs[i],
+                    video_name=vid_name,
+                    idx=clip_idx,
+                    dir=_dir,
                 )
 
     features_writer.dump()

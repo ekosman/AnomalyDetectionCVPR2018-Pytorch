@@ -16,7 +16,7 @@ from features_loader import FeaturesLoaderVal
 
 
 def get_args() -> argparse.Namespace:
-    """ Reads command line args and returns the parser object the represent the specified arguments."""
+    """Reads command line args and returns the parser object the represent the specified arguments."""
     parser = argparse.ArgumentParser(
         description="Video Anomaly Detection Evaluation Parser"
     )
@@ -99,7 +99,7 @@ if __name__ == "__main__":
     lw = 2
     roc_auc = auc(fpr, tpr)
     plt.plot(
-        fpr, tpr, color="darkorange", lw=lw, label="ROC curve (area = %0.2f)" % roc_auc
+        fpr, tpr, color="darkorange", lw=lw, label=f"ROC curve (area = {roc_auc:0.2f})"
     )
     plt.plot([0, 1], [0, 1], color="navy", lw=lw, linestyle="--")
     plt.xlim([0.0, 1.0])
@@ -111,4 +111,4 @@ if __name__ == "__main__":
     os.makedirs("graphs", exist_ok=True)
     plt.savefig(path.join("graphs", "roc_auc.png"))
     plt.close()
-    print("ROC curve (area = %0.2f)" % roc_auc)
+    print(f"ROC curve (area = {roc_auc:0.2f})")

@@ -49,7 +49,7 @@ class TorchModel(nn.Module):
     """
 
     def __init__(self, model) -> None:
-        super(TorchModel, self).__init__()
+        super().__init__()
         self.device = get_torch_device()
         self.iteration = 0
         self.model = model
@@ -140,7 +140,10 @@ class TorchModel(nn.Module):
             val_loss = None
             if eval_iter and evaluate_every and epoch % evaluate_every == 0:
                 logging.info(f"Evaluating after epoch {epoch}")
-                val_loss = self.evaluate(criterion=criterion, data_iter=eval_iter,)
+                val_loss = self.evaluate(
+                    criterion=criterion,
+                    data_iter=eval_iter,
+                )
 
             self.notify_callbacks("on_training_iteration_end", train_loss, val_loss)
 
@@ -215,7 +218,10 @@ class TorchModel(nn.Module):
             total_time += end_time - start_time
 
             self.notify_callbacks(
-                "on_epoch_step", self.iteration, iteration, loss.item(),
+                "on_epoch_step",
+                self.iteration,
+                iteration,
+                loss.item(),
             )
             self.iteration += 1
 

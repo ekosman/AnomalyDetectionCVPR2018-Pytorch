@@ -7,7 +7,7 @@ from typing import List, Tuple
 
 import numpy as np
 from torch import Tensor
-import torch.utils.data as data
+from torch.utils import data
 from torchvision.datasets.video_utils import VideoClips
 
 
@@ -20,7 +20,7 @@ class VideoIter(data.Dataset):
         video_transform=None,
         return_label=False,
     ) -> None:
-        super(VideoIter, self).__init__()
+        super().__init__()
         # video clip properties
         self.frames_stride = frame_stride
         self.total_clip_length_in_frames = clip_length * frame_stride
@@ -85,7 +85,7 @@ class VideoIter(data.Dataset):
     def _get_video_list(self, dataset_path: str) -> List[str]:
         assert os.path.exists(
             dataset_path
-        ), "VideoIter:: failed to locate: `{}'".format(dataset_path)
+        ), f"VideoIter:: failed to locate: `{dataset_path}'"
         vid_list = []
         for path, _, files in os.walk(dataset_path):
             for name in files:
@@ -106,7 +106,7 @@ class SingleVideoIter(VideoIter):
         video_transform=None,
         return_label=False,
     ) -> None:
-        super(SingleVideoIter, self).__init__(
+        super().__init__(
             clip_length, frame_stride, video_path, video_transform, return_label
         )
 

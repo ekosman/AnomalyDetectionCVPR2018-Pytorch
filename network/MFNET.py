@@ -5,7 +5,7 @@ import logging
 from collections import OrderedDict
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 
 class BN_AC_CONV3D(nn.Module):
@@ -104,7 +104,8 @@ class MFNET_3D(nn.Module):
     """original code: https://github.com/cypw/PyTorch-MFNet"""
 
     def __init__(
-        self, **_kwargs,
+        self,
+        **_kwargs,
     ):
         super().__init__()
 

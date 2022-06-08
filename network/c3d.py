@@ -1,8 +1,7 @@
 import itertools
 
 import torch
-import torch.nn as nn
-from torch import Tensor
+from torch import nn, Tensor
 
 
 class C3D(nn.Module):
@@ -11,7 +10,7 @@ class C3D(nn.Module):
     """
 
     def __init__(self, pretrained=None):
-        super(C3D, self).__init__()
+        super().__init__()
 
         self.pretrained = pretrained
 
