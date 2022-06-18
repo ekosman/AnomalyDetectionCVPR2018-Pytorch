@@ -11,8 +11,7 @@ from feature_extractor import read_features
 
 
 class FeaturesLoader:
-    """ Loads video features that are stored as text files
-    """
+    """Loads video features that are stored as text files"""
 
     def __init__(
         self,
@@ -31,7 +30,7 @@ class FeaturesLoader:
             iterations: How many iterations the loader should perform
         """
 
-        super(FeaturesLoader, self).__init__()
+        super().__init__()
         self._features_path = features_path
         self._feature_dim = feature_dim
         self._bucket_size = bucket_size
@@ -45,7 +44,7 @@ class FeaturesLoader:
         )
 
         self._iterations = iterations
-        self._features_cache = dict()
+        self._features_cache = {}
         self._i = 0
 
     def __len__(self) -> int:
@@ -71,8 +70,7 @@ class FeaturesLoader:
         return feature, label
 
     def get_features(self) -> Tensor:
-        """ Fetches a bucket sample from the dataset
-        """
+        """Fetches a bucket sample from the dataset"""
         normal_paths = np.random.choice(
             self.features_list_normal, size=self._bucket_size
         )
@@ -97,14 +95,15 @@ class FeaturesLoader:
     def _get_features_list(
         features_path: str, annotation_path: str
     ) -> Tuple[List[str], List[str]]:
-        """ Retrieves the paths of all feature files contained within the annotation file.
+        """Retrieves the paths of all feature files contained within the annotation file.
 
         Args:
             features_path: Path to the directory that contains feature text files
             annotation_path: Path to the annotation file
 
         Returns:
-            Tuple[List[str], List[str]]: Two list that contain the corresponding paths of normal and abnormal feature files
+            Tuple[List[str], List[str]]: Two list that contain the corresponding paths of normal and abnormal
+                feature files.
         """
         assert os.path.exists(features_path)
         features_list_normal = []
@@ -127,7 +126,7 @@ class FeaturesLoader:
 class FeaturesLoaderVal(data.Dataset):
     def __init__(self, features_path, feature_dim, annotation_path):
 
-        super(FeaturesLoaderVal, self).__init__()
+        super().__init__()
         self.features_path = features_path
         self.feature_dim = feature_dim
         # load video list
@@ -161,7 +160,7 @@ class FeaturesLoaderVal(data.Dataset):
     def _get_features_list(
         features_path: str, annotation_path: str
     ) -> List[Tuple[str, Tensor, int]]:
-        """ Retrieves the paths of all feature files contained within the annotation file.
+        """Retrieves the paths of all feature files contained within the annotation file.
 
         Args:
             features_path: Path to the directory that contains feature text files
