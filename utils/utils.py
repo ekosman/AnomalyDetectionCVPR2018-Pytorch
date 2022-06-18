@@ -8,6 +8,13 @@ from . import transforms_video
 
 
 def register_logger(log_file: str = None, stdout: bool = True) -> None:
+    """Register a logger.
+
+    Args:
+        log_file (str, optional): Path to the file where log should be written.
+            If `None`, log wouldn't be written to any file. Defaults to None.
+        stdout (bool, optional): If `True`, the log would be printed to stdout. Defaults to True.
+    """
     log = logging.getLogger()  # root logger
     for hdlr in log.handlers[:]:  # remove all old handlers
         log.removeHandler(hdlr)
@@ -27,6 +34,18 @@ def register_logger(log_file: str = None, stdout: bool = True) -> None:
 
 
 def build_transforms(mode: str = "c3d") -> transforms.Compose:
+    """Build transforms to use for training an anomaly detection model.
+
+    Args:
+        mode (str, optional): Mode for which transforms should be constructed.
+        Either c3d | i3d | mfnet | 3dResNet. Defaults to "c3d".
+
+    Raises:
+        NotImplementedError: The provided mode is not implemented.
+
+    Returns:
+        transforms.Compose
+    """
     if mode == "c3d":
         mean = [124 / 255, 117 / 255, 104 / 255]
         std = [1 / (0.0167 * 255)] * 3
