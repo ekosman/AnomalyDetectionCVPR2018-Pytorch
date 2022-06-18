@@ -1,9 +1,12 @@
+"""This module contains an implementation of anomaly detector for videos."""
 from typing import Callable
 import torch
 from torch import Tensor, nn
 
 
 class AnomalyDetector(nn.Module):
+    """Anomaly detection model for videos."""
+
     def __init__(self, input_dim=4096) -> None:
         super().__init__()
         self.fc1 = nn.Linear(input_dim, 512)
@@ -29,7 +32,16 @@ class AnomalyDetector(nn.Module):
         return x
 
 
-def custom_objective(y_pred: Tensor, y_true: Tensor):
+def custom_objective(y_pred: Tensor, y_true: Tensor) -> Tensor:
+    """Calculate loss function with regularization for anomaly detection.
+
+    Args:
+        y_pred (Tensor): A tensor containing the predictions of the model.
+        y_true (Tensor): A tensor containing the ground truth.
+
+    Returns:
+        Tensor: A single dimension tensor containing the calculated loss.
+    """
     # y_pred (batch_size, 32, 1)
     # y_true (batch_size)
     lambdas = 8e-5
@@ -61,6 +73,8 @@ def custom_objective(y_pred: Tensor, y_true: Tensor):
 
 
 class RegularizedLoss(torch.nn.Module):
+    """Regularized a loss function."""
+
     def __init__(
         self, model: nn.Module, original_objective: Callable, lambdas: float = 0.001
     ) -> None:

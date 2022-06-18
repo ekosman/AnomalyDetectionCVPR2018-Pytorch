@@ -1,21 +1,19 @@
-"""
-Written by Eitan Kosman
-"""
+"""Written by Eitan Kosman"""
 
 import logging
 import os
 import time
-from typing import Iterable
 
 from torch.optim import Optimizer
 import torch
-from torch import Tensor, device, nn
+from torch import Tensor, nn
 from torch.utils.data import DataLoader
 
 from utils.callbacks import Callback
+from utils.types import Device
 
 
-def get_torch_device() -> device:
+def get_torch_device() -> Device:
     """
     Retrieves the device to run torch models, with preferability to GPU (denoted as cuda by torch)
     Returns: Device to run the models
@@ -25,7 +23,8 @@ def get_torch_device() -> device:
 
 def load_model(model_path: str) -> nn.Module:
     """
-    Loads a Pytorch model
+    Loads a Pytorch model.
+
     Args:
         model_path: path to the model to load
 
@@ -38,15 +37,8 @@ def load_model(model_path: str) -> nn.Module:
     return model
 
 
-def get_loader_shape(loader: Iterable):
-    assert loader
-    return loader[0].shape
-
-
 class TorchModel(nn.Module):
-    """
-    Wrapper class for a torch model to make it comfortable to train and load models
-    """
+    """Wrapper class for a torch model to make it comfortable to train and load models."""
 
     def __init__(self, model) -> None:
         super().__init__()
@@ -88,6 +80,11 @@ class TorchModel(nn.Module):
         return cls(load_model(model_path))
 
     def notify_callbacks(self, notification, *args, **kwargs) -> None:
+        """Calls all callbacks registered with this class.
+
+        Args:
+            notification: The type of notification to be called.
+        """
         for callback in self.callbacks:
             try:
                 method = getattr(callback, notification)
@@ -140,10 +137,7 @@ class TorchModel(nn.Module):
             val_loss = None
             if eval_iter and evaluate_every and epoch % evaluate_every == 0:
                 logging.info(f"Evaluating after epoch {epoch}")
-                val_loss = self.evaluate(
-                    criterion=criterion,
-                    data_iter=eval_iter,
-                )
+                val_loss = self.evaluate(criterion=criterion, data_iter=eval_iter,)
 
             self.notify_callbacks("on_training_iteration_end", train_loss, val_loss)
 
@@ -192,6 +186,17 @@ class TorchModel(nn.Module):
         data_iter: DataLoader,
         epoch: int,
     ) -> float:
+        """Perform a whole epoch.
+
+        Args:
+            criterion (nn.Module): Loss function to be used.
+            optimizer (Optimizer): Optimizer to use for minimizing the loss function.
+            data_iter (DataLoader): Loader for data samples used for training the model.
+            epoch (int): The epoch number.
+
+        Returns:
+            float: Average training loss calculated during the epoch.
+        """
         total_loss = 0
         total_time = 0
         self.train()
@@ -218,10 +223,7 @@ class TorchModel(nn.Module):
             total_time += end_time - start_time
 
             self.notify_callbacks(
-                "on_epoch_step",
-                self.iteration,
-                iteration,
-                loss.item(),
+                "on_epoch_step", self.iteration, iteration, loss.item(),
             )
             self.iteration += 1
 

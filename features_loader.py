@@ -124,6 +124,8 @@ class FeaturesLoader:
 
 
 class FeaturesLoaderVal(data.Dataset):
+    """Loader for video features for validation phase."""
+
     def __init__(self, features_path, feature_dim, annotation_path):
 
         super().__init__()
@@ -152,6 +154,14 @@ class FeaturesLoaderVal(data.Dataset):
         return data
 
     def get_feature(self, index: int):
+        """Fetch feature that matches given index in the dataset.
+
+        Args:
+            index (int): Index of the feature to fetch.
+
+        Returns:
+            _type_: _description_
+        """
         feature_subpath, start_end_couples, length = self.features_list[index]
         features = read_features(f"{feature_subpath}.txt", self.feature_dim)
         return features, start_end_couples, length
@@ -167,7 +177,8 @@ class FeaturesLoaderVal(data.Dataset):
             annotation_path: Path to the annotation file
 
         Returns:
-            List[Tuple[str, Tensor, int]]: A list of tuples that describe each video and the temporal annotations of anomalies in the videos
+            List[Tuple[str, Tensor, int]]: A list of tuples that describe each video and the temporal annotations
+                of anomalies in the videos
         """
         assert os.path.exists(features_path)
         features_list = []
