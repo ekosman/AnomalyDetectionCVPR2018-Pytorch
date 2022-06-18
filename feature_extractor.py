@@ -13,8 +13,9 @@ from torch.backends import cudnn
 from torch.utils.data import DataLoader
 
 from data_loader import VideoIter
+from network.TorchUtils import get_torch_device
 from utils.load_model import load_feature_extractor
-from utils.utils import build_transforms, register_logger, get_torch_device
+from utils.utils import build_transforms, register_logger
 
 
 def get_args() -> argparse.Namespace:
@@ -82,7 +83,7 @@ def to_segments(
     data: Union[Tensor, np.ndarray], n_segments: int = 32
 ) -> List[np.array]:
     """These code is taken from:
-        https://github.com/rajanjitenpatel/C3D_feature_extraction/blob/b5894fa06d43aa62b3b64e85b07feb0853e7011a/extract_C3D_feature.py#L805
+        # https://github.com/rajanjitenpatel/C3D_feature_extraction/blob/b5894fa06d43aa62b3b64e85b07feb0853e7011a/extract_C3D_feature.py#L805
 
     Args:
         data (Union[Tensor, np.ndarray]): List of features of a certain video
@@ -103,7 +104,8 @@ def to_segments(
             temp_vect = data[ss:ee, :].mean(axis=0)
 
         temp_vect = temp_vect / np.linalg.norm(temp_vect)
-        if temp_vect:
+
+        if np.linalg.norm(temp_vect) != 0:
             Segments_Features.append(temp_vect.tolist())
 
     return Segments_Features

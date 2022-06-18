@@ -8,14 +8,14 @@ from torch.backends import cudnn
 from torch.utils.tensorboard import SummaryWriter
 
 from features_loader import FeaturesLoader
-from network.TorchUtils import TorchModel
+from network.TorchUtils import TorchModel, get_torch_device
 from network.anomaly_detector_model import (
     AnomalyDetector,
     custom_objective,
     RegularizedLoss,
 )
 from utils.callbacks import DefaultModelCallback, TensorBoardCallback
-from utils.utils import register_logger, get_torch_device
+from utils.utils import register_logger
 
 
 def get_args() -> argparse.Namespace:

@@ -1,17 +1,19 @@
 import argparse
 import logging
 import sys
-from os import path
-from typing import List, Tuple
+from typing import List
 
 import numpy as np
 import torch
 from torch import Tensor, nn
-from PyQt5.QtCore import Qt, QUrl
-from PyQt5.QtGui import QIcon, QPalette
-from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
-from PyQt5.QtMultimediaWidgets import QVideoWidget
-from PyQt5.QtWidgets import (
+from PyQt5.QtCore import Qt, QUrl  # pylint: disable=no-name-in-module
+from PyQt5.QtGui import QIcon, QPalette  # pylint: disable=no-name-in-module
+from PyQt5.QtMultimedia import (  # pylint: disable=no-name-in-module
+    QMediaPlayer,
+    QMediaContent,
+)  # pylint: disable=no-name-in-module
+from PyQt5.QtMultimediaWidgets import QVideoWidget  # pylint: disable=no-name-in-module
+from PyQt5.QtWidgets import (  # pylint: disable=no-name-in-module
     QApplication,
     QWidget,
     QPushButton,
@@ -29,8 +31,7 @@ from tqdm import tqdm
 
 from data_loader import SingleVideoIter
 from feature_extractor import to_segments
-from network.TorchUtils import TorchModel
-from network.c3d import C3D
+from utils.load_model import load_models
 from utils.utils import build_transforms
 
 
@@ -59,42 +60,6 @@ def get_args() -> argparse.Namespace:
     )
 
     return parser.parse_args()
-
-
-def load_models(
-    feature_extractor_path: str,
-    ad_model_path: str,
-    features_method: str = "c3d",
-    device: str = "cuda",
-) -> Tuple[nn.Module, nn.Module]:
-    """
-    Loads both feature extractor and anomaly detector from the given paths
-    :param feature_extractor_path: path of the features extractor weights to load
-    :param ad_model_path: path of the anomaly detector weights to load
-    :param features_method: name of the model to use for features extraction
-    :param device: device to use for the models
-    :return: anomaly_detector, feature_extractor
-    """
-    assert path.exists(feature_extractor_path)
-    assert path.exists(ad_model_path)
-
-    feature_extractor, anomaly_detector = None, None
-
-    if features_method == "c3d":
-        logging.info(f"Loading feature extractor from {feature_extractor_path}")
-        feature_extractor = C3D(pretrained=feature_extractor_path)
-
-    else:
-        raise NotImplementedError(
-            f"Features extraction method {features_method} not implemented"
-        )
-
-    feature_extractor = feature_extractor.to(device).eval()
-
-    logging.info(f"Loading anomaly detector from {ad_model_path}")
-    anomaly_detector = TorchModel.load_model(model_path=ad_model_path).to(device).eval()
-
-    return anomaly_detector, feature_extractor
 
 
 def features_extraction(
@@ -153,7 +118,7 @@ def features_extraction(
     return to_segments(features, n_segments)
 
 
-def ad_prediction(model: nn.Module, features: nn.Tensor, device="cuda") -> Tensor:
+def ad_prediction(model: nn.Module, features: Tensor, device="cuda") -> Tensor:
     """
     Creates frediction for the given feature vectors
     :param model: model to use for anomaly detection
@@ -171,7 +136,7 @@ def ad_prediction(model: nn.Module, features: nn.Tensor, device="cuda") -> Tenso
 
 class MplCanvas(FigureCanvasQTAgg):
     # pylint: disable=unused-argument
-    def __init__(self, parent=None, width=5, height=4, dpi=100):
+    def __init__(self, parent=None, width=5, height=4, dpi=100) -> None:
         self.fig = Figure(figsize=(width, height), dpi=dpi)
         self.axes = self.fig.add_subplot(111)
         super().__init__(self.fig)
@@ -184,7 +149,7 @@ class Window(QWidget):
     https://codeloop.org/python-how-to-create-media-player-in-pyqt5/
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -279,7 +244,9 @@ class Window(QWidget):
             )
 
             self.y_pred = ad_prediction(
-                model=anomaly_detector, features=features, device=self.device,
+                model=anomaly_detector,
+                features=features,
+                device=self.device,
             )
 
             self.label.setText("Done! Click the Play button")

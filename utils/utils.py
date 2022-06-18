@@ -1,15 +1,17 @@
 import logging
 import sys
+from typing import Tuple
+from os import path
 
 import torch
-from torch import device  # pylint: disable=no-name-in-module
+from torch import device, nn  # pylint: disable=no-name-in-module
 from torchvision.transforms import transforms
 
+from network.TorchUtils import TorchModel
+from network.c3d import C3D
+from utils.load_model import load_anomaly_detector
+
 from . import transforms_video
-
-
-def get_torch_device() -> device:
-    return device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def register_logger(log_file: str = None, stdout: bool = True) -> None:
