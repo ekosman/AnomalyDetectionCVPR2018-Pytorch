@@ -78,6 +78,8 @@ Arguments:
 
 The GUI lets you load a video and run the Anomaly Detection code (including feature extraction) and output a video with a graph of the Anomaly Detection prediction below.
 
+**Note**: The feature extractor and the anomaly detection model must match. Make sure you are using the anomaly detector that was training with the corresponding features.
+
 ### On-line (via webcam)
 Arguments:
 * feature_extractor - path to the 3D model to use for feature extraction
@@ -89,6 +91,7 @@ Arguments:
 
 The GUI lets you load a video and run the Anomaly Detection code (including feature extraction) and output a video with a graph of the Anomaly Detection prediction below.
 
+**Note**: The feature extractor and the anomaly detection model must match. Make sure you are using the anomaly detector that was training with the corresponding features.
 
 *Contrbuted by Peter Overbury of Sussex Universty IISP Group
 
