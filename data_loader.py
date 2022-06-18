@@ -120,7 +120,7 @@ class VideoIter(data.Dataset):
 
 
 class SingleVideoIter(VideoIter):
-    """A class that implements a loader for a single video."""
+    """Loader for a single video."""
 
     def __init__(
         self,
