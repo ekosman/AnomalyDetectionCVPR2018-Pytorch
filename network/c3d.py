@@ -110,10 +110,9 @@ class C3D(nn.Module):
         self.load_state_dict(s_dict)
 
     def __init_weight(self):
+        """Initialize weights of the model."""
         for m in self.modules():
             if isinstance(m, nn.Conv3d):
-                # n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
-                # m.weight.data.normal_(0, math.sqrt(2. / n))
                 torch.nn.init.kaiming_normal_(m.weight)
             elif isinstance(m, nn.BatchNorm3d):
                 m.weight.data.fill_(1)
