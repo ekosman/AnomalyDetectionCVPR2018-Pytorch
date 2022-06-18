@@ -124,6 +124,8 @@ class FeaturesLoader:
 
 
 class FeaturesLoaderVal(data.Dataset):
+    """Loader for video features for validation phase."""
+
     def __init__(self, features_path, feature_dim, annotation_path):
 
         super().__init__()
@@ -152,6 +154,14 @@ class FeaturesLoaderVal(data.Dataset):
         return data
 
     def get_feature(self, index: int):
+        """Fetch feature that matches given index in the dataset.
+
+        Args:
+            index (int): Index of the feature to fetch.
+
+        Returns:
+            _type_: _description_
+        """
         feature_subpath, start_end_couples, length = self.features_list[index]
         features = read_features(f"{feature_subpath}.txt", self.feature_dim)
         return features, start_end_couples, length
