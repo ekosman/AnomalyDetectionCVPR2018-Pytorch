@@ -3,8 +3,7 @@
 import argparse
 import logging
 import sys
-from os import path
-from typing import List, Tuple
+from typing import List
 import cv2
 
 import numpy as np
@@ -12,10 +11,13 @@ from numpy.lib.function_base import copy
 import torch
 from torch import Tensor, nn
 from PyQt5 import QtGui
-from PyQt5.QtCore import QThread, Qt, pyqtSignal
-from PyQt5.QtGui import QIcon, QPalette, QPixmap
-from PyQt5.QtMultimedia import QMediaPlayer, QCameraInfo
-from PyQt5.QtWidgets import (
+from PyQt5.QtCore import QThread, Qt, pyqtSignal  # pylint: disable=no-name-in-module
+from PyQt5.QtGui import QIcon, QPalette, QPixmap  # pylint: disable=no-name-in-module
+from PyQt5.QtMultimedia import (  # pylint: disable=no-name-in-module
+    QMediaPlayer,
+    QCameraInfo,
+)  # pylint: disable=no-name-in-module
+from PyQt5.QtWidgets import (  # pylint: disable=no-name-in-module
     QApplication,
     QLabel,
     QWidget,
@@ -28,8 +30,8 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 
 from feature_extractor import to_segments
-from network.TorchUtils import TorchModel
-from network.c3d import C3D
+from network.TorchUtils import get_torch_device
+from utils.load_model import load_models
 from utils.types import Device
 from utils.utils import build_transforms
 
@@ -45,7 +47,7 @@ def get_args() -> argparse.Namespace:
     parser.add_argument(
         "--feature_method",
         default="c3d",
-        choices=["c3d", "mfnet"],
+        choices=["c3d", "mfnet", "r3d101", "r3d101"],
         help="method to use for feature extraction",
     )
     parser.add_argument(
@@ -59,39 +61,6 @@ def get_args() -> argparse.Namespace:
     )
 
     return parser.parse_args()
-
-
-def load_models(
-    feature_extractor_path, ad_model_path, features_method="c3d", device="cuda"
-) -> Tuple[nn.Module, nn.Module]:
-    """
-    Loads both feature extractor and anomaly detector from the given paths
-    :param feature_extractor_path: path of the features extractor weights to load
-    :param ad_model_path: path of the anomaly detector weights to load
-    :param features_method: name of the model to use for features extraction
-    :param device: device to use for the models
-    :return: anomaly_detector, feature_extractor
-    """
-    assert path.exists(feature_extractor_path)
-    assert path.exists(ad_model_path)
-
-    feature_extractor, anomaly_detector = None, None
-
-    if features_method == "c3d":
-        logging.info(f"Loading feature extractor from {feature_extractor_path}")
-        feature_extractor = C3D(pretrained=feature_extractor_path)
-
-    else:
-        raise NotImplementedError(
-            f"Features extraction method {features_method} not implemented"
-        )
-
-    feature_extractor = feature_extractor.to(device).eval()
-
-    logging.info(f"Loading anomaly detector from {ad_model_path}")
-    anomaly_detector = TorchModel.load_model(model_path=ad_model_path).to(device).eval()
-
-    return anomaly_detector, feature_extractor
 
 
 def features_extraction(
@@ -265,7 +234,9 @@ class Window(QWidget):
             )
 
             new_pred = ad_prediction(
-                model=anomaly_detector, features=features, device=self.device,
+                model=anomaly_detector,
+                features=features,
+                device=self.device,
             )[0]
             self.y_pred.append(new_pred)
             del self.y_pred[0]
@@ -329,7 +300,7 @@ if __name__ == "__main__":
         args.feature_extractor,
         args.ad_model,
         features_method=args.feature_method,
-        device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
+        device=get_torch_device(),
     )
 
     transforms = build_transforms(mode=args.feature_method)

@@ -15,7 +15,14 @@ from utils.types import Device
 def load_feature_extractor(
     features_method: str, feature_extractor_path: str, device: Union[torch.device, str]
 ) -> nn.Module:
-    assert path.exists(feature_extractor_path)
+    if not path.exists(feature_extractor_path):
+        raise FileNotFoundError(
+            f"Couldn't find feature extractor {feature_extractor_path}.\n"
+            + r"If you are using resnet, download it first from:\n"
+            + r"r3d101: https://drive.google.com/file/d/1kQAvOhtL-sGadblfd3NmDirXq8vYQPvf/view?usp=sharing"
+            + "\n"
+            + r"r3d152: https://drive.google.com/uc?id=17wdy_DS9UY37J9XTV5XCLqxOFgXiv3ZK&export=download"
+        )
     logging.info(f"Loading feature extractor from {feature_extractor_path}")
 
     model = None
@@ -24,8 +31,14 @@ def load_feature_extractor(
     elif features_method == "mfnet":
         model = MFNET_3D()
         model.load_state(state_dict=feature_extractor_path)
-    elif features_method == "3dResNet":
+    elif features_method == "r3d101":
         model = generate_model(model_depth=101)
+        param_dict = torch.load(feature_extractor_path)["state_dict"]
+        param_dict.pop("fc.weight")
+        param_dict.pop("fc.bias")
+        model.load_state_dict(param_dict)
+    elif features_method == "r3d101":
+        model = generate_model(model_depth=152)
         param_dict = torch.load(feature_extractor_path)["state_dict"]
         param_dict.pop("fc.weight")
         param_dict.pop("fc.bias")
@@ -53,13 +66,13 @@ def load_models(
     device: str = "cuda",
 ) -> Tuple[nn.Module, nn.Module]:
     """
-	Loads both feature extractor and anomaly detector from the given paths
-	:param feature_extractor_path: path of the features extractor weights to load
-	:param ad_model_path: path of the anomaly detector weights to load
-	:param features_method: name of the model to use for features extraction
-	:param device: device to use for the models
-	:return: anomaly_detector, feature_extractor
-	"""
+    Loads both feature extractor and anomaly detector from the given paths
+    :param feature_extractor_path: path of the features extractor weights to load
+    :param ad_model_path: path of the anomaly detector weights to load
+    :param features_method: name of the model to use for features extraction
+    :param device: device to use for the models
+    :return: anomaly_detector, feature_extractor
+    """
     feature_extractor = load_feature_extractor(
         features_method, feature_extractor_path, device
     )
