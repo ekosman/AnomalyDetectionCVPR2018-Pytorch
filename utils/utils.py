@@ -1,15 +1,8 @@
+"""This module contains utilities for anomaly detection."""
 import logging
 import sys
-from typing import Tuple
-from os import path
 
-import torch
-from torch import device, nn  # pylint: disable=no-name-in-module
 from torchvision.transforms import transforms
-
-from network.TorchUtils import TorchModel
-from network.c3d import C3D
-from utils.load_model import load_anomaly_detector
 
 from . import transforms_video
 

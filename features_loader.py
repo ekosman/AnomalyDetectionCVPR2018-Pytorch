@@ -167,7 +167,8 @@ class FeaturesLoaderVal(data.Dataset):
             annotation_path: Path to the annotation file
 
         Returns:
-            List[Tuple[str, Tensor, int]]: A list of tuples that describe each video and the temporal annotations of anomalies in the videos
+            List[Tuple[str, Tensor, int]]: A list of tuples that describe each video and the temporal annotations
+                of anomalies in the videos
         """
         assert os.path.exists(features_path)
         features_list = []
