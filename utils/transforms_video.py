@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-
+"""This module contains transforms for videos."""
 import numbers
 import random
 
