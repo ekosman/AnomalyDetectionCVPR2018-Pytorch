@@ -61,7 +61,7 @@ Arguments:
 
 ```python generate_ROC.py --features_path "path-to-dataset" --annotation_path "path-to-annos" --model_path "path-to-model"```
 
-Using my pre-trained model after 40K iterations, I achieve this following performance on the test-set. I'm aware that the current model doesn't achieve AUC of 0.75 as reported in the original paper. This can be caused by different weights of the C3D model.
+I achieve this following performance on the test-set. I'm aware that the current model achieves AUC of 0.8 which is better than the original paper. This can be caused by different weights of the C3D model or usage of a different feature extractor.
 
 <img src=graphs/roc_auc.png width="600"/>
 
