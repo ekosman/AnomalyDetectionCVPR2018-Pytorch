@@ -336,4 +336,3 @@ dependencies:
     - torch==1.6.0
     - torchvision==0.7.0
     - typing-extensions==3.7.4.3
-prefix: /home/eitan.k/miniconda3/envs/adCVPR18
