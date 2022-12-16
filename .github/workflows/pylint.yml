@@ -20,4 +20,4 @@ jobs:
           pip install pylint
       - name: Analysing the code with pylint
         run: |
-          pylint --disable=import-error --fail-under=9.0 $(git ls-files '*.py')
+          pylint --disable=import-error --fail-under=9.5 $(git ls-files '*.py')
