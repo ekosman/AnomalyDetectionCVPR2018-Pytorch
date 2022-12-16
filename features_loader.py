@@ -80,9 +80,7 @@ class FeaturesLoader:
         all_paths = np.concatenate([normal_paths, abnormal_paths])
         features = torch.stack(
             [
-                read_features(
-                    f"{feature_subpath}.txt", self._feature_dim, self._features_cache
-                )
+                read_features(f"{feature_subpath}.txt", self._features_cache)
                 for feature_subpath in all_paths
             ]
         )
@@ -163,7 +161,7 @@ class FeaturesLoaderVal(data.Dataset):
             _type_: _description_
         """
         feature_subpath, start_end_couples, length = self.features_list[index]
-        features = read_features(f"{feature_subpath}.txt", self.feature_dim)
+        features = read_features(f"{feature_subpath}.txt")
         return features, start_end_couples, length
 
     @staticmethod

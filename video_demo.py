@@ -3,6 +3,7 @@ import logging
 import sys
 from typing import List
 
+from os import path
 import numpy as np
 import torch
 from torch import Tensor, nn
@@ -24,13 +25,14 @@ from PyQt5.QtWidgets import (  # pylint: disable=no-name-in-module
     QFileDialog,
     QProgressBar,
     QGridLayout,
+    QMessageBox,
 )
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 from tqdm import tqdm
 
 from data_loader import SingleVideoIter
-from feature_extractor import to_segments
+from feature_extractor import read_features, to_segments
 from utils.load_model import load_models
 from utils.utils import build_transforms
 
@@ -227,12 +229,31 @@ class Window(QWidget):
 
         self.mediaPlayer.durationChanged.connect(self.duration_changed)
 
-    def open_file(self):
+    def open_file(self) -> None:
         filename, _ = QFileDialog.getOpenFileName(self, "Open Video")
-        print(filename)
-        if filename != "":
-            self.mediaPlayer.setMedia(QMediaContent(QUrl.fromLocalFile(filename)))
-            self.playBtn.setEnabled(True)
+
+        if filename == "":
+            return
+
+        feature_load_message_box = QMessageBox()
+        feature_load_message_box.setIcon(QMessageBox.Question)
+        feature_load_message_box.setText(
+            "Extract features from the chosen video file or load from file?"
+        )
+        # feature_load_message_box.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        feature_load_message_box.addButton(
+            "Extract features", feature_load_message_box.ActionRole
+        )
+        feature_load_message_box.addButton(
+            "Load features from file", feature_load_message_box.ActionRole
+        )
+        feature_load_message_box.buttonClicked.connect(self._features_msgbtn)
+        retval = feature_load_message_box.exec_()
+
+        if not path.exists(filename):
+            raise FileNotFoundError("The chosen file does not exist.")
+
+        if self.feature_source == "Extract features":
             self.label.setText("Extracting features...")
 
             features = features_extraction(
@@ -243,13 +264,22 @@ class Window(QWidget):
                 progress_bar=self.pbar,
             )
 
-            self.y_pred = ad_prediction(
-                model=anomaly_detector,
-                features=features,
-                device=self.device,
-            )
+        elif self.feature_source == "Load features from file":
+            f_filename, _ = QFileDialog.getOpenFileName(self, "Open Features File")
+            features = read_features(file_path=f_filename)
 
-            self.label.setText("Done! Click the Play button")
+        self.y_pred = ad_prediction(
+            model=anomaly_detector,
+            features=features,
+            device=self.device,
+        )
+
+        self.mediaPlayer.setMedia(QMediaContent(QUrl.fromLocalFile(filename)))
+        self.playBtn.setEnabled(True)
+        self.label.setText("Done! Click the Play button")
+
+    def _features_msgbtn(self, i) -> None:
+        self.feature_source = i.text()
 
     def play_video(self):
         if self.mediaPlayer.state() == QMediaPlayer.PlayingState:

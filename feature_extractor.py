@@ -191,13 +191,12 @@ class FeaturesWriter:
         self.store(feature, idx)
 
 
-def read_features(file_path, feature_dim: int, cache: Dict = None) -> np.ndarray:
+def read_features(file_path, cache: Dict = None) -> np.ndarray:
     """Reads features from file.
 
     Args:
         file_path (_type_): Path to a text file containing features. Each line should contain a feature
             for a single video segment.
-        feature_dim (int): The feature dimension. I.e, the number of elements in each line of the file.
         cache (Dict, optional): A cache that stores features that were already loaded.
             If `None`, caching is disabled.Defaults to None.
 
@@ -216,9 +215,7 @@ def read_features(file_path, feature_dim: int, cache: Dict = None) -> np.ndarray
     features = None
     with open(file_path, "r") as fp:
         data = fp.read().splitlines(keepends=False)
-        features = np.zeros((len(data), feature_dim))
-        for i, line in enumerate(data):
-            features[i, :] = [float(x) for x in line.split(" ")]
+        features = np.stack([line.split(" ") for line in data]).astype(np.float)
 
     features = torch.from_numpy(features).float()
     if cache is not None:
@@ -295,7 +292,10 @@ if __name__ == "__main__":
 
                 _dir = path.join(args.save_dir, _dir)
                 features_writer.write(
-                    feature=outputs[i], video_name=vid_name, idx=clip_idx, dir=_dir,
+                    feature=outputs[i],
+                    video_name=vid_name,
+                    idx=clip_idx,
+                    dir=_dir,
                 )
 
     features_writer.dump()
