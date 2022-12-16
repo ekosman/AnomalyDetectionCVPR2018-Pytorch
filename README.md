@@ -12,10 +12,12 @@ In this section, I list the future improvements I intend to add to this reposito
 * AUC is not exactly as reported in the paper (0.70 vs 0.75) - might be affected by the weights of C3D
 
 ## Install Anaconda Environment
-*Option 1:
+* Option 1:
+
 ```./install.sh```
 
 * Option 2:
+
 ```conda create --name adCVPR18 --file environment.yml -c defaults -c pytorch -c conda-forge -y```
 
 ```conda activate adCVPR18```
