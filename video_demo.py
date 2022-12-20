@@ -248,7 +248,7 @@ class Window(QWidget):
             "Load features from file", feature_load_message_box.ActionRole
         )
         feature_load_message_box.buttonClicked.connect(self._features_msgbtn)
-        retval = feature_load_message_box.exec_()
+        feature_load_message_box.exec_()
 
         if not path.exists(filename):
             raise FileNotFoundError("The chosen file does not exist.")
