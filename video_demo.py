@@ -240,7 +240,7 @@ class Window(QWidget):
         feature_load_message_box.setText(
             "Extract features from the chosen video file or load from file?"
         )
-        # feature_load_message_box.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        
         feature_load_message_box.addButton(
             "Extract features", feature_load_message_box.ActionRole
         )
