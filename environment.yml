@@ -3,13 +3,12 @@ pylint
 black
 typing
 matplotlib
+torch
 torchvision
 pandas
 pylint
-click
 tqdm
 yaml
 scipy
-numba
 scikit-learn
 av
