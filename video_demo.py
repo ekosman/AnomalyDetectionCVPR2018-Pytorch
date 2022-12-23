@@ -36,6 +36,8 @@ from feature_extractor import read_features, to_segments
 from utils.load_model import load_models
 from utils.utils import build_transforms
 
+APP_NAME = "Anomaly Media Player"
+
 
 def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Video Demo For Anomaly Detection")
@@ -156,7 +158,7 @@ class Window(QWidget):
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        self.setWindowTitle("Anomaly Media Player")
+        self.setWindowTitle(APP_NAME)
         self.setGeometry(350, 100, 700, 500)
         self.setWindowIcon(QIcon("player.png"))
 
@@ -240,6 +242,7 @@ class Window(QWidget):
         feature_load_message_box.setText(
             "Extract features from the chosen video file or load from file?"
         )
+        feature_load_message_box.setWindowTitle(APP_NAME)
         # feature_load_message_box.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
         feature_load_message_box.addButton(
             "Extract features", feature_load_message_box.ActionRole
