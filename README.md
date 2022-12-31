@@ -17,8 +17,7 @@ In this section, I list the future improvements I intend to add to this reposito
 
 ```conda activate adCVPR18```
 
-## 
-C3D Weights
+## C3D Weights
 I couldn't upload here the weights for the C3D model because the file is too big, but it can be found here:
 https://github.com/DavideA/c3d-pytorch
 
