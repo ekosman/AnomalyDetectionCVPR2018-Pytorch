@@ -110,3 +110,9 @@ The GUI lets you load a video and run the Anomaly Detection code (including feat
 Q: video_demo doesn't show videos
 A: Downlaod and install LAVFilters: http://forum.doom9.org/showthread.php?t=156191
 ```
+
+2.
+```
+Q: What is the meaning of the second column of Train_annotations.txt?
+A: Length of the video in frames. Note that it has not effect on training. It exists because these are the original annotations supplied by the authors.
+```
