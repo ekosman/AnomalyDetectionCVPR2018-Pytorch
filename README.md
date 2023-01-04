@@ -113,6 +113,6 @@ A: Downlaod and install LAVFilters: http://forum.doom9.org/showthread.php?t=1561
 
 2.
 ```
-Q: What is the meaning of the second column of Train_annotations.txt?
+Q: What is the meaning of the second column of Train_Annotations.txt?
 A: Length of the video in frames. Note that it has not effect on training. It exists because these are the original annotations supplied by the authors.
 ```
