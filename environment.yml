@@ -3,7 +3,7 @@ pylint
 black
 typing
 matplotlib
-torch
+pytorch
 torchvision
 pandas
 pylint
@@ -12,3 +12,4 @@ yaml
 scipy
 scikit-learn
 av
+opencv
