@@ -1,3 +1,8 @@
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/ekosman/AnomalyDetectionCVPR2018-Pytorch/main.svg)](https://results.pre-commit.ci/latest/github/ekosman/AnomalyDetectionCVPR2018-Pytorch/main)
+[![Lint Status](https://github.com/pycqa/isort/workflows/Lint/badge.svg?branch=develop)](https://github.com/pycqa/isort/actions?query=workflow%3ALint)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
+
 # AnomalyDetectionCVPR2018-Pytorch
 Pytorch version of - https://github.com/WaqasSultani/AnomalyDetectionCVPR2018
 
@@ -13,7 +18,10 @@ In this section, I list the future improvements I intend to add to this reposito
 
 ## Install Anaconda Environment
 
-```conda create --name adCVPR18 --file environment.yml -c defaults -c pytorch -c conda-forge -y```
+```
+conda create --name adCVPR18 --file environment.yml -c defaults -c pytorch -c conda-forge -y
+pre-commit install
+```
 
 ```conda activate adCVPR18```
 

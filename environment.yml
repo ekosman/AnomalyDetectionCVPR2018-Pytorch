@@ -13,3 +13,4 @@ scipy
 scikit-learn
 av
 opencv
+pre-commit

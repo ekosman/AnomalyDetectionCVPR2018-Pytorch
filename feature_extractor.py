@@ -1,8 +1,8 @@
-""""This module contains a training procedure for video feature extraction."""
+"""This module contains a training procedure for video feature extraction."""
 import argparse
 import logging
 import os
-from os import path, mkdir
+from os import mkdir, path
 from typing import Dict, List, Tuple, Union
 
 import numpy as np

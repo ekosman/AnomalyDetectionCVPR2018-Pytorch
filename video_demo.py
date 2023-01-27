@@ -1,34 +1,24 @@
 import argparse
 import logging
 import sys
+from os import path
 from typing import List
 
-from os import path
 import numpy as np
 import torch
-from torch import Tensor, nn
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
+from matplotlib.figure import Figure
 from PyQt5.QtCore import Qt, QUrl  # pylint: disable=no-name-in-module
 from PyQt5.QtGui import QIcon, QPalette  # pylint: disable=no-name-in-module
 from PyQt5.QtMultimedia import (  # pylint: disable=no-name-in-module
-    QMediaPlayer,
-    QMediaContent,
-)  # pylint: disable=no-name-in-module
-from PyQt5.QtMultimediaWidgets import QVideoWidget  # pylint: disable=no-name-in-module
-from PyQt5.QtWidgets import (  # pylint: disable=no-name-in-module
-    QApplication,
-    QWidget,
-    QPushButton,
-    QLabel,
-    QSlider,
-    QStyle,
-    QSizePolicy,
-    QFileDialog,
-    QProgressBar,
-    QGridLayout,
-    QMessageBox,
-)
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
-from matplotlib.figure import Figure
+    QMediaContent, QMediaPlayer)
+from PyQt5.QtMultimediaWidgets import \
+    QVideoWidget  # pylint: disable=no-name-in-module
+from PyQt5.QtWidgets import QApplication  # pylint: disable=no-name-in-module
+from PyQt5.QtWidgets import (QFileDialog, QGridLayout, QLabel, QMessageBox,
+                             QProgressBar, QPushButton, QSizePolicy, QSlider,
+                             QStyle, QWidget)
+from torch import Tensor, nn
 from tqdm import tqdm
 
 from data_loader import SingleVideoIter

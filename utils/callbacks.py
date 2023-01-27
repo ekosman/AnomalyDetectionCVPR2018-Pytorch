@@ -1,9 +1,10 @@
 """This module contains callbacks to be used along with `TorchModel`."""
+import datetime
 import logging
 import os
 import time
 from abc import ABC, abstractmethod
-import datetime
+
 import matplotlib.pyplot as plt
 
 

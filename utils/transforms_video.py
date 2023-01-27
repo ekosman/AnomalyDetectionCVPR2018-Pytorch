@@ -3,11 +3,9 @@ import numbers
 import random
 
 import numpy as np
-
 from torchvision.transforms import RandomResizedCrop
 
 from . import functional_video as F
-
 
 __all__ = [
     "RandomResizedCropVideo",
@@ -29,7 +27,10 @@ class ResizeVideo:
 
 class RandomResizedCropVideo(RandomResizedCrop):
     def __init__(
-        self, size, crop, interpolation_mode="bilinear",
+        self,
+        size,
+        crop,
+        interpolation_mode="bilinear",
     ):
         if isinstance(size, tuple):
             assert len(size) == 2, "size should be tuple (height, width)"

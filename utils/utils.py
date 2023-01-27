@@ -28,7 +28,9 @@ def register_logger(log_file: str = None, stdout: bool = True) -> None:
         handlers.append(logging.FileHandler(log_file))
 
     logging.basicConfig(
-        format="%(asctime)s %(message)s", handlers=handlers, level=logging.INFO,
+        format="%(asctime)s %(message)s",
+        handlers=handlers,
+        level=logging.INFO,
     )
     logging.root.setLevel(logging.INFO)
 
