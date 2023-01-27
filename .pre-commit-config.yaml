@@ -9,3 +9,7 @@ repos:
       rev: 5.11.4
       hooks:
           - id: isort
+    - repo: github.com/PyCQA/autoflake
+      rev: 2.0.0
+      hooks:
+          - id: autoflake
