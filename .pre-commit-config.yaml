@@ -3,6 +3,13 @@
 repos:
     - repo: local
       hooks:
+          - id: format-isort
+            name: Isort Formatting
+            description: Run formatting using isort
+            entry: isort
+            language: system
+            types: [python]
+            args: [.]
           - id: format-black
             name: Black Formatting
             description: Run formatting using black
