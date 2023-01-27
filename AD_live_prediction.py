@@ -12,15 +12,14 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 from numpy.lib.function_base import copy
 from PyQt5 import QtGui
-from PyQt5.QtCore import (Qt, QThread,  # pylint: disable=no-name-in-module
-                          pyqtSignal)
-from PyQt5.QtGui import (QIcon, QPalette,  # pylint: disable=no-name-in-module
-                         QPixmap)
+from PyQt5.QtCore import Qt, QThread, pyqtSignal  # pylint: disable=no-name-in-module
+from PyQt5.QtGui import QIcon, QPalette, QPixmap  # pylint: disable=no-name-in-module
 from PyQt5.QtMultimedia import (  # pylint: disable=no-name-in-module
-    QCameraInfo, QMediaPlayer)
+    QCameraInfo,
+    QMediaPlayer,
+)
 from PyQt5.QtWidgets import QApplication  # pylint: disable=no-name-in-module
-from PyQt5.QtWidgets import (QComboBox, QGridLayout, QLabel, QPushButton,
-                             QStyle, QWidget)
+from PyQt5.QtWidgets import QComboBox, QGridLayout, QLabel, QPushButton, QStyle, QWidget
 from torch import Tensor, nn
 
 from feature_extractor import to_segments
