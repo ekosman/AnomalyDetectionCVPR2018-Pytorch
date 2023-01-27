@@ -1,3 +1,6 @@
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
+[![linting: pylint](https://img.shields.io/badge/linting-pylint-yellowgreen)](https://github.com/PyCQA/pylint)
+
 # AnomalyDetectionCVPR2018-Pytorch
 Pytorch version of - https://github.com/WaqasSultani/AnomalyDetectionCVPR2018
 

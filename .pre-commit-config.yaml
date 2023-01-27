@@ -1,19 +1,11 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
-    - repo: local
+    - repo: https://github.com/psf/black
+      rev: 22.12.0
       hooks:
-          - id: format-isort
-            name: Isort Formatting
-            description: Run formatting using isort
-            entry: isort
-            language: system
-            types: [python]
-            args: [.]
-          - id: format-black
-            name: Black Formatting
-            description: Run formatting using black
-            entry: black
-            language: system
-            types: [python]
-            args: [.]
+          - id: black
+    - repo: https://github.com/PyCQA/isort
+      rev: 5.11.4
+      hooks:
+          - id: isort
