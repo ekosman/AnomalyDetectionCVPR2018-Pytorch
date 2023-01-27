@@ -1,0 +1,12 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+    - repo: local
+      hooks:
+          - id: format-black
+            name: Black Formatting
+            description: Run formatting using black
+            entry: black
+            language: system
+            types: [python]
+            args: [.]

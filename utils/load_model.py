@@ -1,16 +1,16 @@
 """This module contains functions for loading models."""
-from os import path
 import logging
+from os import path
 from typing import Tuple, Union
 
 import torch
 from torch import nn
 
-from network.MFNET import MFNET_3D
-from network.TorchUtils import TorchModel
 from network.anomaly_detector_model import AnomalyDetector
 from network.c3d import C3D
+from network.MFNET import MFNET_3D
 from network.resnet import generate_model
+from network.TorchUtils import TorchModel
 from utils.types import Device
 
 

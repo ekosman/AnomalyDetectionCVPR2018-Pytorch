@@ -1,5 +1,6 @@
 """This module contains an implementation of anomaly detector for videos."""
 from typing import Callable
+
 import torch
 from torch import Tensor, nn
 

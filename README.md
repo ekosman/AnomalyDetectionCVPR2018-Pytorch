@@ -13,7 +13,10 @@ In this section, I list the future improvements I intend to add to this reposito
 
 ## Install Anaconda Environment
 
-```conda create --name adCVPR18 --file environment.yml -c defaults -c pytorch -c conda-forge -y```
+```
+conda create --name adCVPR18 --file environment.yml -c defaults -c pytorch -c conda-forge -y
+pre-commit install
+```
 
 ```conda activate adCVPR18```
 

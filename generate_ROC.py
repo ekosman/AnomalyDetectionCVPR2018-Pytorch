@@ -3,16 +3,16 @@
 import argparse
 import os
 from os import path
-import torch
-from torch.backends import cudnn
 
-from tqdm import tqdm
-from sklearn.metrics import roc_curve, auc
 import matplotlib.pyplot as plt
 import numpy as np
+import torch
+from sklearn.metrics import auc, roc_curve
+from torch.backends import cudnn
+from tqdm import tqdm
 
-from network.TorchUtils import TorchModel
 from features_loader import FeaturesLoaderVal
+from network.TorchUtils import TorchModel
 
 
 def get_args() -> argparse.Namespace:
