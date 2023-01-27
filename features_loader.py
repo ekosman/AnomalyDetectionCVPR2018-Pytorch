@@ -108,7 +108,7 @@ class FeaturesLoader:
         assert os.path.exists(features_path)
         features_list_normal = []
         features_list_anomaly = []
-        with open(annotation_path, "r") as f:
+        with open(annotation_path) as f:
             lines = f.read().splitlines(keepends=False)
             for line in lines:
                 items = line.split()
@@ -182,7 +182,7 @@ class FeaturesLoaderVal(data.Dataset):
         """
         assert os.path.exists(features_path)
         features_list = []
-        with open(annotation_path, "r") as f:
+        with open(annotation_path) as f:
             lines = f.read().splitlines(keepends=False)
             for line in lines:
                 start_end_couples = []
