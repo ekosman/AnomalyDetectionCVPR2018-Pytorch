@@ -8,11 +8,8 @@ from torch.backends import cudnn
 from torch.utils.tensorboard import SummaryWriter
 
 from features_loader import FeaturesLoader
-from network.anomaly_detector_model import (
-    AnomalyDetector,
-    RegularizedLoss,
-    custom_objective,
-)
+from network.anomaly_detector_model import (AnomalyDetector, RegularizedLoss,
+                                            custom_objective)
 from network.TorchUtils import TorchModel, get_torch_device
 from utils.callbacks import DefaultModelCallback, TensorBoardCallback
 from utils.utils import register_logger

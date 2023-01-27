@@ -11,23 +11,13 @@ from matplotlib.figure import Figure
 from PyQt5.QtCore import Qt, QUrl  # pylint: disable=no-name-in-module
 from PyQt5.QtGui import QIcon, QPalette  # pylint: disable=no-name-in-module
 from PyQt5.QtMultimedia import (  # pylint: disable=no-name-in-module
-    QMediaContent,
-    QMediaPlayer,
-)
-from PyQt5.QtMultimediaWidgets import QVideoWidget  # pylint: disable=no-name-in-module
+    QMediaContent, QMediaPlayer)
+from PyQt5.QtMultimediaWidgets import \
+    QVideoWidget  # pylint: disable=no-name-in-module
 from PyQt5.QtWidgets import QApplication  # pylint: disable=no-name-in-module
-from PyQt5.QtWidgets import (
-    QFileDialog,
-    QGridLayout,
-    QLabel,
-    QMessageBox,
-    QProgressBar,
-    QPushButton,
-    QSizePolicy,
-    QSlider,
-    QStyle,
-    QWidget,
-)
+from PyQt5.QtWidgets import (QFileDialog, QGridLayout, QLabel, QMessageBox,
+                             QProgressBar, QPushButton, QSizePolicy, QSlider,
+                             QStyle, QWidget)
 from torch import Tensor, nn
 from tqdm import tqdm
 
