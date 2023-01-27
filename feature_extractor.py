@@ -213,7 +213,7 @@ def read_features(file_path, cache: Dict = None) -> np.ndarray:
         raise FileNotFoundError(f"Feature doesn't exist: `{file_path}`")
 
     features = None
-    with open(file_path, "r") as fp:
+    with open(file_path) as fp:
         data = fp.read().splitlines(keepends=False)
         features = np.stack([line.split(" ") for line in data]).astype(np.float)
 
