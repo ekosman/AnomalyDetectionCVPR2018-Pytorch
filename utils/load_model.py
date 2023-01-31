@@ -64,7 +64,7 @@ def load_feature_extractor(
             f"Features extraction method {features_method} not implemented"
         )
 
-    return model.to(device)
+    return model.to(device).eval()
 
 
 def load_anomaly_detector(ad_model_path: str, device: Device) -> AnomalyDetector:
