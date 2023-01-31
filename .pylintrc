@@ -7,9 +7,6 @@
 # pygtk.require().
 #init-hook='import sys; sys.path.extend(["/Users/xiez/.virtualenvs/seahub/lib/python2.7/site-packages", "/usr/local/lib/python2.7/site-packages/"])'
 
-# Profiled execution.
-profile=no
-
 # Add files or directories to the blacklist. They should be base names, not
 # paths.
 ignore=CVS
@@ -112,10 +109,6 @@ ignore-mixin-members=yes
 # (useful for classes with attributes dynamically set).
 ignored-classes=django.db.models.Model,django.forms.Form,seahub.avatar.models.AvatarBase
 
-# When zope mode is activated, add a predefined set of Zope acquired attributes
-# to generated-members.
-zope=no
-
 # List of members which are set dynamically and missed by pylint inference
 # system, and so shouldn't trigger E0201 when accessed. Python regular
 # expressions are accepted.
@@ -155,9 +148,6 @@ indent-string='    '
 
 
 [BASIC]
-
-# Required attributes for module, separated by a comma
-required-attributes=
 
 # Regular expression which should only match correct module names
 module-rgx=(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$
@@ -213,9 +203,6 @@ max-locals=15
 # Maximum number of return / yield for function / method body
 max-returns=6
 
-# Maximum number of branch for function / method body
-max-branchs=12
-
 # Maximum number of statements in function / method body
 max-statements=50
 
@@ -233,10 +220,6 @@ max-public-methods=20
 
 
 [CLASSES]
-
-# List of interface methods to ignore, separated by a comma. This is used for
-# instance to not check methods defines in Zope's Interface base class.
-ignore-iface-methods=isImplementedBy,deferred,extends,names,namesAndDescriptions,queryDescriptionFor,getBases,getDescriptionFor,getDoc,getName,getTaggedValue,getTaggedValueTags,isEqualOrExtendedBy,setTaggedValue,isImplementedByInstancesOf,adaptWith,is_implemented_by
 
 # List of method names used to declare (i.e. assign) instance attributes.
 defining-attr-methods=__init__,__new__,setUp

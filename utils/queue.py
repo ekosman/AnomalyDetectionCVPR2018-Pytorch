@@ -1,6 +1,5 @@
-    """This module contains an implementation of a queue that fits an online container for video clips."""
+"""This module contains an implementation of a queue that fits an online container for video clips."""
 import threading
-from queue import Queue
 from typing import Any, List
 
 

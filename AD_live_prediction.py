@@ -1,4 +1,4 @@
-""""This module contains a procedure for real time anomaly detection."""
+"""This module contains a procedure for real time anomaly detection."""
 
 import argparse
 import logging
@@ -30,6 +30,7 @@ from utils.types import Device
 from utils.utils import build_transforms
 
 
+# pylint disable=missing-function-docstring
 def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Video Demo For Anomaly Detection")
 
@@ -155,6 +156,7 @@ class VideoConsumer(QThread):
         self.wait()
 
 
+# pylint: disable=missing-class-docstring
 class MplCanvas(FigureCanvasQTAgg):
     # pylint: disable=unused-argument
     def __init__(self, parent=None, width=5, height=4, dpi=100) -> None:
@@ -273,6 +275,7 @@ class Window(QWidget):
         return QPixmap.fromImage(p)
 
     def select_camera(self, camera=0) -> None:
+        """Select camera to display."""
         # getting the selected camera
         self.camera = cv2.VideoCapture(camera)
 
@@ -280,12 +283,14 @@ class Window(QWidget):
         self.current_camera_name = self.available_cameras[camera].description()
 
     def play_video(self) -> None:
+        """Change the state of the media player."""
         if self.mediaPlayer.state() == QMediaPlayer.PlayingState:
             self.mediaPlayer.pause()
         else:
             self.mediaPlayer.play()
 
     def mediastate_changed(self, *_args) -> None:
+        """Called when the state of the media player changes"""
         if self.mediaPlayer.state() == QMediaPlayer.PlayingState:
             self.playBtn.setIcon(self.style().standardIcon(QStyle.SP_MediaPause))
 
