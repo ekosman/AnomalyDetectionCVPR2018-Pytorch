@@ -1,6 +1,7 @@
 """"This module contains a procedure for real time anomaly detection."""
 
 import argparse
+import asyncio
 import logging
 import sys
 from typing import List
@@ -25,6 +26,7 @@ from torch import Tensor, nn
 from feature_extractor import to_segments
 from network.TorchUtils import get_torch_device
 from utils.load_model import load_models
+from utils.queue import Queue
 from utils.types import Device
 from utils.utils import build_transforms
 
@@ -43,9 +45,7 @@ def get_args() -> argparse.Namespace:
         choices=["c3d", "mfnet", "r3d101", "r3d101"],
         help="method to use for feature extraction",
     )
-    parser.add_argument(
-        "--ad_model", required=True, help="path to the trained AD model"
-    )
+    parser.add_argument("--ad_model", required=True, help="path to the trained AD model")
     parser.add_argument(
         "--clip_length",
         type=int,
@@ -56,9 +56,7 @@ def get_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def features_extraction(
-    frames, model, device, frame_stride=1, transforms=None
-) -> List[np.array]:
+def features_extraction(frames, model, device, frame_stride=1, transforms=None) -> List[np.array]:
     """
     Extracts features of the video. The returned features will be returned after
     averaging over the required number of video segments.
@@ -84,9 +82,7 @@ def features_extraction(
     return to_segments(outputs.numpy(), 1)
 
 
-def ad_prediction(
-    model: nn.Module, features: Tensor, device: Device = "cuda"
-) -> np.ndarray:
+def ad_prediction(model: nn.Module, features: Tensor, device: Device = "cuda") -> np.ndarray:
     """
     Creates frediction for the given feature vectors
 
@@ -108,11 +104,12 @@ def ad_prediction(
 
 
 class VideoThread(QThread):
-    change_pixmap_signal = pyqtSignal(np.ndarray)
-
-    def __init__(self) -> None:
+    def __init__(self, queue: Queue, preprocess_fn: callable, camera_view: QLabel) -> None:
         super().__init__()
         self._run_flag = True
+        self._queue = queue
+        self._preprocess_fn = preprocess_fn
+        self._camera_view = camera_view
 
     def run(self) -> None:
         # capture from web cam
@@ -120,9 +117,34 @@ class VideoThread(QThread):
         while self._run_flag:
             ret, cv_img = cap.read()
             if ret:
-                self.change_pixmap_signal.emit(cv_img)
+                qt_img = self._preprocess_fn(cv_img)
+                self._camera_view.setPixmap(qt_img)
+                cv_img = cv2.cvtColor(cv_img, cv2.COLOR_BGR2RGB)
+                self._queue.put(cv_img)
         # shut down capture system
         cap.release()
+
+    def stop(self) -> None:
+        """Sets run flag to False and waits for thread to finish"""
+        self._run_flag = False
+        self.wait()
+
+
+class VideoConsumer(QThread):
+    def __init__(self, queue: Queue, prediction_function: callable) -> None:
+        super().__init__()
+        self._run_flag = True
+        self._queue = queue
+        self._prediction_function = prediction_function
+
+    def run(self) -> None:
+        while self._run_flag:
+            with self._queue._lock:
+                if not self._queue.full():
+                    continue
+
+                batch = copy(list(reversed(self._queue.get())))
+            self._prediction_function(batch)
 
     def stop(self) -> None:
         """Sets run flag to False and waits for thread to finish"""
@@ -150,9 +172,10 @@ class Window(QWidget):
 
         self.camera = None
         self.current_camera_name = None
-        self.frames_queue = []
-
         self.clip_length = clip_length
+
+        self.frames_queue = Queue(max_size=self.clip_length)
+
         self.transforms = transforms
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -176,7 +199,7 @@ class Window(QWidget):
         # setup camera
         self.available_cameras = QCameraInfo.availableCameras()
         self.camera_view = QLabel()
-        self.frames_queue = []
+        self.frames_queue = Queue(max_size=self.clip_length)
         self.camera_id = None
         self.select_camera()
 
@@ -185,9 +208,7 @@ class Window(QWidget):
         camera_selector.setStatusTip("Choose camera")
         camera_selector.setToolTip("Select Camera")
         camera_selector.setToolTipDuration(2500)
-        camera_selector.addItems(
-            [camera.description() for camera in self.available_cameras]
-        )
+        camera_selector.addItems([camera.description() for camera in self.available_cameras])
         camera_selector.currentIndexChanged.connect(self.select_camera)
 
         # create button for playing
@@ -209,32 +230,29 @@ class Window(QWidget):
         self.setLayout(gridLayout)
 
         # create the video capture thread
-        self.thread = VideoThread()
-        self.thread.change_pixmap_signal.connect(self.update_image)
+        self.thread = VideoThread(
+            queue=self.frames_queue, preprocess_fn=self.convert_cv_qt, camera_view=self.camera_view
+        )
+        self._video_consumer = VideoConsumer(queue=self.frames_queue, prediction_function=self.perform_prediction)
         self.thread.start()
+        self._video_consumer.start()
 
-    def update_image(self, cv_img) -> None:
-        qt_img = self.convert_cv_qt(cv_img)
-        self.camera_view.setPixmap(qt_img)
-        self.frames_queue.append(cv_img)
-        if len(self.frames_queue) == self.clip_length:
-            batch = copy(self.frames_queue)
-            features = features_extraction(
-                frames=batch,
-                model=feature_extractor,
-                device=self.device,
-                transforms=self.transforms,
-            )
+    def perform_prediction(self, batch):
+        features = features_extraction(
+            frames=batch,
+            model=feature_extractor,
+            device=self.device,
+            transforms=self.transforms,
+        )
 
-            new_pred = ad_prediction(
-                model=anomaly_detector,
-                features=features,
-                device=self.device,
-            )[0]
-            self.y_pred.append(new_pred)
-            del self.y_pred[0]
-            self.plot()
-            self.frames_queue = []
+        new_pred = ad_prediction(
+            model=anomaly_detector,
+            features=features,
+            device=self.device,
+        )[0]
+        self.y_pred.append(new_pred)
+        del self.y_pred[0]
+        self.plot()
 
     def convert_cv_qt(self, cv_img: np.ndarray) -> QPixmap:
         """Convert from an opencv image to QPixmap"""
@@ -245,12 +263,8 @@ class Window(QWidget):
             self.camera_view.width(),
         )
         bytes_per_line = ch * w
-        convert_to_Qt_format = QtGui.QImage(
-            rgb_image.data, w, h, bytes_per_line, QtGui.QImage.Format_RGB888
-        )
-        p = convert_to_Qt_format.scaled(
-            display_width, display_height, Qt.KeepAspectRatio
-        )
+        convert_to_Qt_format = QtGui.QImage(rgb_image.data, w, h, bytes_per_line, QtGui.QImage.Format_RGB888)
+        p = convert_to_Qt_format.scaled(display_width, display_height, Qt.KeepAspectRatio)
         return QPixmap.fromImage(p)
 
     def select_camera(self, camera=0) -> None:
@@ -282,7 +296,7 @@ class Window(QWidget):
         ax.clear()
         # ax.set_xlim(0, self.mediaPlayer.duration())
         ax.set_ylim(-0.1, 1.1)
-        ax.plot(self.y_pred, "*-", linewidth=7)
+        ax.plot(self.y_pred, "*-", linewidth=5)
         self.graphWidget.draw()
 
 
