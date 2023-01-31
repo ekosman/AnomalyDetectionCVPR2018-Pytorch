@@ -60,7 +60,9 @@ def load_feature_extractor(
         param_dict.pop("fc.bias")
         model.load_state_dict(param_dict)
     else:
-        raise NotImplementedError(f"Features extraction method {features_method} not implemented")
+        raise NotImplementedError(
+            f"Features extraction method {features_method} not implemented"
+        )
 
     return model.to(device)
 
@@ -104,6 +106,8 @@ def load_models(
     Returns:
         Tuple[nn.Module, nn.Module]
     """
-    feature_extractor = load_feature_extractor(features_method, feature_extractor_path, device)
+    feature_extractor = load_feature_extractor(
+        features_method, feature_extractor_path, device
+    )
     anomaly_detector = load_anomaly_detector(ad_model_path, device)
     return anomaly_detector, feature_extractor
