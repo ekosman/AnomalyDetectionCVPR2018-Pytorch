@@ -11,12 +11,12 @@ from network.c3d import C3D
 from network.MFNET import MFNET_3D
 from network.resnet import generate_model
 from network.TorchUtils import TorchModel
-from utils.types import Device
+from utils.types import Device, FeatureExtractor
 
 
 def load_feature_extractor(
     features_method: str, feature_extractor_path: str, device: Union[torch.device, str]
-) -> nn.Module:
+) -> FeatureExtractor:
     """Load feature extractor from given path.
 
     Args:
@@ -29,15 +29,15 @@ def load_feature_extractor(
         NotImplementedError: The provided feature extractor method is not implemented.
 
     Returns:
-        nn.Module: _description_
+        FeatureExtractor
     """
     if not path.exists(feature_extractor_path):
         raise FileNotFoundError(
             f"Couldn't find feature extractor {feature_extractor_path}.\n"
             + r"If you are using resnet, download it first from:\n"
-            + r"r3d101: https://drive.google.com/file/d/1kQAvOhtL-sGadblfd3NmDirXq8vYQPvf/view?usp=sharing"
+            + r"r3d101: https://drive.google.com/file/d/1p80RJsghFIKBSLKgtRG94LE38OGY5h4y/view?usp=share_link"
             + "\n"
-            + r"r3d152: https://drive.google.com/uc?id=17wdy_DS9UY37J9XTV5XCLqxOFgXiv3ZK&export=download"
+            + r"r3d152: https://drive.google.com/file/d/1irIdC_v7wa-sBpTiBlsMlS7BYNdj4Gr7/view?usp=share_link"
         )
     logging.info(f"Loading feature extractor from {feature_extractor_path}")
 
