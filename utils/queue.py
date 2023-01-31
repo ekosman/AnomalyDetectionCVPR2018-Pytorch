@@ -1,12 +1,10 @@
 import threading
-from typing import Any, List
-
 from queue import Queue
+from typing import Any, List
 
 
 class Queue:
-    """Create a queue object with a given maximum size.
-    """
+    """Create a queue object with a given maximum size."""
 
     def __init__(self, max_size: int) -> None:
         self._queue = []
