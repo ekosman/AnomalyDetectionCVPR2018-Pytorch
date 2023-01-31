@@ -23,7 +23,7 @@ from PyQt5.QtWidgets import (
     QPushButton,
     QStyle,
     QWidget,
-)  # pylint: disable=no-name-in-module
+)
 from torch import Tensor, nn
 
 from feature_extractor import to_segments
