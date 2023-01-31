@@ -103,6 +103,8 @@ def ad_prediction(model: nn.Module, features: Tensor, device: Device = "cuda") -
 
 
 class VideoThread(QThread):
+    """Read video stream and store frames in a queue."""
+
     def __init__(self, queue: Queue, preprocess_fn: callable, camera_view: QLabel) -> None:
         super().__init__()
         self._run_flag = True
@@ -130,6 +132,8 @@ class VideoThread(QThread):
 
 
 class VideoConsumer(QThread):
+    """Consume frames from a queue and perform predictions."""
+
     def __init__(self, queue: Queue, prediction_function: callable) -> None:
         super().__init__()
         self._run_flag = True
