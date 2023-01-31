@@ -12,7 +12,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 from numpy.lib.function_base import copy
 from PyQt5 import QtGui
-from PyQt5.QtCore import Qt, QThread, pyqtSignal  # pylint: disable=no-name-in-module
+from PyQt5.QtCore import Qt, QThread  # pylint: disable=no-name-in-module
 from PyQt5.QtGui import QIcon, QPalette, QPixmap  # pylint: disable=no-name-in-module
 from PyQt5.QtMultimedia import (  # pylint: disable=no-name-in-module
     QCameraInfo,
@@ -44,9 +44,7 @@ def get_args() -> argparse.Namespace:
         choices=["c3d", "mfnet", "r3d101", "r3d101"],
         help="method to use for feature extraction",
     )
-    parser.add_argument(
-        "--ad_model", required=True, help="path to the trained AD model"
-    )
+    parser.add_argument("--ad_model", required=True, help="path to the trained AD model")
     parser.add_argument(
         "--clip_length",
         type=int,
@@ -57,9 +55,7 @@ def get_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def features_extraction(
-    frames, model, device, frame_stride=1, transforms=None
-) -> List[np.array]:
+def features_extraction(frames, model, device, frame_stride=1, transforms=None) -> List[np.array]:
     """
     Extracts features of the video. The returned features will be returned after
     averaging over the required number of video segments.
@@ -85,9 +81,7 @@ def features_extraction(
     return to_segments(outputs.numpy(), 1)
 
 
-def ad_prediction(
-    model: nn.Module, features: Tensor, device: Device = "cuda"
-) -> np.ndarray:
+def ad_prediction(model: nn.Module, features: Tensor, device: Device = "cuda") -> np.ndarray:
     """
     Creates frediction for the given feature vectors
 
@@ -109,9 +103,7 @@ def ad_prediction(
 
 
 class VideoThread(QThread):
-    def __init__(
-        self, queue: Queue, preprocess_fn: callable, camera_view: QLabel
-    ) -> None:
+    def __init__(self, queue: Queue, preprocess_fn: callable, camera_view: QLabel) -> None:
         super().__init__()
         self._run_flag = True
         self._queue = queue
@@ -215,9 +207,7 @@ class Window(QWidget):
         camera_selector.setStatusTip("Choose camera")
         camera_selector.setToolTip("Select Camera")
         camera_selector.setToolTipDuration(2500)
-        camera_selector.addItems(
-            [camera.description() for camera in self.available_cameras]
-        )
+        camera_selector.addItems([camera.description() for camera in self.available_cameras])
         camera_selector.currentIndexChanged.connect(self.select_camera)
 
         # create button for playing
@@ -244,9 +234,7 @@ class Window(QWidget):
             preprocess_fn=self.convert_cv_qt,
             camera_view=self.camera_view,
         )
-        self._video_consumer = VideoConsumer(
-            queue=self.frames_queue, prediction_function=self.perform_prediction
-        )
+        self._video_consumer = VideoConsumer(queue=self.frames_queue, prediction_function=self.perform_prediction)
         self.thread.start()
         self._video_consumer.start()
 
@@ -276,12 +264,8 @@ class Window(QWidget):
             self.camera_view.width(),
         )
         bytes_per_line = ch * w
-        convert_to_Qt_format = QtGui.QImage(
-            rgb_image.data, w, h, bytes_per_line, QtGui.QImage.Format_RGB888
-        )
-        p = convert_to_Qt_format.scaled(
-            display_width, display_height, Qt.KeepAspectRatio
-        )
+        convert_to_Qt_format = QtGui.QImage(rgb_image.data, w, h, bytes_per_line, QtGui.QImage.Format_RGB888)
+        p = convert_to_Qt_format.scaled(display_width, display_height, Qt.KeepAspectRatio)
         return QPixmap.fromImage(p)
 
     def select_camera(self, camera=0) -> None:
