@@ -19,7 +19,14 @@ from PyQt5.QtMultimedia import (  # pylint: disable=no-name-in-module
     QMediaPlayer,
 )
 from PyQt5.QtWidgets import QApplication  # pylint: disable=no-name-in-module
-from PyQt5.QtWidgets import QComboBox, QGridLayout, QLabel, QPushButton, QStyle, QWidget
+from PyQt5.QtWidgets import (
+    QComboBox,
+    QGridLayout,
+    QLabel,
+    QPushButton,
+    QStyle,
+    QWidget,
+)  # pylint: disable=no-name-in-module
 from torch import Tensor, nn
 
 from feature_extractor import to_segments
