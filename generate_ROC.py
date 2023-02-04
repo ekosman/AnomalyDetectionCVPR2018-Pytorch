@@ -17,12 +17,22 @@ from network.TorchUtils import TorchModel
 
 def get_args() -> argparse.Namespace:
     """Reads command line args and returns the parser object the represent the specified arguments."""
-    parser = argparse.ArgumentParser(description="Video Anomaly Detection Evaluation Parser")
-    parser.add_argument(
-        "--features_path", type=str, default="../anomaly_features", required=True, help="path to features"
+    parser = argparse.ArgumentParser(
+        description="Video Anomaly Detection Evaluation Parser"
     )
-    parser.add_argument("--annotation_path", default="Test_Annotation.txt", help="path to annotations")
-    parser.add_argument("--model_path", type=str, required=True, help="Path to the anomaly detector.")
+    parser.add_argument(
+        "--features_path",
+        type=str,
+        default="../anomaly_features",
+        required=True,
+        help="path to features",
+    )
+    parser.add_argument(
+        "--annotation_path", default="Test_Annotation.txt", help="path to annotations"
+    )
+    parser.add_argument(
+        "--model_path", type=str, required=True, help="Path to the anomaly detector."
+    )
     return parser.parse_args()
 
 
@@ -57,7 +67,9 @@ if __name__ == "__main__":
             # features is a batch where each item is a tensor of 32 4096D features
             features = features.to(device)
             outputs = model(features).squeeze(-1)  # (batch_size, 32)
-            for vid_len, couples, output in zip(lengths, start_end_couples, outputs.cpu().numpy()):
+            for vid_len, couples, output in zip(
+                lengths, start_end_couples, outputs.cpu().numpy()
+            ):
                 y_true = np.zeros(vid_len)
                 y_pred = np.zeros(vid_len)
 
@@ -83,7 +95,9 @@ if __name__ == "__main__":
     plt.figure()
     lw = 2
     roc_auc = auc(fpr, tpr)
-    plt.plot(fpr, tpr, color="darkorange", lw=lw, label=f"ROC curve (area = {roc_auc:0.2f})")
+    plt.plot(
+        fpr, tpr, color="darkorange", lw=lw, label=f"ROC curve (area = {roc_auc:0.2f})"
+    )
     plt.plot([0, 1], [0, 1], color="navy", lw=lw, linestyle="--")
     plt.xlim([0.0, 1.0])
     plt.ylim([0.0, 1.05])
