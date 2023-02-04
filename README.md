@@ -68,9 +68,12 @@ Arguments:
 
 ```python generate_ROC.py --features_path "path-to-dataset" --annotation_path "path-to-annos" --model_path "path-to-model"```
 
-I achieve this following performance on the test-set. I'm aware that the current model achieves AUC of 0.8 which is better than the original paper. This can be caused by different weights of the C3D model or usage of a different feature extractor.
+I achieve this following performance on the test-set. I'm aware that the current C3D model achieves AUC of 0.69 which is worse than the original paper. This can be caused by different weights of the C3D model or usage of a different feature extractor.
 
-<img src=graphs/roc_auc.png width="600"/>
+| C3D (<a href="exps\c3d\models\epoch_80000.pt">Link</a>) | R3D101 (<a href="exps\resnet_r3d101_KM_200ep\models\epoch_10.pt">Link</a>) | R3D152 (<a href="exps\resnet_r3d152_KM_200ep\models\epoch_10.pt">Link</a>) |
+| :-----------------------------------------------------: | :------------------------------------------------------------------------: | :------------------------------------------------------------------------: |
+|      <img src=graphs/roc_auc_c3d.png width="300"/>      |               <img src=graphs/roc_auc_r101.png width="300"/>               |               <img src=graphs/roc_auc_r152.png width="300"/>               |
+
 
 ## Demo *
 
