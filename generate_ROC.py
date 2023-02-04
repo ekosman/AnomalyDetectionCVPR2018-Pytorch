@@ -18,14 +18,11 @@ from network.TorchUtils import TorchModel
 def get_args() -> argparse.Namespace:
     """Reads command line args and returns the parser object the represent the specified arguments."""
     parser = argparse.ArgumentParser(description="Video Anomaly Detection Evaluation Parser")
-    parser.add_argument("--features_path", default="../anomaly_features", help="path to features")
-    parser.add_argument("--annotation_path", default="Test_Annotation.txt", help="path to annotations")
     parser.add_argument(
-        "--model_path",
-        type=str,
-        default="./exps/model.weights",
-        help="set logging file.",
+        "--features_path", type=str, default="../anomaly_features", required=True, help="path to features"
     )
+    parser.add_argument("--annotation_path", default="Test_Annotation.txt", help="path to annotations")
+    parser.add_argument("--model_path", type=str, required=True, help="Path to the anomaly detector.")
     return parser.parse_args()
 
 
