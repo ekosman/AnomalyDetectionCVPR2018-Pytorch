@@ -127,7 +127,6 @@ class FeaturesLoaderVal(data.Dataset):
     """Loader for video features for validation phase."""
 
     def __init__(self, features_path, annotation_path):
-
         super().__init__()
         self.features_path = features_path
         # load video list

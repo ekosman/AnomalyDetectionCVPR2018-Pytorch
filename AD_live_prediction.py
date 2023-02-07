@@ -38,6 +38,7 @@ from utils.utils import build_transforms
 
 MAX_PREDS = 50
 
+
 # pylint disable=missing-function-docstring
 def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Video Demo For Anomaly Detection")

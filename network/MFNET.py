@@ -87,7 +87,6 @@ class MF_UNIT(nn.Module):
             )
 
     def forward(self, x):
-
         h = self.conv_i1(x)
         x_in = x + self.conv_i2(h)
 
