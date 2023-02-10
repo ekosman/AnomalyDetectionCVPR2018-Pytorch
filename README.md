@@ -1,3 +1,6 @@
+![GitHub forks](https://img.shields.io/github/forks/ekosman/AnomalyDetectionCVPR2018-Pytorch?style=social)
+![GitHub Repo stars](https://img.shields.io/github/stars/ekosman/AnomalyDetectionCVPR2018-Pytorch?style=social)
+
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/ekosman/AnomalyDetectionCVPR2018-Pytorch/main.svg)](https://results.pre-commit.ci/latest/github/ekosman/AnomalyDetectionCVPR2018-Pytorch/main)
 [![Lint Status](https://github.com/pycqa/isort/workflows/Lint/badge.svg?branch=develop)](https://github.com/ekosman/AnomalyDetectionCVPR2018-Pytorch/actions?query=workflow%3A)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
