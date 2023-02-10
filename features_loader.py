@@ -13,7 +13,7 @@ from feature_extractor import read_features
 
 
 class FeaturesLoader:
-    """Loads video features that are stored as text files"""
+    """Loads video features that are stored as text files."""
 
     def __init__(
         self,
@@ -72,7 +72,7 @@ class FeaturesLoader:
         return feature, label
 
     def get_features(self) -> Tensor:
-        """Fetches a bucket sample from the dataset"""
+        """Fetches a bucket sample from the dataset."""
         normal_paths = np.random.choice(
             self.features_list_normal, size=self._bucket_size
         )
@@ -95,7 +95,8 @@ class FeaturesLoader:
     def _get_features_list(
         features_path: str, annotation_path: str
     ) -> Tuple[List[str], List[str]]:
-        """Retrieves the paths of all feature files contained within the annotation file.
+        """Retrieves the paths of all feature files contained within the
+        annotation file.
 
         Args:
             features_path: Path to the directory that contains feature text files
@@ -168,7 +169,8 @@ class FeaturesLoaderVal(data.Dataset):
     def _get_features_list(
         features_path: str, annotation_path: str
     ) -> List[Tuple[str, Tensor, int]]:
-        """Retrieves the paths of all feature files contained within the annotation file.
+        """Retrieves the paths of all feature files contained within the
+        annotation file.
 
         Args:
             features_path: Path to the directory that contains feature text files

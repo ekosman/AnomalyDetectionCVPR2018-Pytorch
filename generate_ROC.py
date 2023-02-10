@@ -1,4 +1,5 @@
-""""This module contains an evaluation procedure for video anomaly detection."""
+""""This module contains an evaluation procedure for video anomaly
+detection."""
 
 import argparse
 import os
@@ -16,7 +17,8 @@ from network.TorchUtils import TorchModel
 
 
 def get_args() -> argparse.Namespace:
-    """Reads command line args and returns the parser object the represent the specified arguments."""
+    """Reads command line args and returns the parser object the represent the
+    specified arguments."""
     parser = argparse.ArgumentParser(
         description="Video Anomaly Detection Evaluation Parser"
     )

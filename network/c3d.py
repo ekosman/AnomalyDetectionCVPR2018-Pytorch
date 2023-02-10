@@ -1,4 +1,5 @@
-""""This module contains an implementation of C3D model for video processing."""
+""""This module contains an implementation of C3D model for video
+processing."""
 import itertools
 
 import torch
@@ -6,9 +7,7 @@ from torch import Tensor, nn
 
 
 class C3D(nn.Module):
-    """
-    The C3D network.
-    """
+    """The C3D network."""
 
     def __init__(self, pretrained=None):
         super().__init__()

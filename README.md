@@ -146,7 +146,7 @@ The GUI lets you load a video and run the Anomaly Detection code (including feat
 ```
 
 ## FAQ
-1. 
+1.
 ```
 Q: video_demo doesn't show videos
 A: Downlaod and install LAVFilters: http://forum.doom9.org/showthread.php?t=156191

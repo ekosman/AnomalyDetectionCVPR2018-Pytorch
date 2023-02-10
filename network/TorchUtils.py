@@ -1,4 +1,4 @@
-"""Written by Eitan Kosman"""
+"""Written by Eitan Kosman."""
 
 import logging
 import os
@@ -22,14 +22,12 @@ def get_torch_device() -> Device:
 
 
 def load_model(model_path: str) -> nn.Module:
-    """
-    Loads a Pytorch model.
+    """Loads a Pytorch model.
 
     Args:
         model_path: path to the model to load
 
     Returns: a model loaded from the specified path
-
     """
     logging.info(f"Load the model from: {model_path}")
     model = torch.load(model_path, map_location="cpu")
@@ -38,7 +36,8 @@ def load_model(model_path: str) -> nn.Module:
 
 
 class TorchModel(nn.Module):
-    """Wrapper class for a torch model to make it comfortable to train and load models."""
+    """Wrapper class for a torch model to make it comfortable to train and load
+    models."""
 
     def __init__(self, model) -> None:
         super().__init__()
@@ -59,9 +58,7 @@ class TorchModel(nn.Module):
         self.callbacks.append(callback_fn)
 
     def data_parallel(self):
-        """
-        Transfers the model to data parallel mode
-        """
+        """Transfers the model to data parallel mode."""
         self.is_data_parallel = True
         if not isinstance(self.model, torch.nn.DataParallel):
             self.model = torch.nn.DataParallel(self.model, device_ids=[0, 1])
@@ -255,8 +252,9 @@ class TorchModel(nn.Module):
         return data
 
     def save(self, model_path: str) -> None:
-        """
-        Saves the model to the given path. If currently using data parallel, the method
+        """Saves the model to the given path.
+
+        If currently using data parallel, the method
         will save the original model and not the data parallel instance of it
         Args:
             model_path: target path to save the model to

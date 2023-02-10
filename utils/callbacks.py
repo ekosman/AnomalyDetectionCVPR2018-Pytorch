@@ -47,9 +47,8 @@ class Callback(ABC):
 
 
 class DefaultModelCallback(Callback):
-    """
-    A callback that simply logs the loss for epochs during training and evaluation
-    """
+    """A callback that simply logs the loss for epochs during training and
+    evaluation."""
 
     def __init__(self, log_every=10, visualization_dir=None) -> None:
         """
@@ -145,9 +144,8 @@ Epoch {self.epoch}/{self.epochs}     {train_loss_string}        time: {datetime.
 
 
 class TensorBoardCallback(Callback):
-    """
-    A callback that simply logs the loss for epochs during training and evaluation
-    """
+    """A callback that simply logs the loss for epochs during training and
+    evaluation."""
 
     def __init__(self, tb_writer) -> None:
         """

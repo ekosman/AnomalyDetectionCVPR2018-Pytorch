@@ -18,7 +18,8 @@ from utils.utils import build_transforms, register_logger
 
 
 def get_args() -> argparse.Namespace:
-    """Reads command line args and returns the parser object the represent the specified arguments."""
+    """Reads command line args and returns the parser object the represent the
+    specified arguments."""
 
     parser = argparse.ArgumentParser(description="Video Feature Extraction Parser")
 
@@ -82,6 +83,7 @@ def to_segments(
     data: Union[Tensor, np.ndarray], n_segments: int = 32
 ) -> List[np.array]:
     """These code is taken from:
+
         # https://github.com/rajanjitenpatel/C3D_feature_extraction/blob/b5894fa06d43aa62b3b64e85b07feb0853e7011a/extract_C3D_feature.py#L805
 
     Args:
@@ -141,7 +143,10 @@ class FeaturesWriter:
         return self.data is not None
 
     def dump(self) -> None:
-        """Saves the accumulated features to disk. The features will be segmented and normalized."""
+        """Saves the accumulated features to disk.
+
+        The features will be segmented and normalized.
+        """
         logging.info(f"{self.dump_count} / {self.num_videos}:	Dumping {self.path}")
         self.dump_count += 1
         if not path.exists(self.dir):
@@ -154,7 +159,8 @@ class FeaturesWriter:
                 fp.write(" ".join(d) + "\n")
 
     def _is_new_video(self, video_name: str, dir: str) -> bool:
-        """Checks whether the given video is new or the writer is already initialized with it.
+        """Checks whether the given video is new or the writer is already
+        initialized with it.
 
         Args:
             video_name (str): Name of the possibly new video.

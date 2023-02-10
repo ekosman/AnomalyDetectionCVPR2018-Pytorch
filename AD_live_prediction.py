@@ -70,9 +70,8 @@ def get_args() -> argparse.Namespace:
 def features_extraction(
     frames, model, device, frame_stride=1, transforms=None
 ) -> List[np.array]:
-    """
-    Extracts features of the video. The returned features will be returned after
-    averaging over the required number of video segments.
+    """Extracts features of the video. The returned features will be returned
+    after averaging over the required number of video segments.
 
     Args:
         frames: a sequence of video frames to predict
@@ -98,8 +97,7 @@ def features_extraction(
 def ad_prediction(
     model: nn.Module, features: Tensor, device: Device = "cuda"
 ) -> np.ndarray:
-    """
-    Creates frediction for the given feature vectors
+    """Creates frediction for the given feature vectors.
 
     Args:
         model: model to use for anomaly detection
@@ -144,7 +142,7 @@ class VideoThread(QThread):
         cap.release()
 
     def stop(self) -> None:
-        """Sets run flag to False and waits for thread to finish"""
+        """Sets run flag to False and waits for thread to finish."""
         self._run_flag = False
         self.wait()
 
@@ -168,7 +166,7 @@ class VideoConsumer(QThread):
             self._prediction_function(batch)
 
     def stop(self) -> None:
-        """Sets run flag to False and waits for thread to finish"""
+        """Sets run flag to False and waits for thread to finish."""
         self._run_flag = False
         self.wait()
 
@@ -183,9 +181,8 @@ class MplCanvas(FigureCanvasQTAgg):
 
 
 class Window(QWidget):
-    """
-    Anomaly detection live gui
-    Based on media player code from:
+    """Anomaly detection live gui Based on media player code from:
+
     https://codeloop.org/python-how-to-create-media-player-in-pyqt5/
     """
 
@@ -216,7 +213,7 @@ class Window(QWidget):
         self.show()
 
     def init_ui(self) -> None:
-        """Create media player object"""
+        """Create media player object."""
 
         # setup camera
         self.available_cameras = QCameraInfo.availableCameras()
@@ -284,7 +281,7 @@ class Window(QWidget):
         self.plot()
 
     def convert_cv_qt(self, cv_img: np.ndarray) -> QPixmap:
-        """Convert from an opencv image to QPixmap"""
+        """Convert from an opencv image to QPixmap."""
         rgb_image = cv2.cvtColor(cv_img, cv2.COLOR_BGR2RGB)
         h, w, ch = rgb_image.shape
         display_height, display_width = (
@@ -316,7 +313,7 @@ class Window(QWidget):
             self.mediaPlayer.play()
 
     def mediastate_changed(self, *_args) -> None:
-        """Called when the state of the media player changes"""
+        """Called when the state of the media player changes."""
         if self.mediaPlayer.state() == QMediaPlayer.PlayingState:
             self.playBtn.setIcon(self.style().standardIcon(QStyle.SP_MediaPause))
 
