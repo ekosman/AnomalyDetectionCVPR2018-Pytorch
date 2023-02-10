@@ -60,7 +60,9 @@ class VideoIter(data.Dataset):
         video, _, _, _ = self.video_clips.get_clip(idx)
         video_idx, clip_idx = self.video_clips.get_clip_location(idx)
         video_path = self.video_clips.video_paths[video_idx]
-        in_clip_frames = list(range(0, self.total_clip_length_in_frames, self.frames_stride))
+        in_clip_frames = list(
+            range(0, self.total_clip_length_in_frames, self.frames_stride)
+        )
         video = video[in_clip_frames]
         if self.video_transform is not None:
             video = self.video_transform(video)
@@ -91,7 +93,9 @@ class VideoIter(data.Dataset):
                 else:
                     line = "no-line"
                 # pylint: disable=line-too-long
-                logging.warning(f"VideoIter:: ERROR (line number {line}) !! (Force using another index:\n{index})\n{e}")
+                logging.warning(
+                    f"VideoIter:: ERROR (line number {line}) !! (Force using another index:\n{index})\n{e}"
+                )
 
         return batch
 
@@ -132,14 +136,18 @@ class SingleVideoIter(VideoIter):
         video_transform=None,
         return_label=False,
     ) -> None:
-        super().__init__(clip_length, frame_stride, video_path, video_transform, return_label)
+        super().__init__(
+            clip_length, frame_stride, video_path, video_transform, return_label
+        )
 
     def _get_video_list(self, dataset_path: str) -> List[str]:
         return [dataset_path]
 
     def __getitem__(self, idx: int) -> Tensor:
         video, _, _, _ = self.video_clips.get_clip(idx)
-        in_clip_frames = list(range(0, self.total_clip_length_in_frames, self.frames_stride))
+        in_clip_frames = list(
+            range(0, self.total_clip_length_in_frames, self.frames_stride)
+        )
         video = video[in_clip_frames]
         if self.video_transform is not None:
             video = self.video_transform(video)

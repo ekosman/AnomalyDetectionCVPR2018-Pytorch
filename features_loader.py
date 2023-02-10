@@ -41,7 +41,9 @@ class FeaturesLoader:
         (
             self.features_list_normal,
             self.features_list_anomaly,
-        ) = FeaturesLoader._get_features_list(features_path=self._features_path, annotation_path=annotation_path)
+        ) = FeaturesLoader._get_features_list(
+            features_path=self._features_path, annotation_path=annotation_path
+        )
 
         self._iterations = iterations
         self._features_cache = {}
@@ -62,18 +64,27 @@ class FeaturesLoader:
                 succ = True
             except Exception as e:
                 index = np.random.choice(range(0, self.__len__()))
-                logging.warning(f"VideoIter:: ERROR!! (Force using another index:\n{index})\n{e}")
+                logging.warning(
+                    f"VideoIter:: ERROR!! (Force using another index:\n{index})\n{e}"
+                )
 
         self._i += 1
         return feature, label
 
     def get_features(self) -> Tuple[Tensor, Tensor]:
         """Fetches a bucket sample from the dataset."""
-        normal_paths = np.random.choice(self.features_list_normal, size=self._bucket_size)
-        abnormal_paths = np.random.choice(self.features_list_anomaly, size=self._bucket_size)
+        normal_paths = np.random.choice(
+            self.features_list_normal, size=self._bucket_size
+        )
+        abnormal_paths = np.random.choice(
+            self.features_list_anomaly, size=self._bucket_size
+        )
         all_paths = np.concatenate([normal_paths, abnormal_paths])
         features = torch.stack(
-            [read_features(f"{feature_subpath}.txt", self._features_cache) for feature_subpath in all_paths]
+            [
+                read_features(f"{feature_subpath}.txt", self._features_cache)
+                for feature_subpath in all_paths
+            ]
         )
         return (
             features,
@@ -81,7 +92,9 @@ class FeaturesLoader:
         )
 
     @staticmethod
-    def _get_features_list(features_path: str, annotation_path: str) -> Tuple[List[str], List[str]]:
+    def _get_features_list(
+        features_path: str, annotation_path: str
+    ) -> Tuple[List[str], List[str]]:
         """Retrieves the paths of all feature files contained within the
         annotation file.
 
@@ -133,7 +146,9 @@ class FeaturesLoaderVal(data.Dataset):
                 data = self.get_feature(index)
                 succ = True
             except Exception as e:
-                logging.warning(f"VideoIter:: ERROR!! (Force using another index:\n{index})\n{e}")
+                logging.warning(
+                    f"VideoIter:: ERROR!! (Force using another index:\n{index})\n{e}"
+                )
 
         return data
 
@@ -151,7 +166,9 @@ class FeaturesLoaderVal(data.Dataset):
         return features, start_end_couples, length
 
     @staticmethod
-    def _get_features_list(features_path: str, annotation_path: str) -> List[Tuple[str, List[List[int]], int]]:
+    def _get_features_list(
+        features_path: str, annotation_path: str
+    ) -> List[Tuple[str, List[List[int]], int]]:
         """Retrieves the paths of all feature files contained within the
         annotation file.
 

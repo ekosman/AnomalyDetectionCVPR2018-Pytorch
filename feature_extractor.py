@@ -72,12 +72,16 @@ def get_args() -> argparse.Namespace:
         help="type of feature extractor",
         choices=["c3d", "i3d", "mfnet", "3dResNet"],
     )
-    parser.add_argument("--pretrained_3d", type=str, help="load default 3D pretrained model.")
+    parser.add_argument(
+        "--pretrained_3d", type=str, help="load default 3D pretrained model."
+    )
 
     return parser.parse_args()
 
 
-def to_segments(data: Union[Tensor, np.ndarray], n_segments: int = 32) -> List[np.ndarray]:
+def to_segments(
+    data: Union[Tensor, np.ndarray], n_segments: int = 32
+) -> List[np.ndarray]:
     """These code is taken from:
 
         # https://github.com/rajanjitenpatel/C3D_feature_extraction/blob/b5894fa06d43aa62b3b64e85b07feb0853e7011a/extract_C3D_feature.py#L805
@@ -91,7 +95,9 @@ def to_segments(data: Union[Tensor, np.ndarray], n_segments: int = 32) -> List[n
     """
     data = np.array(data)
     Segments_Features = []
-    thirty2_shots = np.round(np.linspace(0, len(data) - 1, num=n_segments + 1)).astype(int)
+    thirty2_shots = np.round(np.linspace(0, len(data) - 1, num=n_segments + 1)).astype(
+        int
+    )
     for ss, ee in zip(thirty2_shots[:-1], thirty2_shots[1:]):
         if ss == ee:
             temp_vect = data[min(ss, data.shape[0] - 1), :]
@@ -178,7 +184,9 @@ class FeaturesWriter:
         """
         self.data[idx] = list(feature)
 
-    def write(self, feature: Union[Tensor, np.ndarray], video_name: str, idx: int, dir: str) -> None:
+    def write(
+        self, feature: Union[Tensor, np.ndarray], video_name: str, idx: int, dir: str
+    ) -> None:
         if not self.has_video():
             self._init_video(video_name, dir)
 
@@ -276,7 +284,9 @@ if __name__ == "__main__":
         for data, clip_idxs, dirs, vid_names in data_iter:
             outputs = network(data.to(device)).detach().cpu().numpy()
 
-            for i, (_dir, vid_name, clip_idx) in enumerate(zip(dirs, vid_names, clip_idxs)):
+            for i, (_dir, vid_name, clip_idx) in enumerate(
+                zip(dirs, vid_names, clip_idxs)
+            ):
                 if loop_i == 0:
                     # pylint: disable=line-too-long
                     logging.info(

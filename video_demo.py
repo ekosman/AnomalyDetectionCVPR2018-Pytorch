@@ -33,8 +33,8 @@ from tqdm import tqdm
 
 from data_loader import SingleVideoIter
 from feature_extractor import read_features, to_segments
-from network.TorchUtils import get_torch_device
 from network.anomaly_detector_model import AnomalyDetector
+from network.TorchUtils import get_torch_device
 from utils.load_model import load_models
 from utils.types import Device, FeatureExtractor
 from utils.utils import build_transforms
@@ -56,7 +56,9 @@ def get_args() -> argparse.Namespace:
         choices=["c3d", "mfnet", "r3d101", "r3d101"],
         help="method to use for feature extraction",
     )
-    parser.add_argument("--ad_model", required=True, help="path to the trained AD model")
+    parser.add_argument(
+        "--ad_model", required=True, help="path to the trained AD model"
+    )
     parser.add_argument(
         "--n_segments",
         type=int,
@@ -239,10 +241,16 @@ class Window(QWidget):
 
         feature_load_message_box = QMessageBox()
         feature_load_message_box.setIcon(QMessageBox.Question)
-        feature_load_message_box.setText("Extract features from the chosen video file or load from file?")
+        feature_load_message_box.setText(
+            "Extract features from the chosen video file or load from file?"
+        )
         feature_load_message_box.setWindowTitle(APP_NAME)
-        feature_load_message_box.addButton("Extract features", feature_load_message_box.ActionRole)
-        feature_load_message_box.addButton("Load features from file", feature_load_message_box.ActionRole)
+        feature_load_message_box.addButton(
+            "Extract features", feature_load_message_box.ActionRole
+        )
+        feature_load_message_box.addButton(
+            "Load features from file", feature_load_message_box.ActionRole
+        )
         feature_load_message_box.buttonClicked.connect(self._features_msgbtn)
         feature_load_message_box.exec_()
 
