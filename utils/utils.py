@@ -1,13 +1,14 @@
 """This module contains utilities for anomaly detection."""
 import logging
 import sys
+from typing import Optional
 
 from torchvision.transforms import transforms
 
 from . import transforms_video
 
 
-def register_logger(log_file: str = None, stdout: bool = True) -> None:
+def register_logger(log_file: Optional[str] = None, stdout: bool = True) -> None:
     """Register a logger.
 
     Args:

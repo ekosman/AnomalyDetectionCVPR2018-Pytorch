@@ -14,9 +14,7 @@ from network.TorchUtils import TorchModel
 from utils.types import Device, FeatureExtractor
 
 
-def load_feature_extractor(
-    features_method: str, feature_extractor_path: str, device: Union[torch.device, str]
-) -> FeatureExtractor:
+def load_feature_extractor(features_method: str, feature_extractor_path: str, device: Device) -> FeatureExtractor:
     """Load feature extractor from given path.
 
     Args:
@@ -41,7 +39,6 @@ def load_feature_extractor(
         )
     logging.info(f"Loading feature extractor from {feature_extractor_path}")
 
-    model = None
     if features_method == "c3d":
         model = C3D(pretrained=feature_extractor_path)
     elif features_method == "mfnet":
@@ -60,9 +57,7 @@ def load_feature_extractor(
         param_dict.pop("fc.bias")
         model.load_state_dict(param_dict)
     else:
-        raise NotImplementedError(
-            f"Features extraction method {features_method} not implemented"
-        )
+        raise NotImplementedError(f"Features extraction method {features_method} not implemented")
 
     return model.to(device).eval()
 
@@ -92,8 +87,8 @@ def load_models(
     feature_extractor_path: str,
     ad_model_path: str,
     features_method: str = "c3d",
-    device: str = "cuda",
-) -> Tuple[nn.Module, nn.Module]:
+    device: Device = "cuda",
+) -> Tuple[AnomalyDetector, FeatureExtractor]:
     """Loads both feature extractor and anomaly detector from the given paths.
 
     Args:
@@ -106,8 +101,6 @@ def load_models(
     Returns:
         Tuple[nn.Module, nn.Module]
     """
-    feature_extractor = load_feature_extractor(
-        features_method, feature_extractor_path, device
-    )
+    feature_extractor = load_feature_extractor(features_method, feature_extractor_path, device)
     anomaly_detector = load_anomaly_detector(ad_model_path, device)
     return anomaly_detector, feature_extractor
