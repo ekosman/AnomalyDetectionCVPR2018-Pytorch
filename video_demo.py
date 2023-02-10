@@ -76,9 +76,9 @@ def features_extraction(
     n_segments: int = 32,
     progress_bar=None,
 ) -> List[np.array]:
-    """
-    Extracts features of the video.The returned features will
-    be returned after averaging over the required number of video segments.
+    """Extracts features of the video.The returned features will be returned
+    after averaging over the required number of video segments.
+
     :param video_path: path of the video to predict
     :param model: model to use for feature extraction
     :param device: device to use for loading data
@@ -123,8 +123,8 @@ def features_extraction(
 
 
 def ad_prediction(model: nn.Module, features: Tensor, device="cuda") -> Tensor:
-    """
-    Creates frediction for the given feature vectors
+    """Creates frediction for the given feature vectors.
+
     :param model: model to use for anomaly detection
     :param features: features of the video clips
     :param device: device to use for loading the features
@@ -147,9 +147,8 @@ class MplCanvas(FigureCanvasQTAgg):
 
 
 class Window(QWidget):
-    """
-    Anomaly detection gui
-    Based on media player code from:
+    """Anomaly detection gui Based on media player code from:
+
     https://codeloop.org/python-how-to-create-media-player-in-pyqt5/
     """
 

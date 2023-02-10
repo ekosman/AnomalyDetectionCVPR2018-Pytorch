@@ -100,7 +100,7 @@ class MF_UNIT(nn.Module):
 
 
 class MFNET_3D(nn.Module):
-    """original code: https://github.com/cypw/PyTorch-MFNet"""
+    """Original code: https://github.com/cypw/PyTorch-MFNet."""
 
     def __init__(
         self,
