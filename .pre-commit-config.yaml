@@ -18,9 +18,6 @@ repos:
     rev: v2.0.1
     hooks:
       - id: autoflake
-  - repo: https://github.com/hauntsaninja/no_implicit_optional
-    hooks:
-      - id: no_implicit_optional
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.0.0
     hooks:
