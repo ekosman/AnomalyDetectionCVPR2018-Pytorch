@@ -61,8 +61,8 @@ if __name__ == "__main__":
     cudnn.benchmark = True
 
     # pylint: disable=not-callable
-    y_trues = torch.tensor([])
-    y_preds = torch.tensor([])
+    y_trues = np.array([])
+    y_preds = np.array([])
 
     with torch.no_grad():
         for features, start_end_couples, lengths in tqdm(data_iter):

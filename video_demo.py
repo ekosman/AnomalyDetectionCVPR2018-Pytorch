@@ -33,7 +33,10 @@ from tqdm import tqdm
 
 from data_loader import SingleVideoIter
 from feature_extractor import read_features, to_segments
+from network.TorchUtils import get_torch_device
+from network.anomaly_detector_model import AnomalyDetector
 from utils.load_model import load_models
+from utils.types import Device, FeatureExtractor
 from utils.utils import build_transforms
 
 APP_NAME = "Anomaly Media Player"
@@ -53,9 +56,7 @@ def get_args() -> argparse.Namespace:
         choices=["c3d", "mfnet", "r3d101", "r3d101"],
         help="method to use for feature extraction",
     )
-    parser.add_argument(
-        "--ad_model", required=True, help="path to the trained AD model"
-    )
+    parser.add_argument("--ad_model", required=True, help="path to the trained AD model")
     parser.add_argument(
         "--n_segments",
         type=int,
@@ -68,14 +69,14 @@ def get_args() -> argparse.Namespace:
 
 def features_extraction(
     video_path: str,
-    model: nn.Module,
-    device: str,
+    model: FeatureExtractor,
+    device: Device,
     batch_size: int = 1,
     frame_stride: int = 1,
     clip_length: int = 16,
     n_segments: int = 32,
     progress_bar=None,
-) -> List[np.array]:
+) -> List[np.ndarray]:
     """Extracts features of the video.The returned features will be returned
     after averaging over the required number of video segments.
 
@@ -122,8 +123,8 @@ def features_extraction(
     return to_segments(features, n_segments)
 
 
-def ad_prediction(model: nn.Module, features: Tensor, device="cuda") -> Tensor:
-    """Creates frediction for the given feature vectors.
+def ad_prediction(model: AnomalyDetector, features: Tensor, device: Device) -> Tensor:
+    """Creates prediction for the given feature vectors.
 
     :param model: model to use for anomaly detection
     :param features: features of the video clips
@@ -155,7 +156,7 @@ class Window(QWidget):
     def __init__(self) -> None:
         super().__init__()
 
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = get_torch_device()
 
         self.setWindowTitle(APP_NAME)
         self.setGeometry(350, 100, 700, 500)
@@ -167,7 +168,7 @@ class Window(QWidget):
 
         self.init_ui()
 
-        self.y_pred = None
+        self._y_pred = torch.tensor([])
         self.duration = None
 
         self.show()
@@ -238,17 +239,10 @@ class Window(QWidget):
 
         feature_load_message_box = QMessageBox()
         feature_load_message_box.setIcon(QMessageBox.Question)
-        feature_load_message_box.setText(
-            "Extract features from the chosen video file or load from file?"
-        )
+        feature_load_message_box.setText("Extract features from the chosen video file or load from file?")
         feature_load_message_box.setWindowTitle(APP_NAME)
-        # feature_load_message_box.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-        feature_load_message_box.addButton(
-            "Extract features", feature_load_message_box.ActionRole
-        )
-        feature_load_message_box.addButton(
-            "Load features from file", feature_load_message_box.ActionRole
-        )
+        feature_load_message_box.addButton("Extract features", feature_load_message_box.ActionRole)
+        feature_load_message_box.addButton("Load features from file", feature_load_message_box.ActionRole)
         feature_load_message_box.buttonClicked.connect(self._features_msgbtn)
         feature_load_message_box.exec_()
 
@@ -258,19 +252,21 @@ class Window(QWidget):
         if self.feature_source == "Extract features":
             self.label.setText("Extracting features...")
 
-            features = features_extraction(
-                video_path=filename,
-                model=feature_extractor,
-                device=self.device,
-                n_segments=args.n_segments,
-                progress_bar=self.pbar,
+            features = torch.tensor(
+                features_extraction(
+                    video_path=filename,
+                    model=feature_extractor,
+                    device=self.device,
+                    n_segments=args.n_segments,
+                    progress_bar=self.pbar,
+                )
             )
 
         elif self.feature_source == "Load features from file":
             f_filename, _ = QFileDialog.getOpenFileName(self, "Open Features File")
             features = read_features(file_path=f_filename)
 
-        self.y_pred = ad_prediction(
+        self._y_pred = ad_prediction(
             model=anomaly_detector,
             features=features,
             device=self.device,
@@ -304,8 +300,8 @@ class Window(QWidget):
         self.slider.setRange(0, duration)
         self.duration = duration
 
-        if self.y_pred is not None:
-            self.y_pred = np.repeat(self.y_pred, duration // len(self.y_pred))
+        if self._y_pred is not None:
+            self._y_pred = np.repeat(self._y_pred, duration // len(self._y_pred))
 
     def set_position(self, position):
         self.mediaPlayer.setPosition(position)
@@ -315,12 +311,12 @@ class Window(QWidget):
         self.label.setText("Error: " + self.mediaPlayer.errorString())
 
     def plot(self, position):
-        if self.y_pred is not None:
+        if self._y_pred is not None:
             ax = self.graphWidget.axes
             ax.clear()
             ax.set_xlim(0, self.mediaPlayer.duration())
             ax.set_ylim(-0.1, 1.1)
-            ax.plot(self.y_pred[:position], "*-", linewidth=7)
+            ax.plot(self._y_pred[:position], "*-", linewidth=7)
             self.graphWidget.draw()
 
 

@@ -1,13 +1,14 @@
 """This module contains utilities for anomaly detection."""
 import logging
 import sys
+from typing import List, Optional, Union
 
 from torchvision.transforms import transforms
 
 from . import transforms_video
 
 
-def register_logger(log_file: str = None, stdout: bool = True) -> None:
+def register_logger(log_file: Optional[str] = None, stdout: bool = True) -> None:
     """Register a logger.
 
     Args:
@@ -19,7 +20,7 @@ def register_logger(log_file: str = None, stdout: bool = True) -> None:
     for hdlr in log.handlers[:]:  # remove all old handlers
         log.removeHandler(hdlr)
 
-    handlers = []
+    handlers: List[Union[logging.FileHandler, logging.StreamHandler]] = []
 
     if stdout:
         handlers.append(logging.StreamHandler(stream=sys.stdout))

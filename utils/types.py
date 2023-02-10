@@ -2,9 +2,10 @@
 from typing import Union
 
 from torch import device
+from network.MFNET import MFNET_3D
 
 from network.c3d import C3D
 from network.resnet import ResNet
 
 Device = Union[str, device]
-FeatureExtractor = Union[C3D, ResNet]
+FeatureExtractor = Union[C3D, ResNet, MFNET_3D]

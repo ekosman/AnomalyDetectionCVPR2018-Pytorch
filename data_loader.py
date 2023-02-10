@@ -3,7 +3,7 @@
 import logging
 import os
 import sys
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 import numpy as np
 from torch import Tensor
@@ -45,7 +45,9 @@ class VideoIter(data.Dataset):
         """Retrieve the number of the videos in the dataset."""
         return len(self.video_list)
 
-    def getitem_from_raw_video(self, idx: int) -> Tuple[Tensor, int, str, str]:
+    def getitem_from_raw_video(
+        self, idx: int
+    ) -> Union[Tuple[Tensor, int, str, str], Tuple[Tensor, int, int, str, str]]:
         """Fetch a sample from the dataset.
 
         Args:
@@ -53,13 +55,12 @@ class VideoIter(data.Dataset):
 
         Returns:
             Tuple[Tensor, int, str, str]: Video clip, clip idx in the video, directory name, and file
+            Tuple[Tensor, int, int, str, str]: Video clip, label, clip idx in the video, directory name, and file
         """
         video, _, _, _ = self.video_clips.get_clip(idx)
         video_idx, clip_idx = self.video_clips.get_clip_location(idx)
         video_path = self.video_clips.video_paths[video_idx]
-        in_clip_frames = list(
-            range(0, self.total_clip_length_in_frames, self.frames_stride)
-        )
+        in_clip_frames = list(range(0, self.total_clip_length_in_frames, self.frames_stride))
         video = video[in_clip_frames]
         if self.video_transform is not None:
             video = self.video_transform(video)
@@ -85,11 +86,12 @@ class VideoIter(data.Dataset):
             except Exception as e:
                 index = np.random.choice(range(0, self.__len__()))
                 trace_back = sys.exc_info()[2]
-                line = trace_back.tb_lineno
+                if trace_back is not None:
+                    line = str(trace_back.tb_lineno)
+                else:
+                    line = "no-line"
                 # pylint: disable=line-too-long
-                logging.warning(
-                    f"VideoIter:: ERROR (line number {line}) !! (Force using another index:\n{index})\n{e}"
-                )
+                logging.warning(f"VideoIter:: ERROR (line number {line}) !! (Force using another index:\n{index})\n{e}")
 
         return batch
 
@@ -130,18 +132,14 @@ class SingleVideoIter(VideoIter):
         video_transform=None,
         return_label=False,
     ) -> None:
-        super().__init__(
-            clip_length, frame_stride, video_path, video_transform, return_label
-        )
+        super().__init__(clip_length, frame_stride, video_path, video_transform, return_label)
 
     def _get_video_list(self, dataset_path: str) -> List[str]:
         return [dataset_path]
 
     def __getitem__(self, idx: int) -> Tensor:
         video, _, _, _ = self.video_clips.get_clip(idx)
-        in_clip_frames = list(
-            range(0, self.total_clip_length_in_frames, self.frames_stride)
-        )
+        in_clip_frames = list(range(0, self.total_clip_length_in_frames, self.frames_stride))
         video = video[in_clip_frames]
         if self.video_transform is not None:
             video = self.video_transform(video)
