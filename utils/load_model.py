@@ -1,7 +1,7 @@
 """This module contains functions for loading models."""
 import logging
 from os import path
-from typing import Tuple, Union
+from typing import Tuple
 
 import torch
 from torch import nn

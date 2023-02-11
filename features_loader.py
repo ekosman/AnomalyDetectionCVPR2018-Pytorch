@@ -171,7 +171,7 @@ class FeaturesLoaderVal(data.Dataset):
                 start_end_couples = []
                 items = line.split()
                 anomalies_frames = [int(x) for x in items[3:]]
-                torch.tensor([anomalies_frames[:2], anomalies_frames[2:]])
+                start_end_couples = torch.tensor([anomalies_frames[:2], anomalies_frames[2:]])
                 file = items[0].split(".")[0]
                 file = file.replace("/", os.sep)
                 feature_path = os.path.join(features_path, file)

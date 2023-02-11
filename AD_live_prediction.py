@@ -66,7 +66,11 @@ def get_args() -> argparse.Namespace:
 
 
 def features_extraction(
-    frames, model: FeatureExtractor, device: Device, frame_stride: int = 1, transforms: Optional[Callable] = None
+    frames,
+    model: FeatureExtractor,
+    device: Device,
+    frame_stride: int = 1,
+    transforms: Optional[Callable] = None,
 ) -> List[np.ndarray]:
     """Extracts features of the video. The returned features will be returned
     after averaging over the required number of video segments.

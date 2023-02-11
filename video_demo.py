@@ -33,8 +33,8 @@ from tqdm import tqdm
 
 from data_loader import SingleVideoIter
 from feature_extractor import read_features, to_segments
-from network.TorchUtils import get_torch_device
 from network.anomaly_detector_model import AnomalyDetector
+from network.TorchUtils import get_torch_device
 from utils.load_model import load_models
 from utils.types import Device, FeatureExtractor
 from utils.utils import build_transforms
@@ -261,6 +261,7 @@ class Window(QWidget):
                     progress_bar=self.pbar,
                 )
             )
+            features = torch.tensor(features)
 
         elif self.feature_source == "Load features from file":
             f_filename, _ = QFileDialog.getOpenFileName(self, "Open Features File")
