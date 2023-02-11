@@ -4,7 +4,6 @@ from os import path
 from typing import Tuple
 
 import torch
-from torch import nn
 
 from network.anomaly_detector_model import AnomalyDetector
 from network.c3d import C3D
