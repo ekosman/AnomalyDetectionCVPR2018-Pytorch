@@ -151,7 +151,7 @@ class FeaturesLoaderVal(data.Dataset):
         return features, start_end_couples, length
 
     @staticmethod
-    def _get_features_list(features_path: str, annotation_path: str) -> List[Tuple[str, List[List[int]], int]]:
+    def _get_features_list(features_path: str, annotation_path: str) -> List[Tuple[str, Tensor, int]]:
         """Retrieves the paths of all feature files contained within the
         annotation file.
 
@@ -168,7 +168,6 @@ class FeaturesLoaderVal(data.Dataset):
         with open(annotation_path) as f:
             lines = f.read().splitlines(keepends=False)
             for line in lines:
-                start_end_couples = []
                 items = line.split()
                 anomalies_frames = [int(x) for x in items[3:]]
                 start_end_couples = torch.tensor([anomalies_frames[:2], anomalies_frames[2:]])

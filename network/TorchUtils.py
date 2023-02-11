@@ -161,7 +161,7 @@ class TorchModel(nn.Module):
         with torch.no_grad():
             for iteration, (batch, targets) in enumerate(data_iter):
                 batch = self.data_to_device(batch, self.device)
-                targets: Tensor = self.data_to_device(targets, self.device)
+                targets = self.data_to_device(targets, self.device)
 
                 outputs = self.model(batch)
                 loss = criterion(outputs, targets)
