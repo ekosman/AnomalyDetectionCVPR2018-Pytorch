@@ -78,9 +78,13 @@ class DefaultModelCallback(Callback):
             plt.xlabel("Epoch")
             plt.ylabel("Loss")
 
-            plt.plot(range(1, self._epochs + 1), self._train_losses, label="Training loss")
+            plt.plot(
+                range(1, self._epochs + 1), self._train_losses, label="Training loss"
+            )
             if self._val_loss:
-                plt.plot(range(1, self._epochs + 1), self._val_loss, label="Validation loss")
+                plt.plot(
+                    range(1, self._epochs + 1), self._val_loss, label="Validation loss"
+                )
 
             plt.savefig(os.path.join(self.visualization_dir, "loss.png"))
             plt.close()
@@ -90,9 +94,13 @@ class DefaultModelCallback(Callback):
         self._epoch_iterations = epoch_iterations
         self._start_time = time.time()
 
-    def on_epoch_step(self, global_iteration: int, epoch_iteration: int, loss: float) -> None:
+    def on_epoch_step(
+        self, global_iteration: int, epoch_iteration: int, loss: float
+    ) -> None:
         if epoch_iteration % self._log_every == 0:
-            average_time = round((time.time() - self._start_time) / (epoch_iteration + 1), 3)
+            average_time = round(
+                (time.time() - self._start_time) / (epoch_iteration + 1), 3
+            )
 
             loss_string = f"loss: {loss}"
 
@@ -160,7 +168,9 @@ class TensorBoardCallback(Callback):
         self.epoch = epoch_num
 
     def on_epoch_step(self, global_iteration, epoch_iteration, loss) -> None:
-        self.tb_writer.add_scalars("Train loss (iterations)", {"Loss": loss}, global_iteration)
+        self.tb_writer.add_scalars(
+            "Train loss (iterations)", {"Loss": loss}, global_iteration
+        )
 
     def on_epoch_end(self, loss) -> None:
         pass
@@ -176,7 +186,11 @@ class TensorBoardCallback(Callback):
 
     def on_training_iteration_end(self, train_loss, val_loss) -> None:
         if train_loss is not None:
-            self.tb_writer.add_scalars("Epoch loss", {"Loss (train)": train_loss}, self.epoch)
+            self.tb_writer.add_scalars(
+                "Epoch loss", {"Loss (train)": train_loss}, self.epoch
+            )
 
         if val_loss is not None:
-            self.tb_writer.add_scalars("Epoch loss", {"Loss (validation)": val_loss}, self.epoch)
+            self.tb_writer.add_scalars(
+                "Epoch loss", {"Loss (validation)": val_loss}, self.epoch
+            )
