@@ -7,30 +7,30 @@
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
 [![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 
-# AnomalyDetectionCVPR2018-Pytorch
+# AnomalyDetectionCVPR2018-Pytorch  <!-- omit in toc -->
 Pytorch version of - https://github.com/WaqasSultani/AnomalyDetectionCVPR2018
 
-- [AnomalyDetectionCVPR2018-Pytorch](#anomalydetectioncvpr2018-pytorch)
-  - [Future Improvements](#future-improvements)
-  - [Known Issues](#known-issues)
-  - [Install Anaconda Environment](#install-anaconda-environment)
-  - [Feature Extractor Weights](#feature-extractor-weights)
-    - [C3D](#c3d)
-    - [R3D-101](#r3d-101)
-    - [R3D-152](#r3d-152)
-  - [Precomputed Features](#precomputed-features)
-    - [C3D features](#c3d-features)
-    - [ResNet-101 features (by @Daniele Mascali)](#resnet-101-features-by-daniele-mascali)
-    - [ResNet-152 features (by @Henryy-rs)](#resnet-152-features-by-henryy-rs)
-  - [Pre-Trained Anomaly Detector](#pre-trained-anomaly-detector)
-  - [Features Extraction](#features-extraction)
-  - [Training](#training)
-  - [Generate ROC Curve](#generate-roc-curve)
-  - [Demo](#demo)
-    - [Off-line (with video loader)](#off-line-with-video-loader)
-    - [On-line (via webcam)](#on-line-via-webcam)
-  - [Cite](#cite)
-  - [FAQ](#faq)
+## Table of Contents  <!-- omit in toc -->
+- [Future Improvements](#future-improvements)
+- [Known Issues](#known-issues)
+- [Install Anaconda Environment](#install-anaconda-environment)
+- [Feature Extractor Weights](#feature-extractor-weights)
+  - [C3D](#c3d)
+  - [R3D-101](#r3d-101)
+  - [R3D-152](#r3d-152)
+- [Precomputed Features](#precomputed-features)
+  - [C3D features](#c3d-features)
+  - [ResNet-101 features (by @Daniele Mascali)](#resnet-101-features-by-daniele-mascali)
+  - [ResNet-152 features (by @Henryy-rs)](#resnet-152-features-by-henryy-rs)
+- [Pre-Trained Anomaly Detector](#pre-trained-anomaly-detector)
+- [Features Extraction](#features-extraction)
+- [Training](#training)
+- [Generate ROC Curve](#generate-roc-curve)
+- [Demo](#demo)
+  - [Off-line (with video loader)](#off-line-with-video-loader)
+  - [On-line (via webcam)](#on-line-via-webcam)
+- [Cite](#cite)
+- [FAQ](#faq)
 
 ## Future Improvements
 In this section, I list the future improvements I intend to add to this repository. Please feel free to recommend new features. I also happily accept PR's! :smirk:
