@@ -52,7 +52,7 @@ class FeaturesLoader:
     def __len__(self) -> int:
         return self._iterations
 
-    def __getitem__(self, index: int) -> Tuple[Tensor, int]:
+    def __getitem__(self, index: int) -> Tuple[Tensor, Tensor]:
         if self._i == len(self):
             self._i = 0
             raise StopIteration
@@ -71,7 +71,7 @@ class FeaturesLoader:
         self._i += 1
         return feature, label
 
-    def get_features(self) -> Tensor:
+    def get_features(self) -> Tuple[Tensor, Tensor]:
         """Fetches a bucket sample from the dataset."""
         normal_paths = np.random.choice(
             self.features_list_normal, size=self._bucket_size
@@ -185,12 +185,11 @@ class FeaturesLoaderVal(data.Dataset):
         with open(annotation_path) as f:
             lines = f.read().splitlines(keepends=False)
             for line in lines:
-                start_end_couples = []
                 items = line.split()
                 anomalies_frames = [int(x) for x in items[3:]]
-                start_end_couples.append([anomalies_frames[0], anomalies_frames[1]])
-                start_end_couples.append([anomalies_frames[2], anomalies_frames[3]])
-                start_end_couples = torch.from_numpy(np.array(start_end_couples))
+                start_end_couples = torch.tensor(
+                    [anomalies_frames[:2], anomalies_frames[2:]]
+                )
                 file = items[0].split(".")[0]
                 file = file.replace("/", os.sep)
                 feature_path = os.path.join(features_path, file)

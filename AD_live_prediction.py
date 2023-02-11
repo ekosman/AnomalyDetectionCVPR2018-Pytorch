@@ -3,7 +3,7 @@
 import argparse
 import logging
 import sys
-from typing import List
+from typing import Callable, List, Optional
 
 import cv2
 import numpy as np
@@ -33,7 +33,7 @@ from feature_extractor import to_segments
 from network.TorchUtils import get_torch_device
 from utils.load_model import load_models
 from utils.queue import Queue
-from utils.types import Device
+from utils.types import Device, FeatureExtractor
 from utils.utils import build_transforms
 
 MAX_PREDS = 50
@@ -68,8 +68,12 @@ def get_args() -> argparse.Namespace:
 
 
 def features_extraction(
-    frames, model, device, frame_stride=1, transforms=None
-) -> List[np.array]:
+    frames,
+    model: FeatureExtractor,
+    device: Device,
+    frame_stride: int = 1,
+    transforms: Optional[Callable] = None,
+) -> List[np.ndarray]:
     """Extracts features of the video. The returned features will be returned
     after averaging over the required number of video segments.
 
@@ -83,8 +87,9 @@ def features_extraction(
         feature (1, feature_dim), usually (1, 4096) as in the original paper
     """
 
-    frames = torch.tensor(frames)  # pylint: disable=not-callable
-    frames = transforms(frames).to(device)
+    frames = torch.tensor(frames, device=device)  # pylint: disable=not-callable
+    if transforms is not None:
+        frames = transforms(frames)
     data = frames[:, range(0, frames.shape[1], frame_stride), ...]
     data = data.unsqueeze(0)
 
@@ -120,7 +125,7 @@ class VideoThread(QThread):
     """Read video stream and store frames in a queue."""
 
     def __init__(
-        self, queue: Queue, preprocess_fn: callable, camera_view: QLabel
+        self, queue: Queue, preprocess_fn: Callable, camera_view: QLabel
     ) -> None:
         super().__init__()
         self._run_flag = True
@@ -150,7 +155,7 @@ class VideoThread(QThread):
 class VideoConsumer(QThread):
     """Consume frames from a queue and perform predictions."""
 
-    def __init__(self, queue: Queue, prediction_function: callable) -> None:
+    def __init__(self, queue: Queue, prediction_function: Callable) -> None:
         super().__init__()
         self._run_flag = True
         self._queue = queue

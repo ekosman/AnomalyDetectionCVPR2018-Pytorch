@@ -1,7 +1,7 @@
 """This module contains functions for loading models."""
 import logging
 from os import path
-from typing import Tuple, Union
+from typing import Tuple
 
 import torch
 from torch import nn
@@ -15,7 +15,7 @@ from utils.types import Device, FeatureExtractor
 
 
 def load_feature_extractor(
-    features_method: str, feature_extractor_path: str, device: Union[torch.device, str]
+    features_method: str, feature_extractor_path: str, device: Device
 ) -> FeatureExtractor:
     """Load feature extractor from given path.
 
@@ -41,7 +41,8 @@ def load_feature_extractor(
         )
     logging.info(f"Loading feature extractor from {feature_extractor_path}")
 
-    model = None
+    model: FeatureExtractor
+
     if features_method == "c3d":
         model = C3D(pretrained=feature_extractor_path)
     elif features_method == "mfnet":
@@ -92,8 +93,8 @@ def load_models(
     feature_extractor_path: str,
     ad_model_path: str,
     features_method: str = "c3d",
-    device: str = "cuda",
-) -> Tuple[nn.Module, nn.Module]:
+    device: Device = "cuda",
+) -> Tuple[AnomalyDetector, FeatureExtractor]:
     """Loads both feature extractor and anomaly detector from the given paths.
 
     Args:

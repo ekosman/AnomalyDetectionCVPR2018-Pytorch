@@ -57,20 +57,20 @@ class DefaultModelCallback(Callback):
         """
         super().__init__()
         self.visualization_dir = visualization_dir
-        self.log_every = log_every
-        self.epochs = 0
-        self.epoch = 0
-        self.epoch_iterations = 0
-        self.val_iterations = 0
-        self.start_time = 0
-        self.train_losses = None
-        self.val_loss = None
+        self._log_every = log_every
+        self._epochs = 0
+        self._epoch = 0
+        self._epoch_iterations = 0
+        self._val_iterations = 0
+        self._start_time = 0.0
+        self._train_losses = []
+        self._val_loss = []
 
     def on_training_start(self, epochs) -> None:
         logging.info(f"Training for {epochs} epochs")
-        self.epochs = epochs
-        self.train_losses = []
-        self.val_loss = []
+        self._epochs = epochs
+        self._train_losses = []
+        self._val_loss = []
 
     def on_training_end(self, model) -> None:
         if self.visualization_dir is not None:
@@ -79,43 +79,45 @@ class DefaultModelCallback(Callback):
             plt.ylabel("Loss")
 
             plt.plot(
-                range(1, self.epochs + 1), self.train_losses, label="Training loss"
+                range(1, self._epochs + 1), self._train_losses, label="Training loss"
             )
-            if self.val_loss:
+            if self._val_loss:
                 plt.plot(
-                    range(1, self.epochs + 1), self.val_loss, label="Validation loss"
+                    range(1, self._epochs + 1), self._val_loss, label="Validation loss"
                 )
 
             plt.savefig(os.path.join(self.visualization_dir, "loss.png"))
             plt.close()
 
-    def on_epoch_start(self, epoch_num, epoch_iterations) -> None:
-        self.epoch = epoch_num
-        self.epoch_iterations = epoch_iterations
-        self.start_time = time.time()
+    def on_epoch_start(self, epoch_num: int, epoch_iterations: int) -> None:
+        self._epoch = epoch_num
+        self._epoch_iterations = epoch_iterations
+        self._start_time = time.time()
 
-    def on_epoch_step(self, global_iteration, epoch_iteration, loss) -> None:
-        if epoch_iteration % self.log_every == 0:
+    def on_epoch_step(
+        self, global_iteration: int, epoch_iteration: int, loss: float
+    ) -> None:
+        if epoch_iteration % self._log_every == 0:
             average_time = round(
-                (time.time() - self.start_time) / (epoch_iteration + 1), 3
+                (time.time() - self._start_time) / (epoch_iteration + 1), 3
             )
 
             loss_string = f"loss: {loss}"
 
             # pylint: disable=line-too-long
             logging.info(
-                f"Epoch {self.epoch}/{self.epochs}      Iteration {epoch_iteration}/{self.epoch_iterations}    {loss_string}    Time: {average_time} seconds/iteration"
+                f"Epoch {self._epoch}/{self._epochs}      Iteration {epoch_iteration}/{self._epoch_iterations}    {loss_string}    Time: {average_time} seconds/iteration"
             )
 
     def on_epoch_end(self, loss) -> None:
-        self.train_losses.append(loss)
+        self._train_losses.append(loss)
 
     def on_evaluation_start(self, val_iterations) -> None:
-        self.val_iterations = val_iterations
+        self._val_iterations = val_iterations
 
     def on_evaluation_step(self, iteration, model_outputs, targets, loss) -> None:
-        if iteration % self.log_every == 0:
-            logging.info(f"Iteration {iteration}/{self.val_iterations}")
+        if iteration % self._log_every == 0:
+            logging.info(f"Iteration {iteration}/{self._val_iterations}")
 
     def on_evaluation_end(self) -> None:
         pass
@@ -128,7 +130,7 @@ class DefaultModelCallback(Callback):
             logging.info(
                 f"""
 ============================================================================================================================
-Epoch {self.epoch}/{self.epochs}     {train_loss_string}     {val_loss_string}        time: {datetime.timedelta(seconds=time.time() - self.start_time)}
+Epoch {self._epoch}/{self._epochs}     {train_loss_string}     {val_loss_string}        time: {datetime.timedelta(seconds=time.time() - self._start_time)}
 ============================================================================================================================
 """
             )
@@ -137,7 +139,7 @@ Epoch {self.epoch}/{self.epochs}     {train_loss_string}     {val_loss_string}  
             logging.info(
                 f"""
 ============================================================================================================================
-Epoch {self.epoch}/{self.epochs}     {train_loss_string}        time: {datetime.timedelta(seconds=time.time() - self.start_time)}
+Epoch {self._epoch}/{self._epochs}     {train_loss_string}        time: {datetime.timedelta(seconds=time.time() - self._start_time)}
 ============================================================================================================================
 """
             )

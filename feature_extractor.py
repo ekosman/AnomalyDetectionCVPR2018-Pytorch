@@ -3,7 +3,7 @@ import argparse
 import logging
 import os
 from os import mkdir, path
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import torch
@@ -81,7 +81,7 @@ def get_args() -> argparse.Namespace:
 
 def to_segments(
     data: Union[Tensor, np.ndarray], n_segments: int = 32
-) -> List[np.array]:
+) -> List[np.ndarray]:
     """These code is taken from:
 
         # https://github.com/rajanjitenpatel/C3D_feature_extraction/blob/b5894fa06d43aa62b3b64e85b07feb0853e7011a/extract_C3D_feature.py#L805
@@ -91,7 +91,7 @@ def to_segments(
         n_segments (int, optional): Number of segments
 
     Returns:
-        List[np.array]: List of `num` segments
+        List[np.ndarray]: List of `num` segments
     """
     data = np.array(data)
     Segments_Features = []
@@ -116,9 +116,9 @@ class FeaturesWriter:
     """Accumulates and saves extracted features."""
 
     def __init__(self, num_videos: int, chunk_size: int = 16) -> None:
-        self.path = None
-        self.dir = None
-        self.data = None
+        self.path = ""
+        self.dir = ""
+        self.data = {}
         self.chunk_size = chunk_size
         self.num_videos = num_videos
         self.dump_count = 0
@@ -152,11 +152,11 @@ class FeaturesWriter:
         if not path.exists(self.dir):
             os.mkdir(self.dir)
 
-        features = to_segments([self.data[key] for key in sorted(self.data)])
+        features = to_segments(np.array([self.data[key] for key in sorted(self.data)]))
         with open(self.path, "w") as fp:
             for d in features:
-                d = [str(x) for x in d]
-                fp.write(" ".join(d) + "\n")
+                d_str = [str(x) for x in d]
+                fp.write(" ".join(d_str) + "\n")
 
     def _is_new_video(self, video_name: str, dir: str) -> bool:
         """Checks whether the given video is new or the writer is already
@@ -197,7 +197,7 @@ class FeaturesWriter:
         self.store(feature, idx)
 
 
-def read_features(file_path, cache: Dict = None) -> np.ndarray:
+def read_features(file_path, cache: Optional[Dict[str, Tensor]] = None) -> Tensor:
     """Reads features from file.
 
     Args:
@@ -210,7 +210,7 @@ def read_features(file_path, cache: Dict = None) -> np.ndarray:
         FileNotFoundError: The provided path does not exist.
 
     Returns:
-        np.ndarray
+        Tensor
     """
     if cache is not None and file_path in cache:
         return cache[file_path]
@@ -221,9 +221,10 @@ def read_features(file_path, cache: Dict = None) -> np.ndarray:
     features = None
     with open(file_path) as fp:
         data = fp.read().splitlines(keepends=False)
-        features = np.stack([line.split(" ") for line in data]).astype(np.float)
+        features = torch.tensor(
+            np.stack([line.split(" ") for line in data]).astype(np.float64)
+        )
 
-    features = torch.from_numpy(features).float()
     if cache is not None:
         cache[file_path] = features
     return features
@@ -236,7 +237,7 @@ def get_features_loader(
     batch_size: int,
     num_workers: int,
     mode: str,
-) -> Tuple[DataLoader, DataLoader]:
+) -> Tuple[VideoIter, DataLoader]:
     data_loader = VideoIter(
         dataset_path=dataset_path,
         clip_length=clip_length,

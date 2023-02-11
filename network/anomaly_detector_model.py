@@ -77,7 +77,10 @@ class RegularizedLoss(torch.nn.Module):
     """Regularized a loss function."""
 
     def __init__(
-        self, model: nn.Module, original_objective: Callable, lambdas: float = 0.001
+        self,
+        model: AnomalyDetector,
+        original_objective: Callable,
+        lambdas: float = 0.001,
     ) -> None:
         super().__init__()
         self.lambdas = lambdas

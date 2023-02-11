@@ -3,6 +3,7 @@
 import logging
 import os
 import time
+from typing import List, Optional, Union
 
 import torch
 from torch import Tensor, nn
@@ -39,7 +40,7 @@ class TorchModel(nn.Module):
     """Wrapper class for a torch model to make it comfortable to train and load
     models."""
 
-    def __init__(self, model) -> None:
+    def __init__(self, model: nn.Module) -> None:
         super().__init__()
         self.device = get_torch_device()
         self.iteration = 0
@@ -96,11 +97,11 @@ class TorchModel(nn.Module):
         train_iter: DataLoader,
         criterion: nn.Module,
         optimizer: Optimizer,
-        eval_iter: DataLoader = None,
+        eval_iter: Optional[DataLoader] = None,
         epochs: int = 10,
-        network_model_path_base: str = None,
-        save_every: int = None,
-        evaluate_every: int = None,
+        network_model_path_base: Optional[str] = None,
+        save_every: Optional[int] = None,
+        evaluate_every: Optional[int] = None,
     ) -> None:
         """
 
@@ -158,7 +159,7 @@ class TorchModel(nn.Module):
         total_loss = 0
 
         with torch.no_grad():
-            for iteration, batch in enumerate(data_iter):
+            for iteration, (batch, targets) in enumerate(data_iter):
                 batch = self.data_to_device(batch, self.device)
                 targets = self.data_to_device(targets, self.device)
 
@@ -198,7 +199,7 @@ class TorchModel(nn.Module):
             float: Average training loss calculated during the epoch.
         """
         total_loss = 0
-        total_time = 0
+        total_time = 0.0
         self.train()
         self.notify_callbacks("on_epoch_start", epoch, len(data_iter))
         for iteration, (batch, targets) in enumerate(data_iter):
@@ -235,7 +236,9 @@ class TorchModel(nn.Module):
         self.notify_callbacks("on_epoch_end", loss)
         return loss
 
-    def data_to_device(self, data: Tensor, device: str) -> Tensor:
+    def data_to_device(
+        self, data: Union[Tensor, List[Tensor]], device: Device
+    ) -> Union[Tensor, List[Tensor]]:
         """
         Transfers a tensor data to a device
         Args:
