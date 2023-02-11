@@ -28,7 +28,7 @@ from PyQt5.QtWidgets import (
     QStyle,
     QWidget,
 )
-from torch import Tensor, nn
+from torch import Tensor
 from tqdm import tqdm
 
 from data_loader import SingleVideoIter
