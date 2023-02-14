@@ -219,7 +219,6 @@ class Window(QWidget):
 
     def init_ui(self) -> None:
         """Create media player object."""
-
         # setup camera
         self.available_cameras = QCameraInfo.availableCameras()
         self.camera_view = QLabel()
