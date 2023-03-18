@@ -236,9 +236,7 @@ class TorchModel(nn.Module):
         self.notify_callbacks("on_epoch_end", loss)
         return loss
 
-    def data_to_device(
-        self, data: Union[Tensor, List[Tensor]], device: Device
-    ) -> Union[Tensor, List[Tensor]]:
+    def data_to_device(self, data: Union[Tensor, List[Tensor]], device: Device) -> Union[Tensor, List[Tensor]]:
         """
         Transfers a tensor data to a device
         Args:
@@ -266,6 +264,12 @@ class TorchModel(nn.Module):
             torch.save(self.model.module, model_path)
         else:
             torch.save(self.model, model_path)
+
+    def get_model(self) -> nn.Module:
+        if self.is_data_parallel:
+            return self.model.module
+        else:
+            return self.model
 
     def forward(self, *args, **kwargs):
         return self.model(*args, **kwargs)
