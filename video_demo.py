@@ -90,7 +90,8 @@ def features_extraction(
     :param clip_length: number of frames to use for loading each video sample
     :param n_segments: how many chunks the video should be divided into
     :param progress_bar: TODO
-    :return: features list (n_segments, feature_dim), usually (32, 4096) as in the original paper
+    :return: features list (n_segments, feature_dim), usually (32, 4096)
+        as in the original paper
     """
     data_loader = SingleVideoIter(
         clip_length=clip_length,

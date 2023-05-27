@@ -1,6 +1,4 @@
-"""
-Author: Yunpeng Chen
-"""
+"""Author: Yunpeng Chen."""
 import logging
 from collections import OrderedDict
 
