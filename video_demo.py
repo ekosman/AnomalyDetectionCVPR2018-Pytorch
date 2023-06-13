@@ -87,7 +87,8 @@ def features_extraction(
     :param device: device to use for loading data
     :param batch_size: batch size to use for loading data
     :param frame_stride: interval between frames to load
-    :param clip_length: number of frames to use for loading each video sample
+    :param clip_length: number of frames to use for loading each video
+        sample
     :param n_segments: how many chunks the video should be divided into
     :param progress_bar: TODO
     :return: features list (n_segments, feature_dim), usually (32, 4096)
