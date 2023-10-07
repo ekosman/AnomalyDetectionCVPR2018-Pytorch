@@ -270,8 +270,8 @@ class TorchModel(nn.Module):
     def get_model(self) -> nn.Module:
         if self.is_data_parallel:
             return self.model.module
-        else:
-            return self.model
+
+        return self.model
 
     def forward(self, *args, **kwargs):
         return self.model(*args, **kwargs)

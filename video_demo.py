@@ -288,7 +288,7 @@ class Window(QWidget):
         self.label.setText("Done! Click the Play button")
 
     def _features_msgbtn(self, i) -> None:
-        self.feature_source = i.text()
+        self.feature_source = i.text()  # pylint: disable=attribute-defined-outside-init
 
     def play_video(self):
         if self.mediaPlayer.state() == QMediaPlayer.PlayingState:
