@@ -1,4 +1,5 @@
 """This module contains callbacks to be used along with `TorchModel`."""
+
 import datetime
 import logging
 import os
