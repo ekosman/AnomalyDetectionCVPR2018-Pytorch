@@ -1,4 +1,5 @@
 """This module contains utilities for anomaly detection."""
+
 import logging
 import sys
 from typing import List, Optional, Union

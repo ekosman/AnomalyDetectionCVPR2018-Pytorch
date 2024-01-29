@@ -1,4 +1,5 @@
 """This module contains a training procedure for video feature extraction."""
+
 import argparse
 import logging
 import os
