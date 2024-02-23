@@ -223,7 +223,7 @@ def read_features(file_path, cache: Optional[Dict[str, Tensor]] = None) -> Tenso
     with open(file_path) as fp:
         data = fp.read().splitlines(keepends=False)
         features = torch.tensor(
-            np.stack([line.split(" ") for line in data]).astype(np.float64)
+            np.stack([line.split(" ") for line in data]).astype(np.float32)
         )
 
     if cache is not None:
