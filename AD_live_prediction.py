@@ -32,7 +32,7 @@ from torch import Tensor, nn
 from feature_extractor import to_segments
 from network.TorchUtils import get_torch_device
 from utils.load_model import load_models
-from utils.queue import Queue
+from utils.stack import Stack
 from utils.types import Device, FeatureExtractor
 from utils.utils import build_transforms
 
@@ -122,14 +122,14 @@ def ad_prediction(
 
 
 class VideoThread(QThread):
-    """Read video stream and store frames in a queue."""
+    """Read video stream and store frames in a stack."""
 
     def __init__(
-        self, queue: Queue, preprocess_fn: Callable, camera_view: QLabel
+        self, stack: Stack, preprocess_fn: Callable, camera_view: QLabel
     ) -> None:
         super().__init__()
         self._run_flag = True
-        self._queue = queue
+        self._stack = stack
         self._preprocess_fn = preprocess_fn
         self._camera_view = camera_view
 
@@ -142,7 +142,7 @@ class VideoThread(QThread):
                 qt_img = self._preprocess_fn(cv_img)
                 self._camera_view.setPixmap(qt_img)
                 cv_img = cv2.cvtColor(cv_img, cv2.COLOR_BGR2RGB)
-                self._queue.put(cv_img)
+                self._stack.put(cv_img)
         # shut down capture system
         cap.release()
 
@@ -153,21 +153,21 @@ class VideoThread(QThread):
 
 
 class VideoConsumer(QThread):
-    """Consume frames from a queue and perform predictions."""
+    """Consume frames from a stack and perform predictions."""
 
-    def __init__(self, queue: Queue, prediction_function: Callable) -> None:
+    def __init__(self, stack: Stack, prediction_function: Callable) -> None:
         super().__init__()
         self._run_flag = True
-        self._queue = queue
+        self._stack = stack
         self._prediction_function = prediction_function
 
     def run(self) -> None:
         while self._run_flag:
-            with self._queue._lock:
-                if not self._queue.full():
+            with self._stack._lock:
+                if not self._stack.full():
                     continue
 
-                batch = copy(list(reversed(self._queue.get())))
+                batch = copy(list(reversed(self._stack.get())))
             self._prediction_function(batch)
 
     def stop(self) -> None:
@@ -198,7 +198,7 @@ class Window(QWidget):
         self.current_camera_name = None
         self.clip_length = clip_length
 
-        self.frames_queue = Queue(max_size=self.clip_length)
+        self.frames_stack = Stack(max_size=self.clip_length)
 
         self.transforms = transforms
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -222,7 +222,7 @@ class Window(QWidget):
         # setup camera
         self.available_cameras = QCameraInfo.availableCameras()
         self.camera_view = QLabel()
-        self.frames_queue = Queue(max_size=self.clip_length)
+        self.frames_stack = Stack(max_size=self.clip_length)
         self.camera_id = None
         self.select_camera()
 
@@ -256,12 +256,12 @@ class Window(QWidget):
 
         # create the video capture thread
         self.thread = VideoThread(
-            queue=self.frames_queue,
+            stack=self.frames_stack,
             preprocess_fn=self.convert_cv_qt,
             camera_view=self.camera_view,
         )
         self._video_consumer = VideoConsumer(
-            queue=self.frames_queue, prediction_function=self.perform_prediction
+            stack=self.frames_stack, prediction_function=self.perform_prediction
         )
         self.thread.start()
         self._video_consumer.start()
