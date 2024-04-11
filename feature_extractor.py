@@ -239,7 +239,7 @@ def get_features_loader(
     num_workers: int,
     mode: str,
 ) -> Tuple[VideoIter, DataLoader]:
-    data_loader = VideoIter(
+    data_loader = VideoIter( 
         dataset_path=dataset_path,
         clip_length=clip_length,
         frame_stride=frame_interval,
