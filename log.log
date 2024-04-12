@@ -1,0 +1,4 @@
+2024-04-12 20:45:32,121 Training for 2 epochs
+2024-04-12 20:45:40,645 Epoch 0/2      Iteration 0/20000    loss: 1.039005160331726    Time: 8.523 seconds/iteration
+2024-04-12 20:46:48,865 Epoch 0/2      Iteration 10/20000    loss: 1.0469595193862915    Time: 6.977 seconds/iteration
+2024-04-12 20:47:36,643 Epoch 0/2      Iteration 20/20000    loss: 1.0400586128234863    Time: 5.93 seconds/iteration
