@@ -124,6 +124,7 @@ class FeaturesLoader:
     def get_feature_dim(self) -> int:
         return self[0][0].shape[-1]
 
+
 class FeaturesLoaderVal(data.Dataset):
     """Loader for video features for validation phase."""
 

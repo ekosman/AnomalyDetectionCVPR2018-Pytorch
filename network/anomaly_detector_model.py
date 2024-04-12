@@ -26,7 +26,7 @@ class AnomalyDetector(nn.Module):
         nn.init.xavier_normal_(self.fc1.weight)
         nn.init.xavier_normal_(self.fc2.weight)
         nn.init.xavier_normal_(self.fc3.weight)
-    
+
     @property
     def input_dim(self) -> int:
         return self.fc1.weight.shape[0]
