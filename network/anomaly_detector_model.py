@@ -29,7 +29,7 @@ class AnomalyDetector(nn.Module):
 
     @property
     def input_dim(self) -> int:
-        return self.fc1.weight.shape[0]
+        return self.fc1.weight.shape[1]
 
     def forward(self, x: Tensor) -> Tensor:  # pylint: disable=arguments-differ
         x = self.dropout1(self.relu1(self.fc1(x)))
