@@ -89,7 +89,6 @@ Arguments:
 Arguments:
 * features_path - path to the directory containing the extracted features (pre-computed features are available for download above, or supply your own features extracted from the previous stage)
 * annotation_path - path to the annotations file (Available in this repository as `Train_annotations.txt`)
-* feature_dim - The dimensionality of the input features (i.e. length of the feature vectors extracted using `extract_features.py` or pre-computed features downloaded from [here](#precomputed-features))
 
 ```python TrainingAnomalyDetector_public.py --features_path "path-to-dataset" --annotation_path "path-to-train-annos"```
 

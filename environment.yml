@@ -15,3 +15,4 @@ av
 opencv
 pre-commit
 pyqt==5.15.10
+tensorboard

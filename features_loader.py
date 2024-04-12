@@ -18,7 +18,6 @@ class FeaturesLoader:
     def __init__(
         self,
         features_path: str,
-        feature_dim: int,
         annotation_path: str,
         bucket_size: int = 30,
         iterations: int = 20000,
@@ -26,7 +25,6 @@ class FeaturesLoader:
         """
         Args:
             features_path: Path to the directory that contains the features in text files
-            feature_dim: Dimensionality of each feature vector
             annotation_path: Path to the annotation file
             bucket_size: Size of each bucket
             iterations: How many iterations the loader should perform
@@ -34,7 +32,6 @@ class FeaturesLoader:
 
         super().__init__()
         self._features_path = features_path
-        self._feature_dim = feature_dim
         self._bucket_size = bucket_size
 
         # load video list
@@ -123,6 +120,9 @@ class FeaturesLoader:
 
         return features_list_normal, features_list_anomaly
 
+    @property
+    def get_feature_dim(self) -> int:
+        return self[0][0].shape[-1]
 
 class FeaturesLoaderVal(data.Dataset):
     """Loader for video features for validation phase."""

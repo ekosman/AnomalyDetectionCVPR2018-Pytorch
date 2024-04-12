@@ -46,10 +46,6 @@ def get_args() -> argparse.Namespace:
     )
 
     # optimization
-    parser.add_argument("--batch_size", type=int, default=60, help="batch size")
-    parser.add_argument(
-        "--feature_dim", type=int, default=4096, help="feature dimension"
-    )
     parser.add_argument(
         "--save_every",
         type=int,
@@ -88,16 +84,18 @@ if __name__ == "__main__":
     # Data loader
     train_loader = FeaturesLoader(
         features_path=args.features_path,
-        feature_dim=args.feature_dim,
         annotation_path=args.annotation_path,
         iterations=args.iterations_per_epoch,
     )
+    
+    feature_dim = train_loader.get_feature_dim
 
     # Model
     if args.checkpoint is not None and path.exists(args.checkpoint):
         model = TorchModel.load_model(args.checkpoint)
+        assert feature_dim == model.input_dim, f"Dimentionality mismatch between input of the model ({model.input_dim}) and the loader ({feature_dim})"
     else:
-        network = AnomalyDetector(args.feature_dim)
+        network = AnomalyDetector(feature_dim)
         model = TorchModel(network)
 
     model = model.to(device).train()
