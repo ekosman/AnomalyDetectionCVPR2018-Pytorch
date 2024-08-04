@@ -1,0 +1,17 @@
+name: Auto-merge Dependabot
+on: pull_request
+
+permissions:
+  pull-requests: write
+  contents: write
+
+jobs:
+  automerge:
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+    steps:
+    - name: Enable Pull Request Automerge
+      if: github.actor == 'pre-commit-ci[bot]'
+      run: gh pr merge --merge --auto "1"
+      env:
+        GH_TOKEN: ${{ secrets.PAT }}
