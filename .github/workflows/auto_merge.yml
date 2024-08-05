@@ -8,7 +8,7 @@ permissions:
 jobs:
   automerge:
     runs-on: ubuntu-latest
-    if: github.actor == 'pre-commit-ci[bot]'
+    if: ${{ github.actor }} == 'pre-commit-ci[bot]'
     steps:
     - name: Enable Pull Request Automerge
       run: gh pr merge --merge --squash --auto
