@@ -11,6 +11,6 @@ jobs:
     if: ${{ github.actor }} == 'pre-commit-ci[bot]'
     steps:
     - name: Enable Pull Request Automerge
-      run: gh pr merge --merge --squash --auto
+      run: gh pr merge --merge --auto "1"
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
