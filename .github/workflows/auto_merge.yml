@@ -8,10 +8,9 @@ permissions:
 jobs:
   automerge:
     runs-on: ubuntu-latest
-    if: github.actor == 'dependabot[bot]'
+    if: github.actor == 'pre-commit-ci[bot]'
     steps:
     - name: Enable Pull Request Automerge
-      if: github.actor == 'pre-commit-ci[bot]'
       run: gh pr merge --merge --squash --auto
       env:
         GH_TOKEN: ${{ secrets.PAT }}
