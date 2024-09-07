@@ -138,14 +138,27 @@ The GUI lets you load a video and run the Anomaly Detection code (including feat
 *Contrbuted by Peter Overbury of Sussex Universty IISP Group
 
 ## Cite
+
+Go to the main page of the repository and click on the citation button, where you can find the proper citation format, or:
+
+BibTeX
 ```
-@misc{anomaly18cvpr-pytorch,
-  author       = "Eitan Kosman",
-  title        = "Pytorch implementation of Real-World Anomaly Detection in Surveillance Videos",
-  howpublished = "\url{https://github.com/ekosman/AnomalyDetectionCVPR2018-Pytorch}",
-  note         = "Accessed: 20xx-xx-xx"
+@software{Kosman_Pytorch_implementation_of_2022,
+author = {Kosman, Eitan},
+month = jan,
+title = {{Pytorch implementation of Real-World Anomaly Detection in Surveillance Videos}},
+url = {https://github.com/ekosman/AnomalyDetectionCVPR2018-Pytorch},
+version = {1.0.0},
+year = {2022}
 }
 ```
+
+APA
+```
+Kosman, E. (2022). Pytorch implementation of Real-World Anomaly Detection in Surveillance Videos (Version 1.0.0) [Computer software]. https://github.com/ekosman/AnomalyDetectionCVPR2018-Pytorch
+```
+
+
 
 ## FAQ
 1.
