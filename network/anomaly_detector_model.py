@@ -79,7 +79,7 @@ def custom_objective(y_pred: Tensor, y_true: Tensor) -> Tensor:
 
 
 class RegularizedLoss(torch.nn.Module):
-    """Regularized a loss function."""
+    """Regularizes a loss function."""
 
     def __init__(
         self,
