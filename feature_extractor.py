@@ -39,7 +39,7 @@ def get_args() -> argparse.Namespace:
     parser.add_argument(
         "--num_workers",
         type=int,
-        default=32,
+        default=8, #this was 32
         help="define the number of workers used for loading the videos",
     )
     parser.add_argument(
@@ -143,16 +143,23 @@ class FeaturesWriter:
         """
         return self.data is not None
 
-    def dump(self) -> None:
+    def dump(self, dir: str) -> None:
         """Saves the accumulated features to disk.
 
         The features will be segmented and normalized.
         """
         logging.info(f"{self.dump_count} / {self.num_videos}:	Dumping {self.path}")
         self.dump_count += 1
+        self.dir = dir
         if not path.exists(self.dir):
-            os.mkdir(self.dir)
-
+            #os.mkdir(self.dir)
+            os.makedirs(self.dir, exist_ok=True)
+        #####################################################
+        # Check if data is empty before attempting to process it
+        if len(self.data) == 0:
+            logging.warning("No data to dump, skipping.")
+            return  # If data is empty, skip this dump.
+        #####################################################
         features = to_segments(np.array([self.data[key] for key in sorted(self.data)]))
         with open(self.path, "w") as fp:
             for d in features:
@@ -190,9 +197,8 @@ class FeaturesWriter:
     ) -> None:
         if not self.has_video():
             self._init_video(video_name, dir)
-
         if self._is_new_video(video_name, dir):
-            self.dump()
+            self.dump(dir)
             self._init_video(video_name, dir)
 
         self.store(feature, idx)
@@ -282,6 +288,7 @@ if __name__ == "__main__":
 
     features_writer = FeaturesWriter(num_videos=data_loader.video_count)
     loop_i = 0
+    global_dir = None
     with torch.no_grad():
         for data, clip_idxs, dirs, vid_names in data_iter:
             outputs = network(data.to(device)).detach().cpu().numpy()
@@ -294,11 +301,10 @@ if __name__ == "__main__":
                     logging.info(
                         f"Video {features_writer.dump_count} / {features_writer.num_videos} : Writing clip {clip_idx} of video {vid_name}"
                     )
-
                 loop_i += 1
                 loop_i %= args.log_every
-
                 _dir = path.join(args.save_dir, _dir)
+                global_dir = _dir
                 features_writer.write(
                     feature=outputs[i],
                     video_name=vid_name,
@@ -306,4 +312,4 @@ if __name__ == "__main__":
                     dir=_dir,
                 )
 
-    features_writer.dump()
+    features_writer.dump(global_dir)
