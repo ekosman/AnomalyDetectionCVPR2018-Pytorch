@@ -39,7 +39,7 @@ def get_args() -> argparse.Namespace:
     parser.add_argument(
         "--num_workers",
         type=int,
-        default=8,
+        default=8,  # this was 32
         help="define the number of workers used for loading the videos",
     )
     parser.add_argument(
@@ -152,6 +152,7 @@ class FeaturesWriter:
         self.dump_count += 1
         self.dir = dir
         if not path.exists(self.dir):
+            # os.mkdir(self.dir)
             os.makedirs(self.dir, exist_ok=True)
         #####################################################
         # Check if data is empty before attempting to process it
