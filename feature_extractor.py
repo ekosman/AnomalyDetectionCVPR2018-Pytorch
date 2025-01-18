@@ -287,7 +287,7 @@ if __name__ == "__main__":
 
     features_writer = FeaturesWriter(num_videos=data_loader.video_count)
     loop_i = 0
-    global_dir = None
+    global_dir: str = "none"
     with torch.no_grad():
         for data, clip_idxs, dirs, vid_names in data_iter:
             outputs = network(data.to(device)).detach().cpu().numpy()
