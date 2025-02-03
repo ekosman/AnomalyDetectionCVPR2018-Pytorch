@@ -1,4 +1,4 @@
-""""This module contains an implementation of ResNet model for video
+""" "This module contains an implementation of ResNet model for video
 processing."""
 
 from functools import partial
