@@ -1,4 +1,4 @@
-""""This module contains a training procedure for video anomaly detection."""
+""" "This module contains a training procedure for video anomaly detection."""
 
 import argparse
 from os import makedirs, path
