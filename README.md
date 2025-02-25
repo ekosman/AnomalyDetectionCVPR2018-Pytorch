@@ -45,8 +45,9 @@ In this section, I list the future improvements I intend to add to this reposito
 ## Install Anaconda Environment
 
 ```
-conda create --name adCVPR18 --file environment.yml -c defaults -c pytorch -c conda-forge -y
+conda create --name adCVPR18 python=3.9 -y
 conda activate adCVPR18
+pip install -r requirements.txt
 ```
 
 ## Feature Extractor Weights
@@ -54,6 +55,14 @@ conda activate adCVPR18
 ### C3D
 I couldn't upload here the weights for the C3D model because the file is too big, but it can be found here:
 https://github.com/DavideA/c3d-pytorch
+
+```
+# OR download the weights directly
+
+cd AnomalyDetectionCVPR2018-Pytorch/pretrained
+wget http://imagelab.ing.unimore.it/files/c3d_pytorch/c3d.pickle
+cd ..
+```
 
 ### R3D-101
 https://drive.google.com/file/d/1p80RJsghFIKBSLKgtRG94LE38OGY5h4y/view?usp=share_link
