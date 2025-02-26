@@ -64,10 +64,8 @@ wget http://imagelab.ing.unimore.it/files/c3d_pytorch/c3d.pickle
 cd ..
 ```
 
-
 ## 🐳 Docker installation
 For detailed instructions on Docker Installation follow [Anomaly Detection Docker_Installation](Docker/README.md).
-
 
 
 ### R3D-101
