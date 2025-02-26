@@ -12,7 +12,7 @@ Pytorch version of - https://github.com/WaqasSultani/AnomalyDetectionCVPR2018
 
 ## Table of Contents  <!-- omit in toc -->
 - [Future Improvements](#future-improvements)
-- [Known Issues](#known-issues)
+- [Known Issues](#known-issues)cxzc
 - [Install Anaconda Environment](#install-anaconda-environment)
 - [Feature Extractor Weights](#feature-extractor-weights)
   - [C3D](#c3d)
