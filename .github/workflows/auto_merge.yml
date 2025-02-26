@@ -8,9 +8,9 @@ permissions:
 jobs:
   automerge:
     runs-on: ubuntu-latest
-    if: ${{ github.actor }} == 'pre-commit-ci[bot]'
     steps:
       - uses: peter-evans/enable-pull-request-automerge@v3
+        if: ${{ github.actor }} == 'pre-commit-ci[bot]'
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           pull-request-number: ${{ github.event.pull_request.number }}
