@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Update package lists
-apt-get update 
+apt-get update
 
 # Install necessary GUI libraries
 apt-get install -y \

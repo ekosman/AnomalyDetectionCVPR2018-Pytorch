@@ -1,12 +1,12 @@
-# **Anomaly Detection with Docker 🐳**  
+# **Anomaly Detection with Docker 🐳**
 
-This repository provides a **Dockerized** environment for running the **Anomaly Detection CVPR2018** model.  
-Follow the steps below to set up, run the container, and make predictions.  
+This repository provides a **Dockerized** environment for running the **Anomaly Detection CVPR2018** model.
+Follow the steps below to set up, run the container, and make predictions.
 
 ---
-## **🚀 Build the Docker Environment**  
+## **🚀 Build the Docker Environment**
 
-Navigate to the **Docker** directory and build the Docker image:  
+Navigate to the **Docker** directory and build the Docker image:
 
 ```bash
 cd Docker

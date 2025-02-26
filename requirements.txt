@@ -12,4 +12,3 @@ opencv-python
 pre-commit==3.4.0
 PyQt5
 tensorboard==2.10.0
-
