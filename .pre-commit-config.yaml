@@ -10,7 +10,11 @@ repos:
       - id: end-of-file-fixer
       - id: mixed-line-ending
       - id: trailing-whitespace
-
+  
+  - repo: https://github.com/pre-commit/mirrors-pylint
+    rev: v3.0.3
+    hooks:
+      - id: pylint
   - repo: https://github.com/psf/black
     rev: 25.1.0
     hooks:
