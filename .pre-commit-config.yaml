@@ -11,6 +11,12 @@ repos:
       - id: mixed-line-ending
       - id: trailing-whitespace
 
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.2
+    hooks:
+      - id: ruff
+        args: [ --fix ]
+      - id: ruff-format
   - repo: https://github.com/psf/black
     rev: 25.1.0
     hooks:
