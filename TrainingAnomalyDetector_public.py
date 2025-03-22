@@ -93,9 +93,9 @@ if __name__ == "__main__":
     # Model
     if args.checkpoint is not None and path.exists(args.checkpoint):
         model = TorchModel.load_model(args.checkpoint)
-        assert (
-            feature_dim == model.model.input_dim
-        ), f"Dimentionality mismatch between input of the model ({model.input_dim}) and the loader ({feature_dim})"
+        assert feature_dim == model.model.input_dim, (
+            f"Dimentionality mismatch between input of the model ({model.input_dim}) and the loader ({feature_dim})"
+        )
     else:
         network = AnomalyDetector(feature_dim)
         model = TorchModel(network)
