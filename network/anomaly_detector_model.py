@@ -92,9 +92,7 @@ class RegularizedLoss(torch.nn.Module):
         self.model = model
         self.objective = original_objective
 
-    def forward(
-        self, y_pred: Tensor, y_true: Tensor
-    ):  # pylint: disable=arguments-differ
+    def forward(self, y_pred: Tensor, y_true: Tensor):  # pylint: disable=arguments-differ
         # loss
         # Our loss is defined with respect to l2 regularization, as used in the original keras code
         fc1_params = torch.cat(tuple([x.view(-1) for x in self.model.fc1.parameters()]))
