@@ -2,7 +2,7 @@
 ![GitHub Repo stars](https://img.shields.io/github/stars/ekosman/AnomalyDetectionCVPR2018-Pytorch?style=social)
 
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/ekosman/AnomalyDetectionCVPR2018-Pytorch/main.svg)](https://results.pre-commit.ci/latest/github/ekosman/AnomalyDetectionCVPR2018-Pytorch/main)
-[![Lint Status](https://github.com/pycqa/isort/workflows/Lint/badge.svg?branch=develop)](https://github.com/ekosman/AnomalyDetectionCVPR2018-Pytorch/actions?query=workflow%3A)
+[![Ruff Lint](https://github.com/ekosman/AnomalyDetectionCVPR2018-Pytorch/actions/workflows/ruff_check.yml/badge.svg)](https://github.com/ekosman/AnomalyDetectionCVPR2018-Pytorch/actions/workflows/ruff_check.yml)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
 [![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
@@ -16,6 +16,7 @@ Pytorch version of - https://github.com/WaqasSultani/AnomalyDetectionCVPR2018
 - [Install Anaconda Environment](#install-anaconda-environment)
 - [Feature Extractor Weights](#feature-extractor-weights)
   - [C3D](#c3d)
+- [🐳 Docker installation](#-docker-installation)
   - [R3D-101](#r3d-101)
   - [R3D-152](#r3d-152)
 - [Precomputed Features](#precomputed-features)
