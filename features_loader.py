@@ -1,8 +1,7 @@
-""" "This module contains a video feature loader."""
+"""This module contains a video feature loader."""
 
 import logging
 import os
-from typing import List, Tuple
 
 import numpy as np
 import torch
@@ -49,7 +48,7 @@ class FeaturesLoader:
     def __len__(self) -> int:
         return self._iterations
 
-    def __getitem__(self, index: int) -> Tuple[Tensor, Tensor]:
+    def __getitem__(self, index: int) -> tuple[Tensor, Tensor]:
         if self._i == len(self):
             self._i = 0
             raise StopIteration
@@ -68,7 +67,7 @@ class FeaturesLoader:
         self._i += 1
         return feature, label
 
-    def get_features(self) -> Tuple[Tensor, Tensor]:
+    def get_features(self) -> tuple[Tensor, Tensor]:
         """Fetches a bucket sample from the dataset."""
         normal_paths = np.random.choice(
             self.features_list_normal, size=self._bucket_size
@@ -91,7 +90,7 @@ class FeaturesLoader:
     @staticmethod
     def _get_features_list(
         features_path: str, annotation_path: str
-    ) -> Tuple[List[str], List[str]]:
+    ) -> tuple[list[str], list[str]]:
         """Retrieves the paths of all feature files contained within the
         annotation file.
 
@@ -128,7 +127,7 @@ class FeaturesLoader:
 class FeaturesLoaderVal(data.Dataset):
     """Loader for video features for validation phase."""
 
-    def __init__(self, features_path, annotation_path):
+    def __init__(self, features_path: str, annotation_path: str) -> None:
         super().__init__()
         self.features_path = features_path
         # load video list
@@ -137,7 +136,7 @@ class FeaturesLoaderVal(data.Dataset):
             features_path=features_path, annotation_path=annotation_path
         )
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.features_list)
 
     def __getitem__(self, index: int):
@@ -169,7 +168,7 @@ class FeaturesLoaderVal(data.Dataset):
     @staticmethod
     def _get_features_list(
         features_path: str, annotation_path: str
-    ) -> List[Tuple[str, Tensor, int]]:
+    ) -> list[tuple[str, Tensor, int]]:
         """Retrieves the paths of all feature files contained within the
         annotation file.
 

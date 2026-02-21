@@ -3,7 +3,7 @@ import torch
 
 def _is_tensor_video_clip(clip):
     if not torch.is_tensor(clip):
-        raise TypeError(f"clip should be Tesnor. Got {type(clip)}")
+        raise TypeError(f"clip should be Tensor. Got {type(clip)}")
 
     if not clip.ndimension() == 4:
         raise ValueError(f"clip should be 4D. Got {clip.dim()}D")
@@ -22,7 +22,6 @@ def crop(clip, i, j, h, w):
 
 def resize(clip, target_size, interpolation_mode):
     assert len(target_size) == 2, "target size should be tuple (height, width)"
-    # print(target_size)
     return torch.nn.functional.interpolate(
         clip, size=target_size, mode=interpolation_mode, align_corners=False
     )

@@ -1,8 +1,9 @@
+"""This module contains a video demo for anomaly detection."""
+
 import argparse
 import logging
 import sys
 from os import path
-from typing import List
 
 import numpy as np
 import torch
@@ -78,7 +79,7 @@ def features_extraction(
     clip_length: int = 16,
     n_segments: int = 32,
     progress_bar=None,
-) -> List[np.ndarray]:
+) -> list[np.ndarray]:
     """Extracts features of the video.The returned features will be returned
     after averaging over the required number of video segments.
 
@@ -182,11 +183,11 @@ class Window(QWidget):
         self.mediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
 
         # create videowidget object
-        videowidget = QVideoWidget()
+        video_widget = QVideoWidget()
 
         # create open button
-        openBtn = QPushButton("Open Video")
-        openBtn.clicked.connect(self.open_file)
+        open_btn = QPushButton("Open Video")
+        open_btn.clicked.connect(self.open_file)
 
         # create button for playing
         self.playBtn = QPushButton()
@@ -204,7 +205,7 @@ class Window(QWidget):
         self.label.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
 
         # create grid layout
-        gridLayout = QGridLayout()
+        grid_layout = QGridLayout()
 
         # AD signal
 
@@ -215,17 +216,17 @@ class Window(QWidget):
         self.pbar.setTextVisible(True)
 
         # set widgets to the hbox layout
-        gridLayout.addWidget(self.graphWidget, 0, 0, 1, 5)
-        gridLayout.addWidget(videowidget, 1, 0, 5, 5)
-        gridLayout.addWidget(openBtn, 6, 0, 1, 1)
-        gridLayout.addWidget(self.playBtn, 6, 1, 1, 1)
-        gridLayout.addWidget(self.slider, 6, 2, 1, 3)
-        gridLayout.addWidget(self.pbar, 7, 0, 1, 5)
-        gridLayout.addWidget(self.label, 7, 2, 1, 1)
+        grid_layout.addWidget(self.graphWidget, 0, 0, 1, 5)
+        grid_layout.addWidget(video_widget, 1, 0, 5, 5)
+        grid_layout.addWidget(open_btn, 6, 0, 1, 1)
+        grid_layout.addWidget(self.playBtn, 6, 1, 1, 1)
+        grid_layout.addWidget(self.slider, 6, 2, 1, 3)
+        grid_layout.addWidget(self.pbar, 7, 0, 1, 5)
+        grid_layout.addWidget(self.label, 7, 2, 1, 1)
 
-        self.setLayout(gridLayout)
+        self.setLayout(grid_layout)
 
-        self.mediaPlayer.setVideoOutput(videowidget)
+        self.mediaPlayer.setVideoOutput(video_widget)
 
         # media player signals
         self.mediaPlayer.stateChanged.connect(self.mediastate_changed)

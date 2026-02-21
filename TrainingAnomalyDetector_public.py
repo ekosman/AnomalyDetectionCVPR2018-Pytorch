@@ -1,4 +1,4 @@
-""" "This module contains a training procedure for video anomaly detection."""
+"""This module contains a training procedure for video anomaly detection."""
 
 import argparse
 from os import makedirs, path
@@ -94,7 +94,7 @@ if __name__ == "__main__":
     if args.checkpoint is not None and path.exists(args.checkpoint):
         model = TorchModel.load_model(args.checkpoint)
         assert feature_dim == model.model.input_dim, (
-            f"Dimentionality mismatch between input of the model ({model.input_dim}) and the loader ({feature_dim})"
+            f"Dimensionality mismatch between input of the model ({model.input_dim}) and the loader ({feature_dim})"
         )
     else:
         network = AnomalyDetector(feature_dim)

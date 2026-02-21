@@ -1,5 +1,4 @@
-""" "This module contains an evaluation procedure for video anomaly
-detection."""
+"""This module contains an evaluation procedure for video anomaly detection."""
 
 import argparse
 import os
