@@ -78,13 +78,19 @@ class VideoIter(data.Dataset):
     def __len__(self) -> int:
         return len(self.video_clips)
 
-    def __getitem__(self, index: int):
+    def __getitem__(self, index: int, max_retries: int = 10):
         succ = False
+        retries = 0
         while not succ:
             try:
                 batch = self.getitem_from_raw_video(index)
                 succ = True
             except Exception as e:
+                retries += 1
+                if retries >= max_retries:
+                    raise RuntimeError(
+                        f"VideoIter:: failed to load a sample after {max_retries} retries"
+                    ) from e
                 index = np.random.choice(range(0, self.__len__()))
                 trace_back = sys.exc_info()[2]
                 if trace_back is not None:

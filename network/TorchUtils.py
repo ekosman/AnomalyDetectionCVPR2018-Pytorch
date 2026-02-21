@@ -228,7 +228,6 @@ class TorchModel(nn.Module):
                 iteration,
                 loss.item(),
             )
-            self.iteration += 1
 
         loss = total_loss / len(data_iter)
 
