@@ -3,13 +3,13 @@ FROM continuumio/miniconda3
 # Set up working directory
 WORKDIR /app
 
-# Install sudo and gdown for Google Drive downloads
-RUN apt-get update && apt-get install -y --no-install-recommends sudo && \
+# Install sudo, git, and gdown for Google Drive downloads
+RUN apt-get update && apt-get install -y --no-install-recommends sudo git && \
     apt-get clean && rm -rf /var/lib/apt/lists/* && \
     pip install gdown
 
-# Copy repository files from build context (repo root)
-COPY . /app/AnomalyDetectionCVPR2018-Pytorch/
+# Clone the repository
+RUN git clone https://github.com/ekosman/AnomalyDetectionCVPR2018-Pytorch.git
 
 RUN conda create -n anomaly python=3.9 -y
 
@@ -27,8 +27,11 @@ RUN mkdir -p pretrained && \
 # Download example videos from Google Drive
 RUN gdown --folder --id 14sBuNXOKLa8Jos8S3VCeAgbHOCgF2-Y3 -O example_videos
 
+# Copy setup script to container
+COPY setup_anomaly.sh /app/AnomalyDetectionCVPR2018-Pytorch/setup_anomaly.sh
+
 # Make sure the setup script is executable
-RUN chmod +x /app/AnomalyDetectionCVPR2018-Pytorch/Docker/setup_anomaly.sh
+RUN chmod +x /app/AnomalyDetectionCVPR2018-Pytorch/setup_anomaly.sh
 
 # Create non-root user with sudo restricted to apt-get only
 RUN useradd -m -s /bin/bash anomalyuser && \
