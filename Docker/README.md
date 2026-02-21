@@ -6,11 +6,10 @@ Follow the steps below to set up, run the container, and make predictions.
 ---
 ## **🚀 Build the Docker Environment**
 
-Navigate to the **Docker** directory and build the Docker image:
+Navigate to the **repository root** and build the Docker image:
 
 ```bash
-cd Docker
-sudo docker build -t anomaly .
+docker build -t anomaly -f Docker/Dockerfile .
 ```
 
 To allow GUI-based visualization, run the following command outside the container:
@@ -32,7 +31,7 @@ sudo docker run --rm -it \
 Once inside the Docker container, install all dependencies by executing:
 
 ```bash
-bash setup_anomaly.sh
+bash Docker/setup_anomaly.sh
 ```
 ## Run a prediction 🔍
 Choose a video from the example_videos directory and run the following command to perform anomaly detection:
