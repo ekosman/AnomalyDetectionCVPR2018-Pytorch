@@ -41,7 +41,7 @@ def build_transforms(mode: str = "c3d") -> transforms.Compose:
 
     Args:
         mode (str, optional): Mode for which transforms should be constructed.
-        Either c3d | i3d | mfnet | 3dResNet. Defaults to "c3d".
+        Either c3d | i3d | mfnet | 3dResNet | r2plus1d | s3d | mvit. Defaults to "c3d".
 
     Raises:
         NotImplementedError: The provided mode is not implemented.
@@ -63,10 +63,25 @@ def build_transforms(mode: str = "c3d") -> transforms.Compose:
     elif mode == "3dResNet":
         mean = [0.4345, 0.4051, 0.3775]
         std = [0.2768, 0.2713, 0.2737]
+    elif mode == "r2plus1d":
+        mean = [0.43216, 0.394666, 0.37645]
+        std = [0.22803, 0.22145, 0.216989]
+        resize = 128, 171
+        crop = 112
+    elif mode == "s3d":
+        mean = [0.43216, 0.394666, 0.37645]
+        std = [0.22803, 0.22145, 0.216989]
+        resize = 256, 256
+        crop = 224
+    elif mode == "mvit":
+        mean = [0.45, 0.45, 0.45]
+        std = [0.225, 0.225, 0.225]
+        resize = 256, 256
+        crop = 224
     else:
         raise NotImplementedError(f"Mode {mode} not implemented")
 
-    if mode == "c3d":
+    if mode in ("c3d", "r2plus1d", "s3d", "mvit"):
         res = transforms.Compose(
             [
                 transforms_video.ToTensorVideo(),

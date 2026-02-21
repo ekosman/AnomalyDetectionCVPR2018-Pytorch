@@ -51,7 +51,7 @@ def get_args() -> argparse.Namespace:
     parser.add_argument(
         "--feature_method",
         default="c3d",
-        choices=["c3d", "mfnet", "r3d101", "r3d152"],
+        choices=["c3d", "mfnet", "r3d101", "r3d152", "r2plus1d", "s3d", "mvit"],
         help="method to use for feature extraction",
     )
     parser.add_argument(
