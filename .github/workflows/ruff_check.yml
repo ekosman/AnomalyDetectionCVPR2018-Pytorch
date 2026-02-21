@@ -13,6 +13,12 @@ jobs:
         with:
           python-version: "3.10"
 
+      - name: Install FFmpeg dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg libavformat-dev libavcodec-dev libavdevice-dev \
+            libavutil-dev libavfilter-dev libswscale-dev libswresample-dev
+
       - name: Install project requirements
         run: pip install -r requirements.txt
 
