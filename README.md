@@ -16,9 +16,9 @@ Pytorch version of - https://github.com/WaqasSultani/AnomalyDetectionCVPR2018
 - [Install Anaconda Environment](#install-anaconda-environment)
 - [Feature Extractor Weights](#feature-extractor-weights)
   - [C3D](#c3d)
-- [🐳 Docker installation](#-docker-installation)
   - [R3D-101](#r3d-101)
   - [R3D-152](#r3d-152)
+- [🐳 Docker installation](#-docker-installation)
 - [Precomputed Features](#precomputed-features)
   - [C3D features](#c3d-features)
   - [ResNet-101 features (by @Daniele Mascali)](#resnet-101-features-by-daniele-mascali)
@@ -65,15 +65,14 @@ wget http://imagelab.ing.unimore.it/files/c3d_pytorch/c3d.pickle
 cd ..
 ```
 
-## 🐳 Docker installation
-For detailed instructions on Docker Installation follow [Anomaly Detection Docker_Installation](Docker/README.md).
-
-
 ### R3D-101
 https://drive.google.com/file/d/1p80RJsghFIKBSLKgtRG94LE38OGY5h4y/view?usp=share_link
 
 ### R3D-152
 https://drive.google.com/file/d/1irIdC_v7wa-sBpTiBlsMlS7BYNdj4Gr7/view?usp=share_link
+
+## 🐳 Docker installation
+For detailed instructions on Docker Installation follow [Anomaly Detection Docker_Installation](Docker/README.md).
 
 ## Precomputed Features
 Can be downloaded from:
@@ -88,7 +87,7 @@ https://drive.google.com/file/d/1kQAvOhtL-sGadblfd3NmDirXq8vYQPvf/view?usp=shari
 https://drive.google.com/file/d/17wdy_DS9UY37J9XTV5XCLqxOFgXiv3ZK/view
 
 ## Pre-Trained Anomaly Detector
-Check out <a href="exps/">exps/</a> for for trained models on the pre-computed features
+Check out <a href="exps/">exps/</a> for trained models on the pre-computed features
 
 ## Features Extraction
 Download the dataset from: https://github.com/WaqasSultani/AnomalyDetectionCVPR2018
@@ -102,21 +101,21 @@ Arguments:
 ## Training
 Arguments:
 * features_path - path to the directory containing the extracted features (pre-computed features are available for download above, or supply your own features extracted from the previous stage)
-* annotation_path - path to the annotations file (Available in this repository as `Train_annotations.txt`)
+* annotation_path - path to the annotations file (Available in this repository as `Train_Annotation.txt`)
 
 ```python TrainingAnomalyDetector_public.py --features_path "path-to-dataset" --annotation_path "path-to-train-annos"```
 
 ## Generate ROC Curve
 Arguments:
 * features_path - path to the directory containing the extracted features (pre-computed features are available for download above, or supply your own features extracted from the previous stage)
-* annotation_path - path to the annotations file (Available in this repository as `Test_annotations.txt`)
+* annotation_path - path to the annotations file (Available in this repository as `Test_Annotation.txt`)
 * model_path - path to the trained anomaly detection model
 
 ```python generate_ROC.py --features_path "path-to-dataset" --annotation_path "path-to-annos" --model_path "path-to-model"```
 
 I achieve this following performance on the test-set. I'm aware that the current C3D model achieves AUC of 0.69 which is worse than the original paper. This can be caused by different weights of the C3D model or usage of a different feature extractor.
 
-| C3D (<a href="exps\c3d\models\epoch_80000.pt">Link</a>) | R3D101 (<a href="exps\resnet_r3d101_KM_200ep\models\epoch_10.pt">Link</a>) | R3D152 (<a href="exps\resnet_r3d152_KM_200ep\models\epoch_10.pt">Link</a>) |
+| C3D (<a href="exps/c3d/models/epoch_80000.pt">Link</a>) | R3D101 (<a href="exps/resnet_r3d101_KM_200ep/models/epoch_10.pt">Link</a>) | R3D152 (<a href="exps/resnet_r3d152_KM_200ep/models/epoch_10.pt">Link</a>) |
 | :-----------------------------------------------------: | :------------------------------------------------------------------------: | :------------------------------------------------------------------------: |
 |      <img src=graphs/roc_auc_c3d.png width="300"/>      |               <img src=graphs/roc_auc_r101.png width="300"/>               |               <img src=graphs/roc_auc_r152.png width="300"/>               |
 
@@ -149,7 +148,7 @@ The GUI lets you load a video and run the Anomaly Detection code (including feat
 
 **Note**: The feature extractor and the anomaly detection model must match. Make sure you are using the anomaly detector that was training with the corresponding features.
 
-*Contrbuted by Peter Overbury of Sussex Universty IISP Group
+*Contributed by Peter Overbury of Sussex University IISP Group
 
 ## Cite
 
@@ -178,7 +177,7 @@ Kosman, E. (2022). Pytorch implementation of Real-World Anomaly Detection in Sur
 1.
 ```
 Q: video_demo doesn't show videos
-A: Downlaod and install LAVFilters: http://forum.doom9.org/showthread.php?t=156191
+A: Download and install LAVFilters: http://forum.doom9.org/showthread.php?t=156191
 ```
 
 2.
