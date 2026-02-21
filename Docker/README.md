@@ -10,7 +10,7 @@ Navigate to the **Docker** directory and build the Docker image:
 
 ```bash
 cd Docker
-sudo docker build -t anomaly .
+docker build -t anomaly .
 ```
 
 To allow GUI-based visualization, run the following command outside the container:
