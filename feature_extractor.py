@@ -70,7 +70,7 @@ def get_args() -> argparse.Namespace:
         type=str,
         required=True,
         help="type of feature extractor",
-        choices=["c3d", "i3d", "mfnet", "3dResNet"],
+        choices=["c3d", "i3d", "mfnet", "3dResNet", "r2plus1d", "s3d", "mvit"],
     )
     parser.add_argument(
         "--pretrained_3d", type=str, help="load default 3D pretrained model."

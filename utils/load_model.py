@@ -8,37 +8,55 @@ import torch
 from network.anomaly_detector_model import AnomalyDetector
 from network.c3d import C3D
 from network.MFNET import MFNET_3D
+from network.mvit import MViT
+from network.r2plus1d import R2Plus1D
 from network.resnet import generate_model
+from network.s3d import S3D
 from network.TorchUtils import TorchModel
 from utils.types import Device, FeatureExtractor
 
+# Models that require an explicit pretrained weights path (no torchvision defaults available)
+_MODELS_REQUIRING_PATH = {"c3d", "mfnet", "r3d101", "r3d152"}
+
 
 def load_feature_extractor(
-    features_method: str, feature_extractor_path: str, device: Device
+    features_method: str, feature_extractor_path: str | None, device: Device
 ) -> FeatureExtractor:
     """Load feature extractor from given path.
 
     Args:
-        features_method (str): The feature extractor model type to use. Either c3d | mfnet | r3d101 | r3d152.
-        feature_extractor_path (str): Path to the feature extractor model.
+        features_method (str): The feature extractor model type to use.
+            One of: c3d | mfnet | r3d101 | r3d152 | r2plus1d | s3d | mvit.
+        feature_extractor_path (str | None): Path to the feature extractor model.
+            Required for c3d, mfnet, r3d101, r3d152. Optional for r2plus1d, s3d,
+            and mvit (uses Kinetics-400 pretrained weights from torchvision when
+            not provided).
         device (Union[torch.device, str]): Device to use for the model.
 
     Raises:
-        FileNotFoundError: The path to the model does not exist.
+        FileNotFoundError: The path to the model does not exist (for models that
+            require a path).
         NotImplementedError: The provided feature extractor method is not implemented.
 
     Returns:
         FeatureExtractor
     """
-    if not path.exists(feature_extractor_path):
-        raise FileNotFoundError(
-            f"Couldn't find feature extractor {feature_extractor_path}.\n"
-            + r"If you are using resnet, download it first from:\n"
-            + r"r3d101: https://drive.google.com/file/d/1p80RJsghFIKBSLKgtRG94LE38OGY5h4y/view?usp=share_link"
-            + "\n"
-            + r"r3d152: https://drive.google.com/file/d/1irIdC_v7wa-sBpTiBlsMlS7BYNdj4Gr7/view?usp=share_link"
+    if features_method in _MODELS_REQUIRING_PATH:
+        if not feature_extractor_path or not path.exists(feature_extractor_path):
+            raise FileNotFoundError(
+                f"Couldn't find feature extractor {feature_extractor_path}.\n"
+                + r"If you are using resnet, download it first from:\n"
+                + r"r3d101: https://drive.google.com/file/d/1p80RJsghFIKBSLKgtRG94LE38OGY5h4y/view?usp=share_link"
+                + "\n"
+                + r"r3d152: https://drive.google.com/file/d/1irIdC_v7wa-sBpTiBlsMlS7BYNdj4Gr7/view?usp=share_link"
+            )
+        logging.info(f"Loading feature extractor from {feature_extractor_path}")
+    elif feature_extractor_path:
+        logging.info(f"Loading feature extractor from {feature_extractor_path}")
+    else:
+        logging.info(
+            f"Loading {features_method} with default Kinetics-400 pretrained weights"
         )
-    logging.info(f"Loading feature extractor from {feature_extractor_path}")
 
     model: FeatureExtractor
 
@@ -59,6 +77,12 @@ def load_feature_extractor(
         param_dict.pop("fc.weight")
         param_dict.pop("fc.bias")
         model.load_state_dict(param_dict)
+    elif features_method == "r2plus1d":
+        model = R2Plus1D(pretrained=feature_extractor_path)
+    elif features_method == "s3d":
+        model = S3D(pretrained=feature_extractor_path)
+    elif features_method == "mvit":
+        model = MViT(pretrained=feature_extractor_path)
     else:
         raise NotImplementedError(
             f"Features extraction method {features_method} not implemented"
@@ -89,7 +113,7 @@ def load_anomaly_detector(ad_model_path: str, device: Device) -> AnomalyDetector
 
 
 def load_models(
-    feature_extractor_path: str,
+    feature_extractor_path: str | None,
     ad_model_path: str,
     features_method: str = "c3d",
     device: Device = "cuda",
@@ -97,7 +121,8 @@ def load_models(
     """Loads both feature extractor and anomaly detector from the given paths.
 
     Args:
-        feature_extractor_path (str): Path of the features extractor weights to load.
+        feature_extractor_path (str | None): Path of the features extractor weights to load.
+            Optional for r2plus1d, s3d, and mvit.
         ad_model_path (str): Path of the anomaly detector weights to load.
         features_method (str, optional): Name of the model to use for features extraction.
             Defaults to "c3d".
