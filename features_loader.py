@@ -48,20 +48,26 @@ class FeaturesLoader:
     def __len__(self) -> int:
         return self._iterations
 
-    def __getitem__(self, index: int) -> tuple[Tensor, Tensor]:
+    def __getitem__(self, index: int, max_retries: int = 10) -> tuple[Tensor, Tensor]:
         if self._i == len(self):
             self._i = 0
             raise StopIteration
 
         succ = False
+        retries = 0
         while not succ:
             try:
                 feature, label = self.get_features()
                 succ = True
             except Exception as e:
+                retries += 1
+                if retries >= max_retries:
+                    raise RuntimeError(
+                        f"FeaturesLoader:: failed to load a sample after {max_retries} retries"
+                    ) from e
                 index = np.random.choice(range(0, self.__len__()))
                 logging.warning(
-                    f"VideoIter:: ERROR!! (Force using another index:\n{index})\n{e}"
+                    f"FeaturesLoader:: ERROR!! (Force using another index:\n{index})\n{e}"
                 )
 
         self._i += 1
@@ -102,7 +108,10 @@ class FeaturesLoader:
             Tuple[List[str], List[str]]: Two list that contain the corresponding paths of normal and abnormal
                 feature files.
         """
-        assert os.path.exists(features_path)
+        if not os.path.exists(features_path):
+            raise FileNotFoundError(
+                f"FeaturesLoader:: failed to locate features path: `{features_path}'"
+            )
         features_list_normal = []
         features_list_anomaly = []
         with open(annotation_path) as f:
@@ -139,27 +148,34 @@ class FeaturesLoaderVal(data.Dataset):
     def __len__(self) -> int:
         return len(self.features_list)
 
-    def __getitem__(self, index: int):
+    def __getitem__(self, index: int, max_retries: int = 10):
         succ = False
+        retries = 0
         while not succ:
             try:
                 data = self.get_feature(index)
                 succ = True
             except Exception as e:
+                retries += 1
+                if retries >= max_retries:
+                    raise RuntimeError(
+                        f"FeaturesLoaderVal:: failed to load a sample after {max_retries} retries"
+                    ) from e
                 logging.warning(
-                    f"VideoIter:: ERROR!! (Force using another index:\n{index})\n{e}"
+                    f"FeaturesLoaderVal:: ERROR!! (Force using another index:\n{index})\n{e}"
                 )
 
         return data
 
-    def get_feature(self, index: int):
+    def get_feature(self, index: int) -> tuple[Tensor, Tensor, int]:
         """Fetch feature that matches given index in the dataset.
 
         Args:
             index (int): Index of the feature to fetch.
 
         Returns:
-            _type_: _description_
+            Tuple[Tensor, Tensor, int]: Feature tensor, start/end anomaly frame couples, and
+                the total length of the video.
         """
         feature_subpath, start_end_couples, length = self.features_list[index]
         features = read_features(f"{feature_subpath}.txt")
@@ -180,7 +196,10 @@ class FeaturesLoaderVal(data.Dataset):
             List[Tuple[str, Tensor, int]]: A list of tuples that describe each video and the temporal annotations
                 of anomalies in the videos
         """
-        assert os.path.exists(features_path)
+        if not os.path.exists(features_path):
+            raise FileNotFoundError(
+                f"FeaturesLoaderVal:: failed to locate features path: `{features_path}'"
+            )
         features_list = []
         with open(annotation_path) as f:
             lines = f.read().splitlines(keepends=False)
