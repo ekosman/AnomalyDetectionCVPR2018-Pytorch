@@ -4,7 +4,6 @@ import argparse
 import logging
 import os
 from os import mkdir, path
-from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import torch
@@ -80,9 +79,7 @@ def get_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def to_segments(
-    data: Union[Tensor, np.ndarray], n_segments: int = 32
-) -> List[np.ndarray]:
+def to_segments(data: Tensor | np.ndarray, n_segments: int = 32) -> list[np.ndarray]:
     """These code is taken from:
 
         # https://github.com/rajanjitenpatel/C3D_feature_extraction/blob/b5894fa06d43aa62b3b64e85b07feb0853e7011a/extract_C3D_feature.py#L805
@@ -182,7 +179,7 @@ class FeaturesWriter:
 
         return False
 
-    def store(self, feature: Union[Tensor, np.ndarray], idx: int) -> None:
+    def store(self, feature: Tensor | np.ndarray, idx: int) -> None:
         """Accumulate features.
 
         Args:
@@ -192,7 +189,7 @@ class FeaturesWriter:
         self.data[idx] = list(feature)
 
     def write(
-        self, feature: Union[Tensor, np.ndarray], video_name: str, idx: int, dir: str
+        self, feature: Tensor | np.ndarray, video_name: str, idx: int, dir: str
     ) -> None:
         if not self.has_video():
             self._init_video(video_name, dir)
@@ -203,7 +200,7 @@ class FeaturesWriter:
         self.store(feature, idx)
 
 
-def read_features(file_path, cache: Optional[Dict[str, Tensor]] = None) -> Tensor:
+def read_features(file_path, cache: dict[str, Tensor] | None = None) -> Tensor:
     """Reads features from file.
 
     Args:
@@ -243,7 +240,7 @@ def get_features_loader(
     batch_size: int,
     num_workers: int,
     mode: str,
-) -> Tuple[VideoIter, DataLoader]:
+) -> tuple[VideoIter, DataLoader]:
     data_loader = VideoIter(
         dataset_path=dataset_path,
         clip_length=clip_length,

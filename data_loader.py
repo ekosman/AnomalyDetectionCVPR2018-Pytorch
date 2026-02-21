@@ -1,9 +1,8 @@
-""" "This module contains a video loader."""
+"""This module contains a video loader."""
 
 import logging
 import os
 import sys
-from typing import List, Tuple, Union
 
 import numpy as np
 from torch import Tensor
@@ -16,11 +15,11 @@ class VideoIter(data.Dataset):
 
     def __init__(
         self,
-        clip_length,
-        frame_stride,
-        dataset_path=None,
+        clip_length: int,
+        frame_stride: int,
+        dataset_path: str | None = None,
         video_transform=None,
-        return_label=False,
+        return_label: bool = False,
     ) -> None:
         super().__init__()
         # video clip properties
@@ -47,7 +46,7 @@ class VideoIter(data.Dataset):
 
     def getitem_from_raw_video(
         self, idx: int
-    ) -> Union[Tuple[Tensor, int, str, str], Tuple[Tensor, int, int, str, str]]:
+    ) -> tuple[Tensor, int, str, str] | tuple[Tensor, int, int, str, str]:
         """Fetch a sample from the dataset.
 
         Args:
@@ -99,7 +98,7 @@ class VideoIter(data.Dataset):
 
         return batch
 
-    def _get_video_list(self, dataset_path: str) -> List[str]:
+    def _get_video_list(self, dataset_path: str) -> list[str]:
         """Fetche all videos in a directory and sub-directories.
 
         Args:
@@ -130,17 +129,17 @@ class SingleVideoIter(VideoIter):
 
     def __init__(
         self,
-        clip_length,
-        frame_stride,
-        video_path,
+        clip_length: int,
+        frame_stride: int,
+        video_path: str,
         video_transform=None,
-        return_label=False,
+        return_label: bool = False,
     ) -> None:
         super().__init__(
             clip_length, frame_stride, video_path, video_transform, return_label
         )
 
-    def _get_video_list(self, dataset_path: str) -> List[str]:
+    def _get_video_list(self, dataset_path: str) -> list[str]:
         return [dataset_path]
 
     def __getitem__(self, idx: int) -> Tensor:

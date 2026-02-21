@@ -2,7 +2,6 @@
 
 import logging
 from os import path
-from typing import Tuple
 
 import torch
 
@@ -94,7 +93,7 @@ def load_models(
     ad_model_path: str,
     features_method: str = "c3d",
     device: Device = "cuda",
-) -> Tuple[AnomalyDetector, FeatureExtractor]:
+) -> tuple[AnomalyDetector, FeatureExtractor]:
     """Loads both feature extractor and anomaly detector from the given paths.
 
     Args:

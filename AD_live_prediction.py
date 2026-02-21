@@ -3,7 +3,7 @@
 import argparse
 import logging
 import sys
-from typing import Callable, List, Optional
+from collections.abc import Callable
 
 import cv2
 import numpy as np
@@ -72,8 +72,8 @@ def features_extraction(
     model: FeatureExtractor,
     device: Device,
     frame_stride: int = 1,
-    transforms: Optional[Callable] = None,
-) -> List[np.ndarray]:
+    transforms: Callable | None = None,
+) -> list[np.ndarray]:
     """Extracts features of the video. The returned features will be returned
     after averaging over the required number of video segments.
 
@@ -102,7 +102,7 @@ def features_extraction(
 def ad_prediction(
     model: nn.Module, features: Tensor, device: Device = "cuda"
 ) -> np.ndarray:
-    """Creates frediction for the given feature vectors.
+    """Creates prediction for the given feature vectors.
 
     Args:
         model: model to use for anomaly detection
@@ -243,16 +243,16 @@ class Window(QWidget):
         self.playBtn.clicked.connect(self.play_video)
 
         # create grid layout
-        gridLayout = QGridLayout()
+        grid_layout = QGridLayout()
 
         # AD signal
         self.graphWidget = MplCanvas(self, width=5, height=1, dpi=100)
 
         # set widgets to the hbox layout
-        gridLayout.addWidget(self.graphWidget, 0, 0, 1, 5)
-        gridLayout.addWidget(self.camera_view, 1, 0, 5, 5)
+        grid_layout.addWidget(self.graphWidget, 0, 0, 1, 5)
+        grid_layout.addWidget(self.camera_view, 1, 0, 5, 5)
 
-        self.setLayout(gridLayout)
+        self.setLayout(grid_layout)
 
         # create the video capture thread
         self.thread = VideoThread(

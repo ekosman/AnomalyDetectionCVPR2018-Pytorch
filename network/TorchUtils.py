@@ -3,7 +3,6 @@
 import logging
 import os
 import time
-from typing import List, Optional, Union
 
 import torch
 from torch import Tensor, nn
@@ -97,11 +96,11 @@ class TorchModel(nn.Module):
         train_iter: DataLoader,
         criterion: nn.Module,
         optimizer: Optimizer,
-        eval_iter: Optional[DataLoader] = None,
+        eval_iter: DataLoader | None = None,
         epochs: int = 10,
-        network_model_path_base: Optional[str] = None,
-        save_every: Optional[int] = None,
-        evaluate_every: Optional[int] = None,
+        network_model_path_base: str | None = None,
+        save_every: int | None = None,
+        evaluate_every: int | None = None,
     ) -> None:
         """
 
@@ -237,8 +236,8 @@ class TorchModel(nn.Module):
         return loss
 
     def data_to_device(
-        self, data: Union[Tensor, List[Tensor]], device: Device
-    ) -> Union[Tensor, List[Tensor]]:
+        self, data: Tensor | list[Tensor], device: Device
+    ) -> Tensor | list[Tensor]:
         """
         Transfers a tensor data to a device
         Args:

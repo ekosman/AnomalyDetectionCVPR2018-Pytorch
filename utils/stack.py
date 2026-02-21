@@ -2,7 +2,7 @@
 container for video clips."""
 
 import threading
-from typing import Any, List
+from typing import Any
 
 
 class Stack:
@@ -20,7 +20,7 @@ class Stack:
             if len(self._stack) > self._max_size:
                 del self._stack[0]
 
-    def get(self, size: int = -1) -> List[Any]:
+    def get(self, size: int = -1) -> list[Any]:
         """Get an item from the stack."""
         if size == -1:
             size = self._max_size
