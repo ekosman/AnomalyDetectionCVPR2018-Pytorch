@@ -91,7 +91,7 @@ class VideoIter(data.Dataset):
                     raise RuntimeError(
                         f"VideoIter:: failed to load a sample after {max_retries} retries"
                     ) from e
-                index = np.random.choice(range(0, self.__len__()))
+                index = np.random.choice(range(self.__len__()))
                 trace_back = sys.exc_info()[2]
                 if trace_back is not None:
                     line = str(trace_back.tb_lineno)
