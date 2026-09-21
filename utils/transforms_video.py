@@ -9,11 +9,11 @@ from torchvision.transforms import RandomResizedCrop
 from . import functional_video as F
 
 __all__ = [
-    "RandomResizedCropVideo",
     "CenterCropVideo",
     "NormalizeVideo",
-    "ToTensorVideo",
     "RandomHorizontalFlipVideo",
+    "RandomResizedCropVideo",
+    "ToTensorVideo",
 ]
 
 
