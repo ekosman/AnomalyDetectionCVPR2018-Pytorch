@@ -68,9 +68,7 @@ def to_tensor(clip):
     """
     _is_tensor_video_clip(clip)
     if not clip.dtype == torch.uint8:
-        raise TypeError(
-            f"clip tensor should have data type uint8. Got {str(clip.dtype)}"
-        )
+        raise TypeError(f"clip tensor should have data type uint8. Got {clip.dtype!s}")
     return clip.float().permute(3, 0, 1, 2) / 255.0
 
 
