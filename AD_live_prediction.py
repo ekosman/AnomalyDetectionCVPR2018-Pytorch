@@ -18,9 +18,9 @@ from PyQt5.QtMultimedia import (  # pylint: disable=no-name-in-module
     QCameraInfo,
     QMediaPlayer,
 )
-from PyQt5.QtWidgets import QComboBox  # pylint: disable=no-name-in-module
-from PyQt5.QtWidgets import (
+from PyQt5.QtWidgets import (  # pylint: disable=no-name-in-module
     QApplication,
+    QComboBox,
     QGridLayout,
     QLabel,
     QPushButton,
