@@ -16,8 +16,8 @@ from PyQt5.QtMultimedia import (  # pylint: disable=no-name-in-module
     QMediaPlayer,
 )
 from PyQt5.QtMultimediaWidgets import QVideoWidget  # pylint: disable=no-name-in-module
-from PyQt5.QtWidgets import QApplication  # pylint: disable=no-name-in-module
-from PyQt5.QtWidgets import (
+from PyQt5.QtWidgets import (  # pylint: disable=no-name-in-module
+    QApplication,
     QFileDialog,
     QGridLayout,
     QLabel,
