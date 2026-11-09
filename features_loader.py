@@ -65,7 +65,7 @@ class FeaturesLoader:
                     raise RuntimeError(
                         f"FeaturesLoader:: failed to load a sample after {max_retries} retries"
                     ) from e
-                index = np.random.choice(range(0, self.__len__()))
+                index = np.random.choice(range(self.__len__()))
                 logging.warning(
                     f"FeaturesLoader:: ERROR!! (Force using another index:\n{index})\n{e}"
                 )
